@@ -7,15 +7,34 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 //go:embed dist
 var webContent embed.FS
 
 func main() {
-	var httpPort uint
-	flag.UintVar(&httpPort, "port", 6213, "Specific port for the http webserver.")
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatalf("Failed to detect user home directory: %v", err)
+	}
+
+	defaultSettingsPath := filepath.Join(homeDir, ".config", "ThingsCode", "settings.json")
+	settingsFilePtr := flag.String("settings-file", defaultSettingsPath, "Path to the configuration settings JSON file")
+	httpPortPtr := flag.Uint("port", 6213, "Specific port for the http webserver.")
+
+	// Parse arguments
 	flag.Parse()
+
+	settingsFile := *settingsFilePtr
+
+	settings, err := loadOrCreateSettings(settingsFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_ = settings
 
 	// This strips the "dist" prefix so files are served from root.
 	// Without this, you'd access /dist/index.html instead of /index.html
@@ -29,9 +48,12 @@ func main() {
 
 	// Serve static files at the root path
 	http.Handle("/", fileServer)
+
+	// Serve websockets
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(w, r)
 	})
-	log.Printf("Server starting on :%d\n", httpPort)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", httpPort), nil))
+
+	log.Printf("Server starting on :%d\n", *httpPortPtr)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *httpPortPtr), nil))
 }
