@@ -51,7 +51,7 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 			}
 
 			responseBytes, _ := json.Marshal(response)
-			conn.WriteMessage(websocket.TextMessage, responseBytes)
+			_ = conn.WriteMessage(websocket.TextMessage, responseBytes)
 		}
 	}
 }
