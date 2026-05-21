@@ -24,7 +24,9 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	for {
 		_, messageBytes, err := conn.ReadMessage()

@@ -78,7 +78,7 @@ export function useWebSocket() {
         payload
       };
 
-      pendingRequestsRef.current.set(msgId, { resolve, reject });
+      pendingRequestsRef.current.set(msgId, { resolve: resolve as (val: unknown) => void, reject });
 
       socketRef.current.send(JSON.stringify(message));
 
