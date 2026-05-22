@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import App from './App';
 import '@radix-ui/themes/styles.css';
+import './App.css'
 import { Theme, Button, Tooltip, Flex, Box } from '@radix-ui/themes';
 import { SunIcon, MoonIcon } from '@radix-ui/react-icons';
+import { WorkspaceProvider } from './providers';
 
 function Root() {
   const [appearance, setAppearance] = useState<'light' | 'dark'>('dark');
@@ -37,9 +39,10 @@ function Root() {
             </Button>
           </Tooltip>
         </Flex>
-        <App />
+        <WorkspaceProvider appearance={appearance}>
+          <App />
+        </WorkspaceProvider>
       </Box>
-      <App />
     </Theme>
   );
 }

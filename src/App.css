@@ -1,3 +1,9 @@
+:root {
+  --thingscode-blue: rgb(93, 137, 194);
+  --thingscode-blue-alpha: rgba(93, 137, 194, 0.25);
+  --thingscode-blue-hover: rgb(73, 117, 174);
+}
+
 @import 'tailwindcss';
 
 body {
@@ -25,4 +31,16 @@ body {
   font-size: 1.2rem;
   font-weight: 400;
   opacity: 0.5;
+}
+
+.radix-themes[data-accent-color="iris"],
+[data-accent-color="iris"] {
+
+  --iris-8: var(--thingscode-blue) !important;
+  --iris-a8: var(--thingscode-blue-alpha) !important;
+
+  --iris-9: var(--thingscode-blue) !important;
+  --iris-a9: var(--thingscode-blue-alpha) !important;
+
+  --iris-10: var(--thingscode-blue-hover) !important;
 }

@@ -14,6 +14,9 @@ import (
 //go:embed dist
 var webContent embed.FS
 
+// Settings
+var currentSettings *Settings
+
 func main() {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -21,7 +24,7 @@ func main() {
 	}
 
 	defaultSettingsPath := filepath.Join(homeDir, ".config", "ThingsCode", "settings.json")
-	settingsFilePtr := flag.String("settings-file", defaultSettingsPath, "Path to the configuration settings JSON file")
+	settingsFilePtr := flag.String("settings-file", defaultSettingsPath, "Path to the settings JSON file")
 	httpPortPtr := flag.Uint("port", 6213, "Specific port for the http webserver.")
 
 	// Parse arguments
@@ -34,7 +37,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	_ = settings
+	currentSettings = settings
 
 	// This strips the "dist" prefix so files are served from root.
 	// Without this, you'd access /dist/index.html instead of /index.html
