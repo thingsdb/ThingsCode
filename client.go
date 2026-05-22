@@ -41,15 +41,31 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 
 		// ROUTE BY TYPE
 		switch msg.Type {
-		case "SEND_PING":
+		case "FETCH_WORKSPACES":
 			response := map[string]interface{}{
-				"id":   msg.Id,
-				"type": "PING_RESPONSE",
-				"payload": map[string]string{
-					"response": "Bye bye!!",
-				},
+				"id":      msg.Id,
+				"type":    msg.Type,
+				"payload": currentSettings.FetchWorkspaces(),
 			}
 
+			responseBytes, _ := json.Marshal(response)
+			_ = conn.WriteMessage(websocket.TextMessage, responseBytes)
+		case "UPDATE_WORKSPACE":
+			var updatedWorkspace Workspace
+			if err := json.Unmarshal(msg.Payload, &updatedWorkspace); err != nil {
+				continue
+			}
+
+			err := currentSettings.UpdateWorkspace(updatedWorkspace)
+			if err != nil {
+				continue
+			}
+
+			response := map[string]interface{}{
+				"id":      msg.Id,
+				"type":    msg.Type,
+				"payload": "OK",
+			}
 			responseBytes, _ := json.Marshal(response)
 			_ = conn.WriteMessage(websocket.TextMessage, responseBytes)
 		}
