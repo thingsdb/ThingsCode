@@ -19,6 +19,19 @@ type WSMessage struct {
 	Payload json.RawMessage `json:"payload"`
 }
 
+func writeResponse(conn *websocket.Conn, msg *WSMessage, payload any) error {
+	response := map[string]any{
+		"id":      msg.Id,
+		"type":    msg.Type,
+		"payload": payload,
+	}
+	responseBytes, err := json.Marshal(response)
+	if err != nil {
+		return err
+	}
+	return conn.WriteMessage(websocket.TextMessage, responseBytes)
+}
+
 func serveWs(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -42,32 +55,16 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		// ROUTE BY TYPE
 		switch msg.Type {
 		case "FETCH_WORKSPACES":
-			response := map[string]interface{}{
-				"id":      msg.Id,
-				"type":    msg.Type,
-				"payload": currentSettings.FetchWorkspaces(),
-			}
-
-			responseBytes, _ := json.Marshal(response)
-			_ = conn.WriteMessage(websocket.TextMessage, responseBytes)
+			_ = writeResponse(conn, &msg, currentSettings.FetchWorkspaces())
 		case "UPDATE_WORKSPACE":
 			var updatedWorkspace Workspace
 			if err := json.Unmarshal(msg.Payload, &updatedWorkspace); err != nil {
 				continue
 			}
-
-			err := currentSettings.UpdateWorkspace(updatedWorkspace)
-			if err != nil {
+			if err := currentSettings.UpdateWorkspace(updatedWorkspace); err != nil {
 				continue
 			}
-
-			response := map[string]interface{}{
-				"id":      msg.Id,
-				"type":    msg.Type,
-				"payload": "OK",
-			}
-			responseBytes, _ := json.Marshal(response)
-			_ = conn.WriteMessage(websocket.TextMessage, responseBytes)
+			_ = writeResponse(conn, &msg, "OK")
 		}
 	}
 }
