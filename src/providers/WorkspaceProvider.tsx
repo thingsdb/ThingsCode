@@ -57,13 +57,22 @@ export const WorkspaceProvider: React.FC<{
   };
 
   const addWorkspace = async (newWs: Omit<Workspace, 'id'>) => {
-    setWorkspaces((prev) => [
-      ...prev,
-      {
-        ...newWs,
-        id: `ws-${Date.now()}`, // Simple unique runtime ID generation
-      },
-    ]);
+    try {
+      const res = await emit('ADD_WORKSPACE', newWs) as { id: string };
+      if (!res || !res.id) {
+        throw new Error("Backend response did not return a valid workspace ID");
+      }
+      setWorkspaces((prev) => [
+        ...prev,
+        {
+          ...newWs,
+          id: res.id,
+        } as Workspace,
+      ]);
+    } catch (err) {
+      console.error("Backend failed to add workspace:", err);
+      alert(`Failed to add workspace "${newWs.name}". Please check your backend logs.`);
+    }
   };
 
   return (

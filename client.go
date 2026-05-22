@@ -65,6 +65,16 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			_ = writeResponse(conn, &msg, "OK")
+		case "ADD_WORKSPACE":
+			var newWorkspace Workspace
+			if err := json.Unmarshal(msg.Payload, &newWorkspace); err != nil {
+				continue
+			}
+			if res, err := currentSettings.AddWorkSpace(&newWorkspace); err != nil {
+				continue
+			} else {
+				_ = writeResponse(conn, &msg, res)
+			}
 		}
 	}
 }

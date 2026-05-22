@@ -3,6 +3,7 @@ import { MagnifyingGlassIcon, Pencil2Icon, TrashIcon, Link2Icon } from '@radix-u
 import { ActiveWorkspaceProvider } from '../providers';
 import { useActiveWorkspaceId, useWorkspaces } from '../hooks';
 import { NewWorkspaceModal, WorkspaceModal } from './'
+import QuickConnectModal from './QuickConnectModal';
 
 export default function WorkspaceLauncher() {
   const { filteredWorkspaces, searchQuery, setSearchQuery, deleteWorkspace, appearance, setEditingWorkspace, editingWorkspace } = useWorkspaces();
@@ -26,7 +27,9 @@ export default function WorkspaceLauncher() {
           }}>
             ← Back to All Workspaces
           </Button>
-          <Heading mt="4">Active Workspace Panel ID: {activeWorkspaceId}</Heading>
+          <Heading mt="4">
+            Active Workspace Panel ID: {activeWorkspaceId}
+          </Heading>
         </Box>
       </ActiveWorkspaceProvider>
     );
@@ -65,7 +68,10 @@ export default function WorkspaceLauncher() {
             </TextField.Slot>
           </TextField.Root>
         </Box>
-        <NewWorkspaceModal />
+        <Flex width="100%" gap="4">
+          <QuickConnectModal />
+          <NewWorkspaceModal />
+        </Flex>
       </Flex>
 
       <Grid columns={{ initial: '1', sm: '2' }} gap="3" width="auto">
@@ -77,7 +83,10 @@ export default function WorkspaceLauncher() {
           >
             <Flex justify="between" align="center">
               {/* Left Side clickable selection space */}
-              <Box onClick={() => handleWorkspaceClick(ws.id)} style={{ flexGrow: 1 }}>
+              <Box
+                onClick={() => handleWorkspaceClick(ws.id)}
+                style={{ flexGrow: 1 }}
+              >
                 <Heading size="3" mb="1">{ws.name}</Heading>
                 <Flex align="center" gap="1">
                     <Link2Icon width="12" height="12" style={{ color: 'var(--gray-9)' }} />

@@ -65,6 +65,26 @@ func (s *Settings) FetchWorkspaces() []Workspace {
 	return decryptedList
 }
 
+type AddWorkSpaceRes struct {
+	ID string `json:"id"`
+}
+
+func (s *Settings) AddWorkSpace(w *Workspace) (*AddWorkSpaceRes, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	w.GenerateID()
+	s.Workspaces = append(s.Workspaces, *w)
+
+	res := AddWorkSpaceRes{
+		ID: w.ID,
+	}
+
+	if err := s.Save(); err != nil {
+		return nil, fmt.Errorf("failed to commit workspace updates to disk: %w", err)
+	}
+	return &res, nil
+}
+
 func (s *Settings) UpdateWorkspace(updated Workspace) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
