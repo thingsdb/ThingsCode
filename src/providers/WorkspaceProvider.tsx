@@ -18,7 +18,6 @@ export const WorkspaceProvider: React.FC<{
     }
     const fetchWorkspaces = async () => {
       const workspaces = await emit<Workspace[]>('FETCH_WORKSPACES')
-      console.log('HERE', workspaces);
       setWorkspaces(workspaces);
     };
     fetchWorkspaces();

@@ -84,7 +84,7 @@ export default function NewWorkspaceModal() {
             <label>
               <Text as="div" size="2" weight="bold" mb="1">Workfolder</Text>
               <TextField.Root
-                placeholder="~/ThingsCode/name"
+                placeholder="Leave empty for temporary session storage"
                 value={activeWorkfolder}
                 onChange={(e) => {
                   setCustomWorkfolder(e.target.value);

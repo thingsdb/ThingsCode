@@ -13,7 +13,7 @@ export default function WorkspaceModal() {
   const [showPassword, setShowPassword] = useState(false);
   const [showToken, setShowToken] = useState(false);
 
-  const [prevId, setPrevId] = useState<string | undefined>(editingWorkspace?.id);
+  const [prevId, setPrevId] = useState<string | undefined>(undefined);
 
   if (editingWorkspace?.id !== prevId) {
     setPrevId(editingWorkspace?.id);
@@ -52,7 +52,7 @@ export default function WorkspaceModal() {
             <label>
               <Text as="div" size="2" weight="bold" mb="1">Workfolder</Text>
               <TextField.Root
-                placeholder='Leave empty for temporary session storage'
+                placeholder="Leave empty for temporary session storage"
                 value={form.workfolder || ''}
                 onChange={e => setForm({ ...form, name: e.target.value })}
               />
