@@ -13,6 +13,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
+
+	"github.com/thingsdb/go-thingsdb"
 )
 
 // Key will be generated once and stored in user profile
@@ -43,16 +46,19 @@ func (a *AuthType) UnmarshalJSON(b []byte) error {
 
 // Workspace matches the individual items inside the array
 type Workspace struct {
-	ID         string   `json:"id"`
-	Name       string   `json:"name"`
-	Host       string   `json:"host"`
-	Port       int      `json:"port"`
-	AuthType   AuthType `json:"authType"`
-	Username   string   `json:"username,omitempty"`
-	Password   string   `json:"password,omitempty"`
-	Token      string   `json:"token,omitempty"`
-	SSL        bool     `json:"ssl"`
-	Workfolder string   `json:"workfolder"`
+	ID         string         `json:"id"`
+	Name       string         `json:"name"`
+	Host       string         `json:"host"`
+	Port       int            `json:"port"`
+	AuthType   AuthType       `json:"authType"`
+	Username   string         `json:"username,omitempty"`
+	Password   string         `json:"password,omitempty"`
+	Token      string         `json:"token,omitempty"`
+	SSL        bool           `json:"ssl"`
+	Workfolder string         `json:"workfolder"`
+	LastAccess time.Time      `json:"lastAcces"`
+	IsTmp      bool           `json:"isTmp"`
+	conn       *thingsdb.Conn `json:"-"`
 }
 
 func (w *Workspace) GenerateID() {
@@ -121,6 +127,20 @@ func (w *Workspace) GetCredentials() (username, password, token string, err erro
 	}
 	token, err = decrypt(w.Token, secretKey)
 	return
+}
+
+func (w *Workspace) EnsureWorkolder() error {
+	if w.Workfolder != "" {
+		return nil
+	}
+	tempDir := fmt.Sprintf("ticode-%s", w.ID)
+	absTempDir, err := os.MkdirTemp("", tempDir)
+	if err != nil {
+		return fmt.Errorf("failed to create temporary directory: %w", err)
+	}
+
+	w.Workfolder = absTempDir
+	return nil
 }
 
 // Helper to encrypt plain text into a Base64 encrypted string

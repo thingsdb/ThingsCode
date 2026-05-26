@@ -12,6 +12,7 @@ interface WorkspaceContextType {
   setEditingWorkspace: (ws: Workspace | null) => void;
   updateWorkspace: (updated: Workspace) => void;
   addWorkspace: (ws: Omit<Workspace, 'id'>) => void;
+  quickConnect: (ws: Omit<Workspace, 'id'>) => void;
 }
 
 export const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);

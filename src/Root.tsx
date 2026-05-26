@@ -1,49 +1,51 @@
-import { useState } from 'react';
-import App from './App';
+import { useEffect, useState } from 'react';
 import '@radix-ui/themes/styles.css';
-import './App.css'
-import { Theme, Button, Tooltip, Flex, Box } from '@radix-ui/themes';
-import { SunIcon, MoonIcon } from '@radix-ui/react-icons';
+import './App.css';
+import App from './App';
+import { Theme, Box } from '@radix-ui/themes';
 import { WorkspaceProvider } from './providers';
+import { ThemeContext } from './context';
+
 
 function Root() {
-  const [appearance, setAppearance] = useState<'light' | 'dark'>('dark');
+  const [appearance, setAppearance] = useState<'light' | 'dark'>(() => {
+    const savedTheme = localStorage.getItem('ticode-theme');
+
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      return savedTheme;
+    }
+
+    if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+      return 'light';  // If OS has light preference
+    }
+    return 'dark';  // default
+  });
 
   const toggleAppearance = () => {
     setAppearance((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  useEffect(() => {
+    localStorage.setItem('ticode-theme', appearance);
+  }, [appearance]);
+
   return (
-    <Theme appearance={appearance} accentColor="iris" panelBackground="translucent">
-      <Box
-        style={{
-          position: 'relative',
-          minHeight: '100vh',
-          width: '100vw',
-          overflowX: 'hidden'
-        }}
-      >
-        <Flex justify="end" p="2" style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}>
-          <Tooltip content={appearance === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
-            <Button
-              variant="ghost"
-              onClick={toggleAppearance}
-              size="2"
-              style={{ cursor: 'pointer' }}
-            >
-              {appearance === 'dark' ? (
-                <SunIcon width="16" height="16" />
-              ) : (
-                <MoonIcon width="16" height="16" />
-              )}
-            </Button>
-          </Tooltip>
-        </Flex>
-        <WorkspaceProvider appearance={appearance}>
-          <App />
-        </WorkspaceProvider>
-      </Box>
-    </Theme>
+    <ThemeContext.Provider value={{ appearance, toggleAppearance }}>
+      <Theme appearance={appearance} accentColor="iris" panelBackground="translucent">
+        <Box
+          style={{
+            position: 'relative',
+            minHeight: '100vh',
+            width: '100vw',
+            overflowX: 'hidden'
+          }}
+        >
+          <WorkspaceProvider appearance={appearance}>
+            <App />
+          </WorkspaceProvider>
+        </Box>
+      </Theme>
+    </ThemeContext.Provider>
   );
 }
 

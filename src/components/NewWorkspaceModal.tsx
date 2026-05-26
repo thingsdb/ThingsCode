@@ -17,8 +17,7 @@ export default function NewWorkspaceModal() {
   const [token, setToken] = useState('');
   const [ssl, setSsl] = useState(false);
 
-  // 📁 Folder tracking state
-  const [workfolder, setWorkfolder] = useState('~/ThingsCode/');
+  // Folder tracking state
   const [customWorkfolder, setCustomWorkfolder] = useState<string | null>(null);
 
   // Visibility states
@@ -26,13 +25,12 @@ export default function NewWorkspaceModal() {
   const [showToken, setShowToken] = useState(false);
 
   const sanitizedName = name.replace(/[^a-zA-Z0-9-_ ]/g, '');
-  const activeWorkfolder = customWorkfolder !== null
+  const workfolder = customWorkfolder !== null
     ? customWorkfolder
     : `~/ThingsCode/${sanitizedName}`;
 
   const resetForm = () => {
     setName('');
-    setWorkfolder('~/ThinsCode/')
     setCustomWorkfolder(null);
     setHost('127.0.0.1');
     setPort(9200);
@@ -56,6 +54,7 @@ export default function NewWorkspaceModal() {
       token: authType === 'token' ? token : undefined,
       ssl,
       workfolder,
+      isTmp: false,
     });
 
     resetForm();
@@ -77,7 +76,12 @@ export default function NewWorkspaceModal() {
         </Button>
       </Dialog.Trigger>
 
-      <Dialog.Content style={{ maxWidth: 450 }}>
+      <Dialog.Content
+        style={{ maxWidth: 450 }}
+        onPointerDownOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
         <Dialog.Title>Create New Workspace</Dialog.Title>
         <Dialog.Description size="2" mb="4">
           Add a node config profile and link it to a local workspace path.
@@ -101,7 +105,7 @@ export default function NewWorkspaceModal() {
               <Text as="div" size="2" weight="bold" mb="1">Workfolder</Text>
               <TextField.Root
                 placeholder="Leave empty for temporary session storage"
-                value={activeWorkfolder}
+                value={workfolder}
                 onChange={(e) => {
                   setCustomWorkfolder(e.target.value);
                 }}

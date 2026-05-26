@@ -19,7 +19,7 @@ if (status !== prevStatus) {
     if (status !== 'connected') return;
     const timer = setTimeout(() => {
       setShowOverlay(false);
-    }, 700);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [status]);

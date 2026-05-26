@@ -1,9 +1,20 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
-interface WSMessage<T = unknown> {
-  id?: string;     // Unique identifier matching request to response
-  type: string;    // Event type
-  payload?: T;     // Data payload
+interface WSResponsePayload<T = unknown> {
+  data?: T;
+  error?: string;
+}
+
+interface WSResponse<T = unknown> {
+  id: string;
+  type: string;
+  payload: WSResponsePayload<T>;
+}
+
+interface WSRequest<T = unknown> {
+  id: string;
+  type: string;
+  payload?: T;
 }
 
 export function useWebSocket() {
@@ -38,15 +49,20 @@ export function useWebSocket() {
 
     socket.onmessage = (event) => {
       try {
-        const msg: WSMessage = JSON.parse(event.data);
+        const msg: WSResponse = JSON.parse(event.data);
 
         // Check if this incoming message has a correlation ID matching a pending request
         if (msg.id && pendingRequestsRef.current.has(msg.id)) {
-          const { resolve } = pendingRequestsRef.current.get(msg.id)!;
+          const { resolve, reject } = pendingRequestsRef.current.get(msg.id)!;
 
-          // Resolve the specific promise with the payload, then clear it from the tracker
-          resolve(msg.payload);
           pendingRequestsRef.current.delete(msg.id);
+
+          if (msg.payload?.error) {
+            const backendErr = new Error(msg.payload.error);
+            reject(backendErr);
+          } else {
+            resolve(msg.payload.data);
+          }
         }
       } catch {
         console.warn('Received non-JSON message:', event.data);
@@ -72,10 +88,10 @@ export function useWebSocket() {
       }
 
       const msgId = crypto.randomUUID();
-      const message: WSMessage<TPayload> = {
+      const message: WSRequest<TPayload> = {
         id: msgId,
         type,
-        payload
+        payload,
       };
 
       pendingRequestsRef.current.set(msgId, { resolve: resolve as (val: unknown) => void, reject });

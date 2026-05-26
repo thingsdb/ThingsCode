@@ -9,4 +9,5 @@ export interface Workspace {
   token?: string;
   ssl: boolean;
   workfolder: string;
+  isTmp: boolean;
 }

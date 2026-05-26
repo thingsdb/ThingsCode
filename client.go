@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -21,9 +22,26 @@ type WSMessage struct {
 
 func writeResponse(conn *websocket.Conn, msg *WSMessage, payload any) error {
 	response := map[string]any{
-		"id":      msg.Id,
-		"type":    msg.Type,
-		"payload": payload,
+		"id":   msg.Id,
+		"type": msg.Type,
+		"payload": map[string]any{
+			"data": payload,
+		},
+	}
+	responseBytes, err := json.Marshal(response)
+	if err != nil {
+		return err
+	}
+	return conn.WriteMessage(websocket.TextMessage, responseBytes)
+}
+
+func writeError(conn *websocket.Conn, msg *WSMessage, err error) error {
+	response := map[string]any{
+		"id":   msg.Id,
+		"type": msg.Type,
+		"payload": map[string]any{
+			"error": err.Error(),
+		},
 	}
 	responseBytes, err := json.Marshal(response)
 	if err != nil {
@@ -59,22 +77,41 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		case "UPDATE_WORKSPACE":
 			var updatedWorkspace Workspace
 			if err := json.Unmarshal(msg.Payload, &updatedWorkspace); err != nil {
+				_ = writeError(conn, &msg, err)
 				continue
 			}
-			if err := currentSettings.UpdateWorkspace(updatedWorkspace); err != nil {
-				continue
-			}
-			_ = writeResponse(conn, &msg, "OK")
-		case "ADD_WORKSPACE":
-			var newWorkspace Workspace
-			if err := json.Unmarshal(msg.Payload, &newWorkspace); err != nil {
-				continue
-			}
-			if res, err := currentSettings.AddWorkSpace(&newWorkspace); err != nil {
+			if res, err := currentSettings.UpdateWorkspace(&updatedWorkspace); err != nil {
+				_ = writeError(conn, &msg, err)
 				continue
 			} else {
 				_ = writeResponse(conn, &msg, res)
 			}
+		case "ADD_WORKSPACE":
+			var newWorkspace Workspace
+			if err := json.Unmarshal(msg.Payload, &newWorkspace); err != nil {
+				_ = writeError(conn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.AddWorkSpace(&newWorkspace); err != nil {
+				_ = writeError(conn, &msg, err)
+				continue
+			} else {
+				_ = writeResponse(conn, &msg, res)
+			}
+		case "REMOVE_WORKSPACE":
+			var removeWorkspace Workspace
+			if err := json.Unmarshal(msg.Payload, &removeWorkspace); err != nil {
+				_ = writeError(conn, &msg, err)
+				continue
+			}
+			if err := currentSettings.RemoveWorkSpace(&removeWorkspace); err != nil {
+				_ = writeError(conn, &msg, err)
+				continue
+			} else {
+				_ = writeResponse(conn, &msg, "OK")
+			}
+		default:
+			_ = writeError(conn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
 		}
 	}
 }

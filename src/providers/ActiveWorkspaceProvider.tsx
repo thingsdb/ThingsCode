@@ -26,7 +26,7 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     console.log(`Scanning Go workfolder directory: ${currentWorkspace.workfolder}`);
 
     setTimeout(() => {
-      setFiles(['main.tcl', 'schema.json', 'procedures.tcl', 'backup.db']);
+      setFiles(['Untitled-0.ti', 'README.md']);
       setLoadingFiles(false);
     }, 400); // Simulate network roundtrip
   }, [currentWorkspace]);

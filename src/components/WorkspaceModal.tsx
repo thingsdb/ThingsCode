@@ -29,8 +29,16 @@ export default function WorkspaceModal() {
   };
 
   return (
-    <Dialog.Root open={!!editingWorkspace} onOpenChange={(open) => !open && setEditingWorkspace(null)}>
-      <Dialog.Content style={{ maxWidth: 450 }}>
+    <Dialog.Root
+      open={!!editingWorkspace}
+      onOpenChange={(open) => !open && setEditingWorkspace(null)}
+    >
+      <Dialog.Content
+        style={{ maxWidth: 450 }}
+        onPointerDownOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
         <Dialog.Title>Edit Workspace Settings</Dialog.Title>
         <Dialog.Description size="2" mb="4">
           Update your connection preferences for this ThingsDB node.

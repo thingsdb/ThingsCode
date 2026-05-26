@@ -39,6 +39,8 @@ func main() {
 
 	currentSettings = settings
 
+	currentSettings.StartCleanTask()
+
 	// This strips the "dist" prefix so files are served from root.
 	// Without this, you'd access /dist/index.html instead of /index.html
 	webFS, err := fs.Sub(webContent, "dist")
