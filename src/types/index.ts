@@ -10,4 +10,11 @@ export interface Workspace {
   ssl: boolean;
   workfolder: string;
   isTmp: boolean;
+  isQuickConnect: boolean;
+  fileScopes: Record<string, string>;
+}
+
+export interface ProjectFile {
+  filename: string;
+  content: string;
 }

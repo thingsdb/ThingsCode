@@ -54,7 +54,9 @@ export default function NewWorkspaceModal() {
       token: authType === 'token' ? token : undefined,
       ssl,
       workfolder,
-      isTmp: false,
+      isTmp: workfolder === "",
+      isQuickConnect: false,
+      fileScopes: {},
     });
 
     resetForm();
@@ -165,6 +167,7 @@ export default function NewWorkspaceModal() {
               </RadioGroup.Root>
             </Box>
 
+            {/* Auth */}
             {authType === 'token' ? (
               <label>
                 <Text as="div" size="2" weight="bold" mb="1">ThingsDB Token</Text>

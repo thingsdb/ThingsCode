@@ -13,6 +13,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/thingsdb/go-thingsdb"
@@ -46,19 +47,22 @@ func (a *AuthType) UnmarshalJSON(b []byte) error {
 
 // Workspace matches the individual items inside the array
 type Workspace struct {
-	ID         string         `json:"id"`
-	Name       string         `json:"name"`
-	Host       string         `json:"host"`
-	Port       int            `json:"port"`
-	AuthType   AuthType       `json:"authType"`
-	Username   string         `json:"username,omitempty"`
-	Password   string         `json:"password,omitempty"`
-	Token      string         `json:"token,omitempty"`
-	SSL        bool           `json:"ssl"`
-	Workfolder string         `json:"workfolder"`
-	LastAccess time.Time      `json:"lastAcces"`
-	IsTmp      bool           `json:"isTmp"`
-	conn       *thingsdb.Conn `json:"-"`
+	ID             string            `json:"id"`
+	Name           string            `json:"name"`
+	Host           string            `json:"host"`
+	Port           int               `json:"port"`
+	AuthType       AuthType          `json:"authType"`
+	Username       string            `json:"username,omitempty"`
+	Password       string            `json:"password,omitempty"`
+	Token          string            `json:"token,omitempty"`
+	SSL            bool              `json:"ssl"`
+	Workfolder     string            `json:"workfolder"`
+	LastAccess     time.Time         `json:"lastAcces"`
+	IsTmp          bool              `json:"isTmp"`
+	IsQuickConnect bool              `json:"isQuickConnect"`
+	FileScopes     map[string]string `json:"fileScopes"`
+	mu             sync.RWMutex      `json:"-"`
+	conn           *thingsdb.Conn    `json:"-"`
 }
 
 func (w *Workspace) GenerateID() {
@@ -140,6 +144,36 @@ func (w *Workspace) EnsureWorkolder() error {
 	}
 
 	w.Workfolder = absTempDir
+	return nil
+}
+
+func (w *Workspace) EnsureWorkolderExists() error {
+	if err := w.EnsureWorkolder(); err != nil {
+		return err
+	}
+
+	workPath, err := ExpandHomePath(w.Workfolder)
+	if err != nil {
+		return err
+	}
+
+	info, err := os.Stat(workPath)
+	if os.IsNotExist(err) {
+		err := os.MkdirAll(workPath, 0755)
+		if err != nil {
+			return fmt.Errorf("failed to create workfolder %s: %w", w.Workfolder, err)
+		}
+		defaultFilePath := filepath.Join(workPath, "Untitled-0.ti")
+		defaultContent := []byte("// ThingsCode IDE Engine\n\"Hello World\";\n")
+		err = os.WriteFile(defaultFilePath, defaultContent, 0644)
+		if err != nil {
+			return fmt.Errorf("failed to create default file %s: %w", defaultFilePath, err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("error inspecting workfolder path %s: %w", w.Workfolder, err)
+	} else if !info.IsDir() {
+		return fmt.Errorf("provided workfolder path %s is an existing file, not a directory", w.Workfolder)
+	}
 	return nil
 }
 

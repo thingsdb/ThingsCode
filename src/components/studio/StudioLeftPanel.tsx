@@ -3,7 +3,7 @@ import { PlusIcon, FileIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspace } from '../../hooks';
 
 export default function StudioLeftPanel() {
-  const { files, loadingFiles } = useActiveWorkspace();
+  const { files, loading } = useActiveWorkspace();
 
   return (
     <Flex
@@ -26,21 +26,21 @@ export default function StudioLeftPanel() {
       <Box style={{ flexGrow: 1 }}>
         <ScrollArea type="auto" style={{ height: 'calc(100vh - 73px)' }}>
           <Flex direction="column" p="1" gap="1">
-            {loadingFiles ? (
+            {loading ? (
               <Text size="1" color="gray">Scanning folder...</Text>
             ) : files.length === 0 ? (
               <Text size="1" color="gray">No files found</Text>
             ) : (
               files.map((file) => (
                 <Button
-                  key={file}
+                  key={file.filename}
                   variant="ghost"
                   color="gray"
                   size="1"
                   style={{ justifyContent: 'start', cursor: 'pointer', textAlign: 'left' }}
                 >
                   <FileIcon width="12" height="12" style={{ marginRight: 4 }} />
-                  {file}
+                  {file.filename}
                 </Button>
               ))
             )}

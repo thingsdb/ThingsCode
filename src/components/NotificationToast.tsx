@@ -1,6 +1,5 @@
-import React from 'react';
-import { Callout } from '@radix-ui/themes';
-import { InfoCircledIcon } from '@radix-ui/react-icons';
+import { Callout, IconButton, Flex } from '@radix-ui/themes';
+import { InfoCircledIcon, Cross1Icon } from '@radix-ui/react-icons';
 
 interface NotificationToastProps {
   message: string | null;
@@ -8,15 +7,6 @@ interface NotificationToastProps {
 }
 
 export default function NotificationToast({ message, onClear }: NotificationToastProps) {
-  // Auto remove after X seconds
-  React.useEffect(() => {
-    if (!message) return;
-    const timer = setTimeout(() => {
-      onClear();
-    }, 7000);
-    return () => clearTimeout(timer);
-  }, [message, onClear]);
-
   if (!message) return null;
 
   return (
@@ -31,14 +21,37 @@ export default function NotificationToast({ message, onClear }: NotificationToas
         boxShadow: 'var(--shadow-4)',
       }}
     >
-      {/* Leveraging Radix's native adaptive Callout element for feedback */}
       <Callout.Root color="red" size="2" variant="surface">
-        <Callout.Icon>
-          <InfoCircledIcon width="16" height="16" />
-        </Callout.Icon>
-        <Callout.Text size="2" weight="medium">
-          {message}
-        </Callout.Text>
+        <Flex align="start" gap="3" justify="between" style={{ width: '100%' }}>
+
+          {/* Left Side: Icon & Message Group */}
+          <Flex align="start" gap="2" style={{ flexGrow: 1 }}>
+            <Callout.Icon style={{ marginTop: '2px' }}>
+              <InfoCircledIcon width="16" height="16" />
+            </Callout.Icon>
+            <Callout.Text size="2" weight="medium" style={{ paddingRight: '8px' }}>
+              {message}
+            </Callout.Text>
+          </Flex>
+
+          {/* Right Side: Close Button */}
+          <IconButton
+            size="1"
+            variant="ghost"
+            color="red"
+            onClick={onClear}
+            style={{
+              cursor: 'pointer',
+              marginTop: '-2px',
+              marginRight: '-4px',
+              borderRadius: '50%'
+            }}
+            title="Dismiss error message"
+          >
+            <Cross1Icon width="12" height="12" />
+          </IconButton>
+
+        </Flex>
       </Callout.Root>
     </div>
   );

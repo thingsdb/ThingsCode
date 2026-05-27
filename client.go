@@ -82,7 +82,6 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 			}
 			if res, err := currentSettings.UpdateWorkspace(&updatedWorkspace); err != nil {
 				_ = writeError(conn, &msg, err)
-				continue
 			} else {
 				_ = writeResponse(conn, &msg, res)
 			}
@@ -94,7 +93,6 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 			}
 			if res, err := currentSettings.AddWorkSpace(&newWorkspace); err != nil {
 				_ = writeError(conn, &msg, err)
-				continue
 			} else {
 				_ = writeResponse(conn, &msg, res)
 			}
@@ -106,10 +104,33 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 			}
 			if err := currentSettings.RemoveWorkSpace(&removeWorkspace); err != nil {
 				_ = writeError(conn, &msg, err)
-				continue
 			} else {
 				_ = writeResponse(conn, &msg, "OK")
 			}
+		case "FETCH_FILES":
+			var ws Workspace
+			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
+				_ = writeError(conn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchFiles(&ws); err != nil {
+				_ = writeError(conn, &msg, err)
+			} else {
+				_ = writeResponse(conn, &msg, res)
+			}
+		case "FETCH_SCOPES":
+			var ws Workspace
+			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
+				_ = writeError(conn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchScopes(&ws); err != nil {
+				_ = writeError(conn, &msg, err)
+			} else {
+				_ = writeResponse(conn, &msg, res)
+			}
+
+
 		default:
 			_ = writeError(conn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
 		}

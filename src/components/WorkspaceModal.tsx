@@ -125,7 +125,7 @@ export default function WorkspaceModal() {
               </RadioGroup.Root>
             </Box>
 
-            {/* Dynamic Rendering Conditions based on Selected Auth Type */}
+            {/* Auth */}
             {form.authType === 'token' ? (
               <label>
                 <Text as="div" size="2" weight="bold" mb="1">ThingsDB Token</Text>

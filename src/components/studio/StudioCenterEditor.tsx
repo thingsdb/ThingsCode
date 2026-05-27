@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Flex, Box, Text, Button } from '@radix-ui/themes';
 import { DragHandleHorizontalIcon } from '@radix-ui/react-icons';
-import Editor from '@monaco-editor/react';
+import Editor, { type Monaco } from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
 import { useTheme } from '../../hooks';
+import { registerThingsDBLanguage } from '../../utils/thingsdb';
 
 const MIN_EDITOR_HEIGHT = 150;
 const DEFAULT_EDITOR_HEIGHT = 400;
@@ -24,10 +26,26 @@ export default function StudioCenterEditor() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { appearance } = useTheme();
+  const [code, setCode] = useState('// ThingsCode IDE Engine\n"Hello World";\n');
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
+  };
+
+  const handleEditorWillMount = (monaco: Monaco) => {
+    registerThingsDBLanguage(monaco);
+  };
+
+  const handleEditorDidMount = (
+    editorInstance: editor.IStandaloneCodeEditor, // 🔑 Typed correctly!
+    monaco: Monaco
+  ) => {
+    // Inject the active Ctrl + Enter action command
+    editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      console.log("Ctrl+Enter shortcut caught! Running dynamic code query sequence:", editorInstance.getValue());
+      alert("Executing ThingsDB Code...");
+    });
   };
 
   useEffect(() => {
@@ -83,9 +101,13 @@ export default function StudioCenterEditor() {
         <Editor
           height="100%"
           width="100%"
-          theme={appearance === 'dark' ? 'vs-dark' : 'light'}
-          defaultLanguage="javascript" // TODO: language
+          theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
+          defaultLanguage="thingsdb" // TODO: language
           defaultValue="// ThingsCode IDE Engine v1.0&#10;'Hello World';&#10;"
+          value={code}
+          onChange={(val) => setCode(val || '')}
+          beforeMount={handleEditorWillMount}
+          onMount={handleEditorDidMount}
           options={{
             fontSize: 13,
             fontFamily: 'monospace',
@@ -102,7 +124,7 @@ export default function StudioCenterEditor() {
         />
       </Box>
 
-      {/* 📊 Middle Navigation Choice Console Bar */}
+      {/* Middle Navigation Choice Console Bar */}
       <Flex
         px="2"
         align="center"
@@ -144,8 +166,8 @@ export default function StudioCenterEditor() {
             left: '50%',
             top: '50%',
             transform: 'translate(-50%, -50%)',
-            color: isDragging ? 'var(--accent-9)' : 'var(--gray-8)', // Glows when dragging!
-            pointerEvents: 'none', // Mouse clicks pass straight through to the drag handle parent
+            color: isDragging ? 'var(--accent-9)' : 'var(--gray-8)', // Glow when dragging
+            pointerEvents: 'none', // Mouse clicks pass through to the drag handle
             zIndex: 1
           }}
         >
@@ -153,7 +175,7 @@ export default function StudioCenterEditor() {
         </div>
       </Flex>
 
-      {/* 📄 Bottom Section: Content Box display slot based on tab choice */}
+      {/* Content Box display based on tab choice */}
       <Box style={{ flexGrow: 1, backgroundColor: 'var(--gray-surface)' }} p="3">
         {consoleTab === 'output' ? (
           <Text size="1" style={{ fontFamily: 'monospace' }}>

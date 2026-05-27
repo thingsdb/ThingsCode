@@ -13,6 +13,7 @@ interface WorkspaceContextType {
   updateWorkspace: (updated: Workspace) => void;
   addWorkspace: (ws: Omit<Workspace, 'id'>) => void;
   quickConnect: (ws: Omit<Workspace, 'id'>) => void;
+  updateFileScope: (workspaceId: string, filename: string, scope: string) => Promise<void>;
 }
 
 export const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);

@@ -35,10 +35,9 @@ export default function QuickConnectModal() {
       ssl,
       workfolder: '',
       isTmp: true,
+      isQuickConnect: true,
+      fileScopes: {},
     });
-
-    window.history.pushState({}, '', `/workspace/quick-connect`);
-    window.dispatchEvent(new PopStateEvent('popstate')); // Force view re-render
 
     setOpen(false);
   };
@@ -117,7 +116,7 @@ export default function QuickConnectModal() {
               </RadioGroup.Root>
             </Box>
 
-            {/* Conditional Input Rendering Fields */}
+            {/* Auth */}
             {authType === 'token' ? (
                 <label>
                 <Text as="div" size="2" weight="bold" mb="1">ThingsDB Access Token</Text>

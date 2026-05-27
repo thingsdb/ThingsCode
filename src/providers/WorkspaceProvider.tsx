@@ -28,10 +28,10 @@ export const WorkspaceProvider: React.FC<{
   // Search...
   const filteredWorkspaces = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
-    if (!query) return workspaces.filter((ws) => !ws.isTmp);
+    if (!query) return workspaces.filter((ws) => !ws.isQuickConnect);
 
     return workspaces.filter((ws) =>
-      !ws.isTmp && (
+      !ws.isQuickConnect && (
         ws.name.toLowerCase().includes(query) ||
         ws.host.toLowerCase().includes(query) ||
         ws.port.toString().includes(query)
@@ -78,20 +78,25 @@ export const WorkspaceProvider: React.FC<{
     }
   };
 
+  const addWorkspaceHelper = async (newWs: Omit<Workspace, 'id'>) => {
+    const res = await emit('ADD_WORKSPACE', newWs) as { id: string, workfolder: string };
+    if (!res || !res.id) {
+      throw new Error("Backend response did not return a valid workspace ID");
+    }
+    setWorkspaces((prev) => [
+      ...prev,
+      {
+        ...newWs,
+        id: res.id,
+        workfolder: res.workfolder,
+      } as Workspace,
+    ]);
+    return res.id;
+  };
+
   const addWorkspace = async (newWs: Omit<Workspace, 'id'>) => {
     try {
-      const res = await emit('ADD_WORKSPACE', newWs) as { id: string, workfolder: string };
-      if (!res || !res.id) {
-        throw new Error("Backend response did not return a valid workspace ID");
-      }
-      setWorkspaces((prev) => [
-        ...prev,
-        {
-          ...newWs,
-          id: res.id,
-          workfolder: res.workfolder,
-        } as Workspace,
-      ]);
+      await addWorkspaceHelper(newWs);
     } catch (err) {
       console.error("Backend failed to add workspace:", err);
       const message = err instanceof Error
@@ -105,19 +110,11 @@ export const WorkspaceProvider: React.FC<{
 
   const quickConnect = async (tmpWs: Omit<Workspace, 'id'>) => {
     try {
-      const res = await emit('ADD_WORKSPACE', tmpWs) as { id: string };
-      if (!res || !res.id) {
-        throw new Error("Backend response did not return a valid workspace ID");
-      }
-      setWorkspaces((prev) => [
-        ...prev,
-        {
-          ...tmpWs,
-          id: res.id,
-        } as Workspace,
-      ]);
+      const id = await addWorkspaceHelper(tmpWs);
+      window.history.pushState({}, '', `/workspace/${id}`);
+      window.dispatchEvent(new PopStateEvent('popstate')); // Force view re-render
     } catch (err) {
-      console.error("Backend failed to add workspace:", err);
+      console.error("Backend failed to set-up quick connect workspace:", err);
       const message = err instanceof Error
         ? err.message
         : typeof err === 'string'
@@ -127,28 +124,58 @@ export const WorkspaceProvider: React.FC<{
     }
   };
 
-  return (
-    <>
-      <WorkspaceContext.Provider value={{
-        workspaces,
-        filteredWorkspaces,
-        searchQuery,
-        setSearchQuery,
-        deleteWorkspace,
-        appearance,
-        editingWorkspace,
-        setEditingWorkspace,
-        updateWorkspace,
-        addWorkspace,
-        quickConnect,
-      }}>
-        {children}
+  const updateFileScope = async (workspaceId: string, filename: string, scope: string) => {
+    let fallback: Workspace[] = [];
 
-      </WorkspaceContext.Provider>
-      <NotificationToast
-        message={errorMessage}
-        onClear={() => setErrorMessage(null)}
-      />
-    </>
+    setWorkspaces((prev) => {
+      fallback = prev;
+      return prev.map((ws) => {
+        if (ws.id !== workspaceId) return ws;
+
+        const currentScopes = ws.fileScopes ? { ...ws.fileScopes } : {};
+        currentScopes[filename] = scope;
+
+        return {
+          ...ws,
+          fileScopes: currentScopes,
+        };
+      });
+    });
+
+    try {
+      await emit('UPDATE_FILE_SCOPE', {
+        id: workspaceId,
+        filename: filename,
+        scope: scope,
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to save updated file scope context metric:", err);
+      setWorkspaces(fallback);
+    }
+  };
+
+  return (
+    <WorkspaceContext.Provider value={{
+      workspaces,
+      filteredWorkspaces,
+      searchQuery,
+      setSearchQuery,
+      deleteWorkspace,
+      appearance,
+      editingWorkspace,
+      setEditingWorkspace,
+      updateWorkspace,
+      addWorkspace,
+      quickConnect,
+      updateFileScope,
+    }}>
+      {children}
+      {errorMessage && (
+        <NotificationToast
+          message={errorMessage}
+          onClear={() => setErrorMessage(null)}
+        />
+      )}
+    </WorkspaceContext.Provider>
   );
 };

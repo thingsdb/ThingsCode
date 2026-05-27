@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,6 +10,9 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/thingsdb/go-thingsdb"
+	"github.com/vmihailenco/msgpack/v5"
 )
 
 // AuthInfo
@@ -23,7 +27,7 @@ type AuthInfo struct {
 type Settings struct {
 	mu         sync.RWMutex `json:"-"`
 	FilePath   string       `json:"-"`
-	Workspaces []Workspace  `json:"workspaces"`
+	Workspaces []*Workspace `json:"workspaces"`
 }
 
 func (s *Settings) Save() error {
@@ -48,20 +52,32 @@ func (s *Settings) Save() error {
 	return nil
 }
 
-func (s *Settings) FetchWorkspaces() []Workspace {
+func (s *Settings) FetchWorkspaces() []*Workspace {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	decryptedList := make([]Workspace, len(s.Workspaces))
+	decryptedList := make([]*Workspace, len(s.Workspaces))
 
 	for i, ws := range s.Workspaces {
-		decryptedWs := ws
 		username, password, token, err := ws.GetCredentials()
-		if err == nil {
-			decryptedWs.Username = username
-			decryptedWs.Password = password
-			decryptedWs.Token = token
+		if err != nil {
+			log.Printf("Error decrypting: %v", err)
 		}
-		decryptedList[i] = decryptedWs
+		decryptedWs := Workspace{
+			ID:             ws.ID,
+			Name:           ws.Name,
+			Host:           ws.Host,
+			Port:           ws.Port,
+			AuthType:       ws.AuthType,
+			Username:       username,
+			Password:       password,
+			Token:          token,
+			SSL:            ws.SSL,
+			Workfolder:     ws.Workfolder,
+			IsTmp:          ws.IsTmp,
+			IsQuickConnect: ws.IsQuickConnect,
+			FileScopes:     ws.FileScopes,
+		}
+		decryptedList[i] = &decryptedWs
 	}
 	return decryptedList
 }
@@ -77,28 +93,24 @@ func (s *Settings) AddWorkSpace(w *Workspace) (*WorkSpaceRes, error) {
 	w.GenerateID()
 	w.LastAccess = time.Now()
 
-	if err := w.EnsureWorkolder(); err != nil {
+	if err := w.EnsureWorkolderExists(); err != nil {
 		return nil, err
 	}
 
-	workPath, err := ExpandHomePath(w.Workfolder)
-	if err != nil {
-		return nil, err
-	}
-
-	info, err := os.Stat(workPath)
-	if os.IsNotExist(err) {
-		err := os.MkdirAll(workPath, 0755)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create workfolder %s: %w", w.Workfolder, err)
+	switch w.AuthType {
+	case AuthTypeToken:
+		if err := w.SetTokenAuth(w.Token); err != nil {
+			return nil, err
 		}
-	} else if err != nil {
-		return nil, fmt.Errorf("error inspecting workfolder path %s: %w", w.Workfolder, err)
-	} else if !info.IsDir() {
-		return nil, fmt.Errorf("provided workfolder path %s is an existing file, not a directory", w.Workfolder)
+	case AuthTypeCredentials:
+		if err := w.SetUserPassAuth(w.Username, w.Password); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("unsupported authentication type: %s", w.AuthType)
 	}
 
-	s.Workspaces = append(s.Workspaces, *w)
+	s.Workspaces = append(s.Workspaces, w)
 
 	res := WorkSpaceRes{
 		ID:         w.ID,
@@ -131,21 +143,13 @@ func (s *Settings) RemoveWorkSpace(remove *Workspace) error {
 }
 
 func (s *Settings) UpdateWorkspace(updated *Workspace) (*WorkSpaceRes, error) {
+	w, err := s.getWorkspace(updated)
+	if err != nil {
+		return nil, err
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	targetIndex := -1
-	for i, ws := range s.Workspaces {
-		if ws.ID == updated.ID {
-			targetIndex = i
-			break
-		}
-	}
-
-	if targetIndex == -1 {
-		return nil, fmt.Errorf("workspace with ID %s not found", updated.ID)
-	}
-
-	wsPtr := &s.Workspaces[targetIndex]
 
 	if err := updated.EnsureWorkolder(); err != nil {
 		return nil, err
@@ -156,7 +160,7 @@ func (s *Settings) UpdateWorkspace(updated *Workspace) (*WorkSpaceRes, error) {
 		return nil, err
 	}
 
-	prevWorkPath, err := ExpandHomePath(wsPtr.Workfolder)
+	prevWorkPath, err := ExpandHomePath(w.Workfolder)
 	if err != nil {
 		return nil, err
 	}
@@ -181,21 +185,21 @@ func (s *Settings) UpdateWorkspace(updated *Workspace) (*WorkSpaceRes, error) {
 		return nil, fmt.Errorf("provided workfolder path %s is an existing file, not a directory", updated.Workfolder)
 	}
 
-	wsPtr.Name = updated.Name
-	wsPtr.Host = updated.Host
-	wsPtr.Port = updated.Port
-	wsPtr.SSL = updated.SSL
-	wsPtr.Workfolder = updated.Workfolder
-	wsPtr.AuthType = updated.AuthType
-	wsPtr.LastAccess = time.Now()
+	w.Name = updated.Name
+	w.Host = updated.Host
+	w.Port = updated.Port
+	w.SSL = updated.SSL
+	w.Workfolder = updated.Workfolder
+	w.AuthType = updated.AuthType
+	w.LastAccess = time.Now()
 
 	switch updated.AuthType {
 	case AuthTypeToken:
-		if err := wsPtr.SetTokenAuth(updated.Token); err != nil {
+		if err := w.SetTokenAuth(updated.Token); err != nil {
 			return nil, err
 		}
 	case AuthTypeCredentials:
-		if err := wsPtr.SetUserPassAuth(updated.Username, updated.Password); err != nil {
+		if err := w.SetUserPassAuth(updated.Username, updated.Password); err != nil {
 			return nil, err
 		}
 	default:
@@ -207,11 +211,56 @@ func (s *Settings) UpdateWorkspace(updated *Workspace) (*WorkSpaceRes, error) {
 	}
 
 	res := WorkSpaceRes{
-		ID:         wsPtr.ID,
-		Workfolder: wsPtr.Workfolder,
+		ID:         w.ID,
+		Workfolder: w.Workfolder,
 	}
 
 	return &res, nil
+}
+
+func (s *Settings) FetchFiles(ws *Workspace) ([]ProjectFile, error) {
+	w, err := s.getWorkspace(ws)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := w.EnsureWorkolderExists(); err != nil {
+		return nil, err
+	}
+
+	workPath, err := ExpandHomePath(w.Workfolder)
+	if err != nil {
+		return nil, err
+	}
+
+	return ScanWorkspaceFiles(workPath)
+}
+
+func (s *Settings) FetchScopes(ws *Workspace) ([]string, error) {
+	w, err := s.getWorkspace(ws)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := getConn(w)
+	if err != nil {
+		return nil, err
+	}
+	res, err := conn.QueryRaw("/t", "user_info();", nil)
+	if err != nil {
+		return nil, err
+	}
+	var data UserInfo
+	if err := msgpack.Unmarshal(res, &data); err != nil {
+		return nil, err
+	}
+	scopes := make([]string, 0, len(data.Access))
+	for _, item := range data.Access {
+		scopes = append(scopes, item.Scope)
+	}
+
+	return scopes, nil
 }
 
 func (s *Settings) StartCleanTask() {
@@ -222,6 +271,59 @@ func (s *Settings) StartCleanTask() {
 			s.cleanTask()
 		}
 	}()
+}
+
+func (s *Settings) getWorkspace(ws *Workspace) (*Workspace, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	targetIndex := -1
+	for i, w := range s.Workspaces {
+		if w.ID == ws.ID {
+			targetIndex = i
+			break
+		}
+	}
+
+	if targetIndex == -1 {
+		return nil, fmt.Errorf("workspace with ID %s not found", ws.ID)
+	}
+
+	return s.Workspaces[targetIndex], nil
+}
+
+func getConn(ws *Workspace) (*thingsdb.Conn, error) {
+	if ws.conn != nil && ws.conn.IsConnected() {
+		return ws.conn, nil
+	}
+	var config *tls.Config
+	if ws.SSL {
+		config = &tls.Config{InsecureSkipVerify: false}
+	}
+	conn := thingsdb.NewConn(ws.Host, uint16(ws.Port), config)
+	if err := conn.Connect(); err != nil {
+		return nil, err
+	}
+	username, password, token, err := ws.GetCredentials()
+	if err != nil {
+		return nil, err
+	}
+	switch ws.AuthType {
+	case AuthTypeToken:
+		if err := conn.AuthToken(token); err != nil {
+			conn.Close()
+			return nil, err
+		}
+	case AuthTypeCredentials:
+		if err := conn.AuthPassword(username, password); err != nil {
+			conn.Close()
+			return nil, err
+		}
+	default:
+		conn.Close()
+		return nil, fmt.Errorf("unsupported authentication type: %s", ws.AuthType)
+	}
+	ws.conn = conn
+	return ws.conn, nil
 }
 
 func loadOrCreateSettings(filename string) (*Settings, error) {
@@ -248,7 +350,7 @@ func loadOrCreateSettings(filename string) (*Settings, error) {
 				return cfg, err
 			}
 
-			cfg.Workspaces = []Workspace{workspace}
+			cfg.Workspaces = []*Workspace{&workspace}
 
 			err = cfg.Save()
 
@@ -274,7 +376,7 @@ func (s *Settings) cleanTask() {
 	now := time.Now()
 	threshold := 5 * time.Minute
 
-	var activeWorkspaces []Workspace
+	var activeWorkspaces []*Workspace
 	var directoriesToWipe []string
 
 	for _, w := range s.Workspaces {
@@ -283,19 +385,25 @@ func (s *Settings) cleanTask() {
 			if w.Workfolder != "" {
 				directoriesToWipe = append(directoriesToWipe, w.Workfolder)
 			}
-			if w.conn != nil && w.conn.IsConnected() {
-				w.conn.Close()
-				w.conn = nil
+			if w.IsQuickConnect {
+				if w.conn != nil && w.conn.IsConnected() {
+					w.mu.Lock()
+					w.conn.Close()
+					w.conn = nil
+					w.mu.Unlock()
+				}
+				continue // cleanup quick connect sessions
 			}
-			continue
 		}
-
 		activeWorkspaces = append(activeWorkspaces, w)
 	}
 
 	if len(s.Workspaces) != len(activeWorkspaces) {
 		s.Workspaces = activeWorkspaces
 		_ = s.Save()
+	}
+
+	if len(directoriesToWipe) > 0 {
 		go func(paths []string) {
 			for _, path := range paths {
 				if err := os.RemoveAll(path); err != nil {

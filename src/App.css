@@ -35,12 +35,13 @@ body {
 
 .radix-themes[data-accent-color="iris"],
 [data-accent-color="iris"] {
-
   --iris-8: var(--thingscode-blue) !important;
   --iris-a8: var(--thingscode-blue-alpha) !important;
-
   --iris-9: var(--thingscode-blue) !important;
   --iris-a9: var(--thingscode-blue-alpha) !important;
-
   --iris-10: var(--thingscode-blue-hover) !important;
+  --iris-a2: var(--thingscode-blue-alpha) !important;
+  --iris-a7: var(--thingscode-blue) !important;
+  --iris-11: var(--thingscode-blue-hover) !important;
+  --iris-a11: var(--thingscode-blue-hover) !important;
 }

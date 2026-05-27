@@ -2,6 +2,7 @@ import { Flex, Text, Button, Tooltip } from '@radix-ui/themes';
 import { ExitIcon, MoonIcon, SunIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspace } from '../../hooks';
 import { useTheme } from '../../hooks';
+import ScopeSelector from './ScopeSelector';
 
 export default function StudioTopBar() {
   const { workspace } = useActiveWorkspace();
@@ -27,6 +28,12 @@ export default function StudioTopBar() {
     >
       {/* Left side */}
       <Flex align="center" gap="2">
+        <img
+          src={appearance === 'dark' ? '/images/logo_on_dark.svg' : '/images/logo_on_white.svg'}
+          alt="ThingsDB Logo"
+          style={{ width: 28, height: 28, objectFit: 'contain' }}
+        />
+
         <Text size="1" weight="bold" color="blue">{workspace.name}</Text>
       </Flex>
 
@@ -42,7 +49,7 @@ export default function StudioTopBar() {
           zIndex: 1
         }}
       >
-        <Text size="1" color="gray">[Execution Toolbar Placeholder]</Text>
+        <ScopeSelector />
       </Flex>
 
       {/* Right side */}
