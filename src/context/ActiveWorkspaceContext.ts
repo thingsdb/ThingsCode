@@ -13,7 +13,7 @@ interface ActiveWorkspaceContextType {
 
   setActiveScopeState: (scope: string) => void;
   setActiveFile: (filename: string) => void;
-  updateFileContent: (filename: string, newContent: string) => void;
+  updateFileContent: (filename: string, newContent: string) => Promise<void>;
   refresh: () => void;
 }
 
