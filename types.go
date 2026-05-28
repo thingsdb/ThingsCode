@@ -14,9 +14,19 @@ type UserInfoAccess struct {
 	Scope      string `msgpack:"scope"`
 }
 
-// UserInfoAccess -- from thingsdb
+// UserInfo -- from thingsdb UserInfo
 type UserInfo struct {
 	Access []UserInfoAccess `msgpack:"access"`
+}
+
+// NodeInfo -- from thingsdb NodeInfo
+type NodeInfo struct {
+	NodeID int `msgpack:"node_id"`
+}
+
+type UserInfoAndNodesInfo struct {
+	NodesInfo []NodeInfo `msgpack:"nodes_info"`
+	UserInfo  UserInfo   `msgpack:"user_info"`
 }
 
 // ProjectFile for returning fetched files
@@ -33,22 +43,24 @@ const (
 )
 
 type Workspace struct {
-	ID             string            `json:"id"`
-	Name           string            `json:"name"`
-	Host           string            `json:"host"`
-	Port           int               `json:"port"`
-	AuthType       AuthType          `json:"authType"`
-	Username       string            `json:"username,omitempty"`
-	Password       string            `json:"password,omitempty"`
-	Token          string            `json:"token,omitempty"`
-	SSL            bool              `json:"ssl"`
-	Workfolder     string            `json:"workfolder"`
-	LastAccess     time.Time         `json:"lastAcces"`
-	IsTmp          bool              `json:"isTmp"`
-	IsQuickConnect bool              `json:"isQuickConnect"`
-	FileScopes     map[string]string `json:"fileScopes"`
-	mu             sync.RWMutex      `json:"-"`
-	conn           *thingsdb.Conn    `json:"-"`
+	ID             string    `json:"id"`
+	Name           string    `json:"name"`
+	Host           string    `json:"host"`
+	Port           int       `json:"port"`
+	AuthType       AuthType  `json:"authType"`
+	Username       string    `json:"username,omitempty"`
+	Password       string    `json:"password,omitempty"`
+	Token          string    `json:"token,omitempty"`
+	SSL            bool      `json:"ssl"`
+	Workfolder     string    `json:"workfolder"`
+	LastAccess     time.Time `json:"lastAcces"`
+	IsTmp          bool      `json:"isTmp"`
+	IsQuickConnect bool      `json:"isQuickConnect"`
+
+	// FileScopes only for local JSON, webserver by own request
+	FileScopes map[string]string `json:"fileScopes"`
+	mu         sync.RWMutex      `json:"-"`
+	conn       *thingsdb.Conn    `json:"-"`
 }
 
 type WorkSpaceRes struct {
@@ -72,4 +84,10 @@ type UpdateFileScope struct {
 	ID       string `json:"id"`
 	Filename string `json:"filename"`
 	Scope    string `json:"scope"`
+}
+
+type UpdateFileContent struct {
+	ID       string `json:"id"`
+	Filename string `json:"filename"`
+	Content  string `json:"content"`
 }

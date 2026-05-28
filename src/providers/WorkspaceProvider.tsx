@@ -112,7 +112,7 @@ export const WorkspaceProvider: React.FC<{
     try {
       const id = await addWorkspaceHelper(tmpWs);
       window.history.pushState({}, '', `/workspace/${id}`);
-      window.dispatchEvent(new PopStateEvent('popstate')); // Force view re-render
+      window.dispatchEvent(new PopStateEvent('popstate'));
     } catch (err) {
       console.error("Backend failed to set-up quick connect workspace:", err);
       const message = err instanceof Error

@@ -11,7 +11,6 @@ export interface Workspace {
   workfolder: string;
   isTmp: boolean;
   isQuickConnect: boolean;
-  fileScopes: Record<string, string> | null;
 }
 
 export interface ProjectFile {

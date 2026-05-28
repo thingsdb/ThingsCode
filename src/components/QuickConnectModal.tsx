@@ -36,7 +36,6 @@ export default function QuickConnectModal() {
       workfolder: '',
       isTmp: true,
       isQuickConnect: true,
-      fileScopes: {},
     });
 
     setOpen(false);

@@ -158,6 +158,18 @@ func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, "OK")
 			}
+		case "UPDATE_FILE_CONTENT":
+			var updateFileContent UpdateFileContent
+			if err := json.Unmarshal(msg.Payload, &updateFileContent); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.UpdateFileContent(&updateFileContent); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
+
 		default:
 			_ = writeError(wsConn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
 		}

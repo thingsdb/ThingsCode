@@ -17,7 +17,15 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   const fileContent = activeFile?.content ?? '';
   const [prevFilename, setPrevFilename] = useState(activeFile?.filename || '');
   const [localCode, setLocalCode] = useState(fileContent);
-  const activeFilenameRef = useRef(activeFile?.filename || 'unknown');
+  const activeFilenameRef = useRef(activeFile?.filename || '');
+
+  const localCodeRef = useRef(localCode);
+  const fileContentRef = useRef(fileContent);
+
+  useEffect(() => {
+    localCodeRef.current = localCode;
+    fileContentRef.current = fileContent;
+  }, [localCode, fileContent]);
 
   useEffect(() => {
     if (activeFile) {
@@ -26,6 +34,10 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   }, [activeFile]);
 
   if (activeFile && activeFile.filename !== prevFilename) {
+    if (prevFilename && localCode !== fileContentRef.current) {
+      console.log(`[File Switch] Force-saving changes for ${prevFilename} before switching...`);
+      updateFileContent(prevFilename, localCode);
+    }
     setPrevFilename(activeFile.filename);
     setLocalCode(fileContent);
   }
@@ -44,7 +56,14 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
       }
     }, 2000);
 
-    return () => clearTimeout(timer); // Cleanup
+    return () => {
+      clearTimeout(timer);
+      const currentFile = activeFilenameRef.current;
+      if (currentFile && currentFile !== 'unknown' && localCodeRef.current !== fileContentRef.current) {
+        console.log(`[Unmount] Force-saving final buffer snapshot for ${currentFile}...`);
+        updateFileContent(currentFile, localCodeRef.current);
+      }
+    };
   }, [localCode, activeFile, fileContent, updateFileContent]);
 
   if (!activeFile) {
@@ -58,7 +77,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   };
 
   const handleEditorDidMount = (
-    editorInstance: editor.IStandaloneCodeEditor, // 🔑 Typed correctly!
+    editorInstance: editor.IStandaloneCodeEditor,
     monaco: Monaco
   ) => {
     // Inject the active Ctrl + Enter action command

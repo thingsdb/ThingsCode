@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
@@ -8,6 +9,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/thingsdb/go-thingsdb"
@@ -247,19 +250,38 @@ func (s *Settings) FetchScopes(id string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	res, err := conn.QueryRaw("/t", "user_info();", nil)
+	res, err := conn.QueryRaw("/n", `{
+		nodes_info: nodes_info(),
+		user_info: user_info(),
+	};`, nil)
 	if err != nil {
 		return nil, err
 	}
-	var data UserInfo
+	var data UserInfoAndNodesInfo
 	if err := msgpack.Unmarshal(res, &data); err != nil {
 		return nil, err
 	}
-	scopes := make([]string, 0, len(data.Access))
-	for _, item := range data.Access {
-		scopes = append(scopes, item.Scope)
-	}
 
+	// Sort on scopes so the collection scopes are ordered
+	slices.SortFunc(data.UserInfo.Access, func(a, b UserInfoAccess) int {
+		return cmp.Compare(a.Scope, b.Scope)
+	})
+
+	// Node:0..X + other scopes
+	scopes := make([]string, 0, len(data.NodesInfo)+len(data.UserInfo.Access)-1)
+	for _, item := range data.UserInfo.Access {
+		if strings.HasPrefix(item.Scope, "@thingsdb") {
+			scopes = append(scopes, item.Scope)
+		}
+	}
+	for _, item := range data.NodesInfo {
+		scopes = append(scopes, fmt.Sprintf("@node:%d", item.NodeID))
+	}
+	for _, item := range data.UserInfo.Access {
+		if strings.HasPrefix(item.Scope, "@collection") {
+			scopes = append(scopes, item.Scope)
+		}
+	}
 	return scopes, nil
 }
 
@@ -287,6 +309,31 @@ func (s *Settings) UpdateFileScope(u *UpdateFileScope) error {
 	}
 	w.FileScopes[u.Filename] = u.Scope
 	return s.Save()
+}
+
+func (s *Settings) UpdateFileContent(u *UpdateFileContent) error {
+	w, err := s.getWorkspace(u.ID)
+	if err != nil {
+		return err
+	}
+	workPath, err := ExpandHomePath(w.Workfolder)
+	if err != nil {
+		return err
+	}
+	fullPath := filepath.Join(workPath, u.Filename)
+	go func(targetPath string, content string) {
+		dir := filepath.Dir(targetPath)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			log.Printf("[E] Failed to create directories for path %s: %v", dir, err)
+			return
+		}
+		// 0644 :: (owner read/write, group/others read).
+		if err := os.WriteFile(targetPath, []byte(content), 0644); err != nil {
+			log.Printf("[E] Background auto-save failure for file %s: %v", targetPath, err)
+			return
+		}
+	}(fullPath, u.Content)
+	return nil
 }
 
 func (s *Settings) StartCleanTask() {

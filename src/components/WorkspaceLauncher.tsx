@@ -14,7 +14,7 @@ export default function WorkspaceLauncher() {
   // Routing to workspace
   const handleWorkspaceClick = (id: string) => {
     window.history.pushState({}, '', `/workspace/${id}`);
-    window.dispatchEvent(new PopStateEvent('popstate')); // Force view re-render
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   return (

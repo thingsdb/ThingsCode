@@ -25,7 +25,7 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
   const [activeScope, setActiveScope] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [prevWorkspaceId, setPrevWorkspaceId] = useState<string | undefined>(currentWorkspace?.id);
-  const [fileScopes, setFileScopes] = useState<Record<string, string>>(currentWorkspace?.fileScopes || {});
+  const [fileScopes, setFileScopes] = useState<Record<string, string>>({});
 
 
   // Reset lifecycle states
@@ -49,7 +49,6 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     activeFetchRef.current = currentWorkspace.id;
 
     const loadWorkspaceData = async () => {
-      console.log('FETCH_FILES');
       try {
         const [_files, _scopes, _fileScopes] = await Promise.all([
           emit<ProjectFile[]>('FETCH_FILES', currentWorkspace),

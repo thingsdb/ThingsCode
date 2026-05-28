@@ -41,7 +41,7 @@ func (w *Workspace) GenerateID() {
 	}
 }
 
-// SetUserPassAuth encrypts username/password credentials block
+// SetUserPassAuth encrypts credentials block
 func (w *Workspace) SetUserPassAuth(username, password string) error {
 	secretKey, err := getOrCreateSecretKey()
 	if err != nil {
@@ -159,7 +159,7 @@ func (w *Workspace) EnsureWorkolderExists() error {
 	} else if !info.IsDir() {
 		return fmt.Errorf("provided workfolder path %s is an existing file, not a directory", w.Workfolder)
 	}
-	
+
 	return nil
 }
 

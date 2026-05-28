@@ -56,7 +56,6 @@ export default function NewWorkspaceModal() {
       workfolder,
       isTmp: workfolder === "",
       isQuickConnect: false,
-      fileScopes: {},
     });
 
     resetForm();

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Box, Flex, Text } from '@radix-ui/themes';
-import { Group, Panel, Separator, useDefaultLayout } from 'react-resizable-panels';
+import { Group, Panel, Separator, useDefaultLayout, type Layout } from 'react-resizable-panels';
+import { type PanelImperativeHandle } from 'react-resizable-panels';
 import StudioTopBar from './StudioTopBar';
 import StudioLeftPanel from './StudioLeftPanel';
 import StudioRightPanel from './StudioRightPanel';
@@ -8,7 +9,10 @@ import StudioEditor from './StudioEditor';
 import StudioConsoleHeader from './StudioConsoleHeader';
 
 export default function StudioLayout() {
+  const editorPanelRef = useRef<PanelImperativeHandle>(null);
   const [consoleTab, setConsoleTab] = useState<'output' | 'log'>('output');
+  const [cachedEditorSize, setCachedEditorSize] = useState<number | null>(null);
+  const [isConsoleMaximized, setIsConsoleMaximized] = useState(false);
 
   const horizontalLayout = useDefaultLayout({
     id: "ticode-main-horizontal-layout",
@@ -20,9 +24,44 @@ export default function StudioLayout() {
     storage: localStorage,
   });
 
+  const [currentLayout, setCurrentLayout] = useState<Layout>(verticalLayout.defaultLayout || ([] as unknown as Layout));
+
+  const handleLayoutChange = (sizes: Layout) => {
+    setCurrentLayout(sizes);
+
+    if (verticalLayout.onLayoutChanged) {
+      verticalLayout.onLayoutChanged(sizes);
+    }
+
+    if (sizes['editor-canvas-panel'] > 10 && isConsoleMaximized) {
+      setIsConsoleMaximized(false);
+    }
+  };
+
+
   const handleCreateFile = () => {
     // TODO
   }
+
+  const handleToggleConsoleMaximize = () => {
+    const editorPanel = editorPanelRef.current;
+    if (!editorPanel) return;
+
+    if (isConsoleMaximized) {
+      // RESTORE_SIZE
+      const restoreSize = cachedEditorSize !== null ? cachedEditorSize : 60;
+      editorPanel.resize(`${restoreSize}%`);
+      setIsConsoleMaximized(false);
+    } else {
+      // MAXIMIZE
+      setCachedEditorSize(currentLayout['editor-canvas-panel']);
+      editorPanel.collapse();
+      setIsConsoleMaximized(true);
+    }
+  };
+
+  const editorPercentage = currentLayout['editor-canvas-panel'] || 0;
+  const showMaximizeButton = editorPercentage >= 25 || isConsoleMaximized;
 
   return (
     <Flex
@@ -50,14 +89,25 @@ export default function StudioLayout() {
             <Group
               orientation="vertical"
               defaultLayout={verticalLayout.defaultLayout}
-              onLayoutChanged={verticalLayout.onLayoutChanged}
+              onLayoutChanged={handleLayoutChange}
             >
-              <Panel id="editor-canvas-panel" defaultSize={400} minSize={10}>
+              <Panel
+                id="editor-canvas-panel"
+                panelRef={editorPanelRef}
+                defaultSize={400}
+                collapsible={true}
+              >
                 <StudioEditor onCreateFile={handleCreateFile} />
               </Panel>
 
               <Separator className="vertical-handle" style={{ width: '100%' }}>
-                <StudioConsoleHeader consoleTab={consoleTab} setConsoleTab={setConsoleTab} />
+                <StudioConsoleHeader
+                  consoleTab={consoleTab}
+                  setConsoleTab={setConsoleTab}
+                  showExpandButton={showMaximizeButton}
+                  isMaximized={isConsoleMaximized}
+                  onToggleMaximize={handleToggleConsoleMaximize}
+                />
               </Separator>
 
               <Panel id="ouput-panel" defaultSize={200} minSize={10}>
@@ -87,9 +137,7 @@ export default function StudioLayout() {
           </Panel>
         </Group>
 
-        {/* 🎨 Optimized Unified Stylesheet Engine Blocks */}
         <style>{`
-          /* 📐 Layout Handle Settings */
           .resize-handle {
             width: 2px;
             background-color: var(--gray-4);
@@ -102,30 +150,25 @@ export default function StudioLayout() {
           .resize-handle[data-resize-handle-state="drag"] {
             background-color: var(--accent-9);
           }
-
-          /* 🚨 CRITICAL FIX: Forces the vertical drag track to let our 32px header render
-             fully instead of choking it down to the library's default 4px height restriction! */
           [data-panel-group-direction="vertical"] > [data-panel-resize-handle] {
             height: auto !important;
             background-color: transparent !important;
           }
-
-          /* 🛡️ THE ULTIMATE POINTER OVERRIDES (Bypasses the library's universal * child rules) */
           [data-panel-resize-handle-id] button,
           [data-panel-resize-handle-id] [role="button"],
           [data-resize-handle-state] button,
           .vertical-handle button {
               cursor: pointer !important;
           }
-
-          /* Optional: Fixes the tab text cursor selection frame too */
+          [data-panel-resize-handle-id] button *,
+          [data-resize-handle-state] button *,
+          .vertical-handle button * {
+              cursor: pointer !important;
+          }
           [data-panel-resize-handle-id] .action-tabs-container,
           .vertical-handle .action-tabs-container {
               cursor: default !important;
           }
-
-          /* Global Safety Mask: Maintains the drag cursor layout tracking seamlessly
-             if the user's mouse wanders into Monaco's text iframe space while active */
           body:has([data-resize-handle-state="drag"]) * {
             user-select: none !important;
           }
