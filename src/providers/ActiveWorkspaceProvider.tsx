@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useActiveWorkspaceId, useWebSocket } from '../hooks';
 import WorkspaceNotFound from '../components/WorkspaceNotFound';
 import { ActiveWorkspaceContext, WorkspaceContext } from '../context';
@@ -12,19 +12,21 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
   if (!context) {
     throw new Error("ActiveWorkspaceProvider must be wrapped within a valid WorkspaceProvider element!");
   }
-  const { workspaces, updateFileScope } = context;
+  const { workspaces } = context;
   const { status, emit } = useWebSocket();
+
+  const activeFetchRef = useRef<string | null>(null);
+  const currentWorkspace = workspaces.find((ws) => ws.id === activeId);
 
   const [files, setFiles] = useState<ProjectFile[]>([]);
   const [activeFilename, setActiveFilename] = useState<string | null>(null);
   const [scopes, setScopes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeScope, setActiveScope] = useState<string | null>(null);
-
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const currentWorkspace = workspaces.find((ws) => ws.id === activeId);
   const [prevWorkspaceId, setPrevWorkspaceId] = useState<string | undefined>(currentWorkspace?.id);
+  const [fileScopes, setFileScopes] = useState<Record<string, string>>(currentWorkspace?.fileScopes || {});
+
 
   // Reset lifecycle states
   if (currentWorkspace?.id !== prevWorkspaceId) {
@@ -35,30 +37,39 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     setActiveScope(null);
     setActiveFilename(null);
     setErrorMessage(null);
+    setFileScopes({});
   }
 
   useEffect(() => {
-    if (!currentWorkspace || status !== 'connected') return;
+    if (
+      !currentWorkspace ||
+      status !== 'connected' ||
+      activeFetchRef.current === currentWorkspace.id) return;
 
-    let isMounted = true;
+    activeFetchRef.current = currentWorkspace.id;
 
     const loadWorkspaceData = async () => {
+      console.log('FETCH_FILES');
       try {
-        const [_files, _scopes] = await Promise.all([
+        const [_files, _scopes, _fileScopes] = await Promise.all([
           emit<ProjectFile[]>('FETCH_FILES', currentWorkspace),
-          emit<string[]>('FETCH_SCOPES', currentWorkspace)
+          emit<string[]>('FETCH_SCOPES', currentWorkspace),
+          emit<Record<string, string>>('FETCH_FILE_SCOPES', currentWorkspace),
         ]);
 
-        if (!isMounted) return;
+        if (activeFetchRef.current !== currentWorkspace.id) return;
 
         setFiles(_files);
         setScopes(_scopes);
+        setFileScopes(_fileScopes);
+
         if (_files.length > 0) {
           const savedSelectedFile = localStorage.getItem('ticode-selected-file');
           const selectedFile = _files.find((file) => file.filename === savedSelectedFile) || _files[0];
           const fileToSet = selectedFile.filename;
           setActiveFilename(fileToSet);
-          const lastSelectedScope = currentWorkspace.fileScopes?.[fileToSet];
+          // Here we do take it from the current Workspace
+          const lastSelectedScope = _fileScopes[fileToSet];
           if (lastSelectedScope) {
             setActiveScope(lastSelectedScope);
           } else if (_scopes.length > 0) {
@@ -69,25 +80,20 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
         }
       } catch (err) {
         console.error("Workspace initialization aborted:", err);
-        if (isMounted) {
+        if (activeFetchRef.current === currentWorkspace.id) {
           const message = err instanceof Error
             ? err.message
             : typeof err === 'string' ? err : "Failed to load workspace.";
           setErrorMessage(message);
         }
       } finally {
-        if (isMounted) {
+        if (activeFetchRef.current === currentWorkspace.id) {
           setLoading(false);
         }
       }
     };
 
     loadWorkspaceData();
-
-    // Clean up
-    return () => {
-      isMounted = false;
-    };
   }, [currentWorkspace, status, emit]);
 
   if (!currentWorkspace) return <WorkspaceNotFound />
@@ -97,19 +103,16 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
   const setActiveFile = (filename: string) => {
     localStorage.setItem('ticode-selected-file', filename);
     setActiveFilename(filename);
-    const targetFile = files.find(f => f.filename === filename);
-    if (targetFile) {
-      const lastSelectedScope = currentWorkspace.fileScopes?.[filename];
-      if (lastSelectedScope) {
-        setActiveScopeState(lastSelectedScope);
-      }
+    const lastSelectedScope = fileScopes[filename];
+    if (lastSelectedScope) {
+      setActiveScope(lastSelectedScope);
     }
   };
 
   const setActiveScopeState = (scope: string) => {
     setActiveScope(scope);
     if (activeFilename) {
-      updateFileScope(currentWorkspace.id, activeFilename, scope);
+      updateFileScope(activeFilename, scope);
     }
   };
 
@@ -119,9 +122,28 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     ));
   };
 
+  const updateFileScope = async (filename: string, scope: string) => {
+    try {
+      await emit('UPDATE_FILE_SCOPE', {
+        id: currentWorkspace.id,
+        filename: filename,
+        scope: scope,
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to save updated file scope context metric:", err);
+    }
+    setFileScopes((prev) => {
+      return {
+        ...prev,
+        [filename]: scope,
+      };
+    });
+  };
+
   const refresh = () => {
     // Re-trigger synchronization queries manually
   };
+
 
   return (
     <ActiveWorkspaceContext.Provider value={{

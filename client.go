@@ -136,6 +136,17 @@ func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "FETCH_FILE_SCOPES":
+			var ws Workspace
+			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchFileScopes(ws.ID); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
 		case "UPDATE_FILE_SCOPE":
 			var updateFileScope UpdateFileScope
 			if err := json.Unmarshal(msg.Payload, &updateFileScope); err != nil {

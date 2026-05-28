@@ -263,6 +263,18 @@ func (s *Settings) FetchScopes(id string) ([]string, error) {
 	return scopes, nil
 }
 
+func (s *Settings) FetchFileScopes(id string) (map[string]string, error) {
+	w, err := s.getWorkspace(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if w.FileScopes != nil {
+		return w.FileScopes, nil
+	}
+	return map[string]string{}, nil
+}
+
 func (s *Settings) UpdateFileScope(u *UpdateFileScope) error {
 	w, err := s.getWorkspace(u.ID)
 	if err != nil {

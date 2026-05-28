@@ -124,32 +124,6 @@ export const WorkspaceProvider: React.FC<{
     }
   };
 
-  const updateFileScope = async (workspaceId: string, filename: string, scope: string) => {
-    setWorkspaces((prev) => {
-      return prev.map((ws) => {
-        if (ws.id !== workspaceId) return ws;
-
-        const currentScopes = ws.fileScopes ? { ...ws.fileScopes } : {};
-        currentScopes[filename] = scope;
-
-        return {
-          ...ws,
-          fileScopes: currentScopes,
-        };
-      });
-    });
-
-    try {
-      await emit('UPDATE_FILE_SCOPE', {
-        id: workspaceId,
-        filename: filename,
-        scope: scope,
-      });
-    } catch (err: unknown) {
-      console.error("Backend failed to save updated file scope context metric:", err);
-    }
-  };
-
   return (
     <WorkspaceContext.Provider value={{
       workspaces,
@@ -163,7 +137,6 @@ export const WorkspaceProvider: React.FC<{
       updateWorkspace,
       addWorkspace,
       quickConnect,
-      updateFileScope,
     }}>
       {children}
       {errorMessage && (

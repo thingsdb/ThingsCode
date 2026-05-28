@@ -44,4 +44,5 @@ body {
   --iris-a7: var(--thingscode-blue) !important;
   --iris-11: var(--thingscode-blue-hover) !important;
   --iris-a11: var(--thingscode-blue-hover) !important;
+  --iris-a3: var(--thingscode-blue-alpha) !important;
 }

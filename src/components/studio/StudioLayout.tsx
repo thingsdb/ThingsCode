@@ -36,7 +36,7 @@ export default function StudioLayout() {
           defaultLayout={horizontalLayout.defaultLayout}
           onLayoutChanged={horizontalLayout.onLayoutChanged}
         >
-          <Panel id="explorer-panel" defaultSize={200} minSize={150} maxSize={400}>
+          <Panel id="explorer-panel" defaultSize={200} minSize={170} maxSize={400}>
             <StudioLeftPanel />
           </Panel>
 
@@ -48,7 +48,7 @@ export default function StudioLayout() {
               defaultLayout={verticalLayout.defaultLayout}
               onLayoutChanged={verticalLayout.onLayoutChanged}
             >
-              <Panel id="editor-canvas-panel" defaultSize={400} minSize={200}>
+              <Panel id="editor-canvas-panel" defaultSize={400} minSize={10}>
                 <StudioEditor />
               </Panel>
 
@@ -56,7 +56,7 @@ export default function StudioLayout() {
                 <StudioConsoleHeader consoleTab={consoleTab} setConsoleTab={setConsoleTab} />
               </Separator>
 
-              <Panel id="ouput-panel" defaultSize={200} minSize={100}>
+              <Panel id="ouput-panel" defaultSize={200} minSize={10}>
                 <Box
                   style={{
                     width: '100%',
@@ -78,7 +78,7 @@ export default function StudioLayout() {
 
           <Separator className="resize-handle" />
 
-          <Panel id="context-actions-panel" defaultSize={200} minSize={150} maxSize={400}>
+          <Panel id="context-actions-panel" defaultSize={200} minSize={170} maxSize={400}>
             <StudioRightPanel />
           </Panel>
         </Group>
