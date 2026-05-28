@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -14,13 +15,7 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true }, // Dev mode CORS fix
 }
 
-type WSMessage struct {
-	Id      string          `json:"id,omitempty"`
-	Type    string          `json:"type"`
-	Payload json.RawMessage `json:"payload"`
-}
-
-func writeResponse(conn *websocket.Conn, msg *WSMessage, payload any) error {
+func writeResponse(wsConn *websocket.Conn, msg *WSMessage, payload any) error {
 	response := map[string]any{
 		"id":   msg.Id,
 		"type": msg.Type,
@@ -32,10 +27,10 @@ func writeResponse(conn *websocket.Conn, msg *WSMessage, payload any) error {
 	if err != nil {
 		return err
 	}
-	return conn.WriteMessage(websocket.TextMessage, responseBytes)
+	return wsConn.WriteMessage(websocket.TextMessage, responseBytes)
 }
 
-func writeError(conn *websocket.Conn, msg *WSMessage, err error) error {
+func writeError(wsConn *websocket.Conn, msg *WSMessage, err error) error {
 	response := map[string]any{
 		"id":   msg.Id,
 		"type": msg.Type,
@@ -43,24 +38,25 @@ func writeError(conn *websocket.Conn, msg *WSMessage, err error) error {
 			"error": err.Error(),
 		},
 	}
+	log.Printf("Error: %v", err)
 	responseBytes, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
-	return conn.WriteMessage(websocket.TextMessage, responseBytes)
+	return wsConn.WriteMessage(websocket.TextMessage, responseBytes)
 }
 
-func serveWs(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
+func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
+	wsConn, err := upgrader.Upgrade(httpRespWriter, httpRequest, nil)
 	if err != nil {
 		return
 	}
 	defer func() {
-		_ = conn.Close()
+		_ = wsConn.Close()
 	}()
 
 	for {
-		_, messageBytes, err := conn.ReadMessage()
+		_, messageBytes, err := wsConn.ReadMessage()
 		if err != nil {
 			break
 		}
@@ -73,66 +69,86 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		// ROUTE BY TYPE
 		switch msg.Type {
 		case "FETCH_WORKSPACES":
-			_ = writeResponse(conn, &msg, currentSettings.FetchWorkspaces())
+			_ = writeResponse(wsConn, &msg, currentSettings.FetchWorkspaces())
 		case "UPDATE_WORKSPACE":
-			var updatedWorkspace Workspace
-			if err := json.Unmarshal(msg.Payload, &updatedWorkspace); err != nil {
-				_ = writeError(conn, &msg, err)
+			var ws Workspace
+			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
+				_ = writeError(wsConn, &msg, err)
 				continue
 			}
-			if res, err := currentSettings.UpdateWorkspace(&updatedWorkspace); err != nil {
-				_ = writeError(conn, &msg, err)
+			if res, err := currentSettings.UpdateWorkspace(&ws); err != nil {
+				_ = writeError(wsConn, &msg, err)
 			} else {
-				_ = writeResponse(conn, &msg, res)
+				_ = writeResponse(wsConn, &msg, res)
 			}
 		case "ADD_WORKSPACE":
-			var newWorkspace Workspace
-			if err := json.Unmarshal(msg.Payload, &newWorkspace); err != nil {
-				_ = writeError(conn, &msg, err)
+			var ws Workspace
+			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
+				_ = writeError(wsConn, &msg, err)
 				continue
 			}
-			if res, err := currentSettings.AddWorkSpace(&newWorkspace); err != nil {
-				_ = writeError(conn, &msg, err)
+			if res, err := currentSettings.AddWorkSpace(&ws); err != nil {
+				_ = writeError(wsConn, &msg, err)
 			} else {
-				_ = writeResponse(conn, &msg, res)
+				_ = writeResponse(wsConn, &msg, res)
 			}
 		case "REMOVE_WORKSPACE":
-			var removeWorkspace Workspace
-			if err := json.Unmarshal(msg.Payload, &removeWorkspace); err != nil {
-				_ = writeError(conn, &msg, err)
+			var ws Workspace
+			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
+				_ = writeError(wsConn, &msg, err)
 				continue
 			}
-			if err := currentSettings.RemoveWorkSpace(&removeWorkspace); err != nil {
-				_ = writeError(conn, &msg, err)
+			if err := currentSettings.RemoveWorkSpace(ws.ID); err != nil {
+				_ = writeError(wsConn, &msg, err)
 			} else {
-				_ = writeResponse(conn, &msg, "OK")
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
+		case "CLOSE_WORKSPACE":
+			var ws Workspace
+			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.CloseWorkspace(ws.ID); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
 			}
 		case "FETCH_FILES":
 			var ws Workspace
 			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
-				_ = writeError(conn, &msg, err)
+				_ = writeError(wsConn, &msg, err)
 				continue
 			}
-			if res, err := currentSettings.FetchFiles(&ws); err != nil {
-				_ = writeError(conn, &msg, err)
+			if res, err := currentSettings.FetchFiles(ws.ID); err != nil {
+				_ = writeError(wsConn, &msg, err)
 			} else {
-				_ = writeResponse(conn, &msg, res)
+				_ = writeResponse(wsConn, &msg, res)
 			}
 		case "FETCH_SCOPES":
 			var ws Workspace
 			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
-				_ = writeError(conn, &msg, err)
+				_ = writeError(wsConn, &msg, err)
 				continue
 			}
-			if res, err := currentSettings.FetchScopes(&ws); err != nil {
-				_ = writeError(conn, &msg, err)
+			if res, err := currentSettings.FetchScopes(ws.ID); err != nil {
+				_ = writeError(wsConn, &msg, err)
 			} else {
-				_ = writeResponse(conn, &msg, res)
+				_ = writeResponse(wsConn, &msg, res)
 			}
-
-
+		case "UPDATE_FILE_SCOPE":
+			var updateFileScope UpdateFileScope
+			if err := json.Unmarshal(msg.Payload, &updateFileScope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.UpdateFileScope(&updateFileScope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
 		default:
-			_ = writeError(conn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
+			_ = writeError(wsConn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
 		}
 	}
 }

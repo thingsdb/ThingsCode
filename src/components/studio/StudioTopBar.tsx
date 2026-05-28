@@ -1,14 +1,23 @@
 import { Flex, Text, Button, Tooltip } from '@radix-ui/themes';
 import { ExitIcon, MoonIcon, SunIcon } from '@radix-ui/react-icons';
-import { useActiveWorkspace } from '../../hooks';
+import { useActiveWorkspace, useWebSocket } from '../../hooks';
 import { useTheme } from '../../hooks';
 import ScopeSelector from './ScopeSelector';
 
 export default function StudioTopBar() {
+  const { status, emit } = useWebSocket();
   const { workspace } = useActiveWorkspace();
+  const { activeFilename } = useActiveWorkspace();
   const { appearance, toggleAppearance } = useTheme();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (status === 'connected') {
+      try {
+        await emit('CLOSE_WORKSPACE', workspace);
+      } catch (e) {
+        console.warn("Quietly handled close workspace failure:", e);
+      }
+    }
     window.history.pushState({}, '', '/');
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
@@ -35,6 +44,12 @@ export default function StudioTopBar() {
         />
 
         <Text size="1" weight="bold" color="blue">{workspace.name}</Text>
+        {activeFilename && (
+          <>
+            <Text size="1" weight="bold">|</Text>
+            <Text size="1" weight="bold">{activeFilename}</Text>
+          </>
+        )}
       </Flex>
 
       {/* Center */}

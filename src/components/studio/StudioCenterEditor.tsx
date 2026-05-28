@@ -95,7 +95,9 @@ export default function StudioCenterEditor() {
           height: editorHeight,
           backgroundColor: 'var(--gray-surface)',
           borderBottom: '1px solid var(--gray-4)',
-          position: 'relative' // Helps Monaco scale its dimensions properly
+          position: 'relative', // Helps Monaco scale its dimensions properly
+          pointerEvents: isDragging ? 'none' : 'auto',
+          userSelect: isDragging ? 'none' : 'auto'
         }}
       >
         <Editor

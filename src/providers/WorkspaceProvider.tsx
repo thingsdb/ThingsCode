@@ -125,10 +125,7 @@ export const WorkspaceProvider: React.FC<{
   };
 
   const updateFileScope = async (workspaceId: string, filename: string, scope: string) => {
-    let fallback: Workspace[] = [];
-
     setWorkspaces((prev) => {
-      fallback = prev;
       return prev.map((ws) => {
         if (ws.id !== workspaceId) return ws;
 
@@ -150,7 +147,6 @@ export const WorkspaceProvider: React.FC<{
       });
     } catch (err: unknown) {
       console.error("Backend failed to save updated file scope context metric:", err);
-      setWorkspaces(fallback);
     }
   };
 

@@ -54,9 +54,11 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
         setFiles(_files);
         setScopes(_scopes);
         if (_files.length > 0) {
-          const firstFile = _files[0];
-          setActiveFilename(firstFile.filename);
-          const lastSelectedScope = currentWorkspace.fileScopes[firstFile.filename];
+          const savedSelectedFile = localStorage.getItem('ticode-selected-file');
+          const selectedFile = _files.find((file) => file.filename === savedSelectedFile) || _files[0];
+          const fileToSet = selectedFile.filename;
+          setActiveFilename(fileToSet);
+          const lastSelectedScope = currentWorkspace.fileScopes?.[fileToSet];
           if (lastSelectedScope) {
             setActiveScope(lastSelectedScope);
           } else if (_scopes.length > 0) {
@@ -85,15 +87,6 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     // Clean up
     return () => {
       isMounted = false;
-
-      const closeWorkspace = async () => {
-        try {
-          await emit('CLOSE_WORKSPACE', currentWorkspace);
-        } catch (e) {
-          console.warn("Quietly handled close workspace failure:", e);
-        }
-      };
-      closeWorkspace();
     };
   }, [currentWorkspace, status, emit]);
 
@@ -102,10 +95,11 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
   const activeFile = files.find(f => f.filename === activeFilename) || null;
 
   const setActiveFile = (filename: string) => {
+    localStorage.setItem('ticode-selected-file', filename);
     setActiveFilename(filename);
     const targetFile = files.find(f => f.filename === filename);
     if (targetFile) {
-      const lastSelectedScope = currentWorkspace.fileScopes[filename];
+      const lastSelectedScope = currentWorkspace.fileScopes?.[filename];
       if (lastSelectedScope) {
         setActiveScopeState(lastSelectedScope);
       }
