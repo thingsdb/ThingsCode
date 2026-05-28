@@ -20,8 +20,11 @@ interface WSRequest<T = unknown> {
   payload?: T;
 }
 
+interface WebSocketProviderProps {
+  children: React.ReactNode
+}
 
-export function WebSocketProvider({ children }: { children: React.ReactNode }) {
+export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);

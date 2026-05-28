@@ -49,7 +49,11 @@ export const registerThingsDBLanguage = (monacoInstance: typeof monaco) => {
 
   registerThemes(monacoInstance);
 
-  monacoInstance.languages.register({ id: 'thingsdb', extensions: ['.ti'] });
+  monacoInstance.languages.register({
+    id: 'thingsdb',
+    extensions: ['.ti', '.thingsdb'],
+    aliases: ['ThingsDB', 'thingsdb'],
+  });
 
   monacoInstance.languages.setMonarchTokensProvider('thingsdb', {
     defaultToken: 'invalid',

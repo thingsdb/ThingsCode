@@ -20,6 +20,10 @@ export default function StudioLayout() {
     storage: localStorage,
   });
 
+  const handleCreateFile = () => {
+    // TODO
+  }
+
   return (
     <Flex
       direction="column"
@@ -49,7 +53,7 @@ export default function StudioLayout() {
               onLayoutChanged={verticalLayout.onLayoutChanged}
             >
               <Panel id="editor-canvas-panel" defaultSize={400} minSize={10}>
-                <StudioEditor />
+                <StudioEditor onCreateFile={handleCreateFile} />
               </Panel>
 
               <Separator className="vertical-handle" style={{ width: '100%' }}>

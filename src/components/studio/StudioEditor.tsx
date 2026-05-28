@@ -1,14 +1,57 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Box } from '@radix-ui/themes';
 import Editor, { type Monaco } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
-import { useTheme } from '../../hooks';
+import { useTheme, useActiveWorkspace } from '../../hooks';
 import { registerThingsDBLanguage } from '../../utils/thingsdb';
+import NoActiveFile from './NoActiveFile';
 
+interface StudioEditorProps {
+  onCreateFile: () => void;
+}
 
-export default function StudioEditor() {
+export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   const { appearance } = useTheme();
-  const [code, setCode] = useState('// ThingsCode IDE Engine\n"Hello World";\n');
+  const { activeFile, updateFileContent } = useActiveWorkspace();
+
+  const fileContent = activeFile?.content ?? '';
+  const [prevFilename, setPrevFilename] = useState(activeFile?.filename || '');
+  const [localCode, setLocalCode] = useState(fileContent);
+  const activeFilenameRef = useRef(activeFile?.filename || 'unknown');
+
+  useEffect(() => {
+    if (activeFile) {
+      activeFilenameRef.current = activeFile.filename;
+    }
+  }, [activeFile]);
+
+  if (activeFile && activeFile.filename !== prevFilename) {
+    setPrevFilename(activeFile.filename);
+    setLocalCode(fileContent);
+  }
+
+  useEffect(() => {
+    if (!activeFile?.filename || localCode === fileContent) return;
+
+    const timer = setTimeout(async () => {
+      if (activeFilenameRef.current === activeFile.filename) {
+        console.log(`[Debounce] Auto-saving changes for ${activeFile.filename}...`);
+        try {
+          await updateFileContent(activeFile.filename, localCode);
+        } catch (err) {
+          console.error("Failed to auto-save file chunk:", err);
+        }
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer); // Cleanup
+  }, [localCode, activeFile, fileContent, updateFileContent]);
+
+  if (!activeFile) {
+    return (
+      <NoActiveFile onCreateFile={onCreateFile} />
+    )
+  }
 
   const handleEditorWillMount = (monaco: Monaco) => {
     registerThingsDBLanguage(monaco);
@@ -35,11 +78,10 @@ export default function StudioEditor() {
       }}
     >
       <Editor
+        path={activeFile.filename}
         theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
-        defaultLanguage="thingsdb" // TODO: language
-        defaultValue="// ThingsCode IDE Engine v1.0&#10;'Hello World';&#10;"
-        value={code}
-        onChange={(val) => setCode(val || '')}
+        value={localCode}
+        onChange={(val) => setLocalCode(val || '')}
         beforeMount={handleEditorWillMount}
         onMount={handleEditorDidMount}
         options={{

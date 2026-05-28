@@ -116,10 +116,25 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     }
   };
 
-  const updateFileContent = (filename: string, newContent: string) => {
+  const updateFileContent = async (filename: string, newContent: string) => {
     setFiles(prev => prev.map(f =>
       f.filename === filename ? { ...f, content: newContent } : f
     ));
+    try {
+      await emit('UPDATE_FILE_CONTENT', {
+        id: currentWorkspace.id,
+        filename: filename,
+        content: newContent,
+      })
+    } catch (err) {
+        console.error("Failed to save file:", err);
+        if (activeFetchRef.current === currentWorkspace.id) {
+          const message = err instanceof Error
+            ? err.message
+            : typeof err === 'string' ? err : "Failed to save file.";
+          setErrorMessage(message);
+        }
+    }
   };
 
   const updateFileScope = async (filename: string, scope: string) => {

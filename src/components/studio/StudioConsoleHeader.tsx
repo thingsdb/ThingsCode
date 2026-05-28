@@ -1,13 +1,15 @@
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { Button, Flex } from "@radix-ui/themes";
 
+interface StudioConsoleHeaderProps {
+  consoleTab: 'output' | 'log';
+  setConsoleTab: (tab: 'output' | 'log') => void
+}
+
 export default function StudioConsoleHeader({
   consoleTab,
   setConsoleTab
-}: {
-  consoleTab: 'output' | 'log';
-  setConsoleTab: (tab: 'output' | 'log') => void
-}) {
+}: StudioConsoleHeaderProps) {
   return (
     <Flex
       px="2"
