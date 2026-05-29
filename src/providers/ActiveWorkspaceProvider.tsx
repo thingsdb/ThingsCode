@@ -20,6 +20,7 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
 
   const [files, setFiles] = useState<ProjectFile[]>([]);
   const [activeFilename, setActiveFilename] = useState<string | null>(null);
+  const [activeContent, setActiveContent] = useState<string | null>(null);
   const [scopes, setScopes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeScope, setActiveScope] = useState<string | null>(null);
@@ -118,14 +119,10 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     }
   };
 
-  const updateFileContent = (filename: string, newContent: string) => {
+  const storeFileContent = async (filename: string, newContent: string) => {
     setFiles(prev => prev.map(f =>
       f.filename === filename ? { ...f, content: newContent } : f
     ));
-  };
-
-  const storeFileContent = async (filename: string, newContent: string) => {
-    updateFileContent(filename, newContent);
     try {
       await emit('UPDATE_FILE_CONTENT', {
         id: currentWorkspace.id,
@@ -301,6 +298,7 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
       workspace: currentWorkspace,
       files,
       activeFilename,
+      activeContent,
       activeFile,
       scopes,
       activeScope,
@@ -308,11 +306,11 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
       isExecuting,
 
       setActiveScopeState,
+      setActiveContent,
       setActiveFile,
       createFile,
       renameFile,
       deleteFile,
-      updateFileContent,
       storeFileContent,
       updateQueryVars,
       execCode,

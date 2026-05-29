@@ -8,7 +8,7 @@ import QueryVarsDialog from './QueryVarsDialog';
 
 export default function StudioTopBar() {
   const { status, emit } = useWebSocket();
-  const { activeScope, activeFile, updateQueryVars , activeFilename, workspace, isExecuting, execCode } = useActiveWorkspace();
+  const { activeScope, activeFile, updateQueryVars, activeFilename, activeContent, workspace, isExecuting, execCode } = useActiveWorkspace();
   const { appearance, toggleAppearance } = useTheme();
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
@@ -27,8 +27,8 @@ export default function StudioTopBar() {
   };
 
   const handleExecuteCode = () => {
-    if (!activeFile || !activeScope) return;
-    execCode(activeFile.filename, activeScope, activeFile.content, activeFile.queryVars)
+    if (!activeFile || !activeScope || activeContent === null) return;
+    execCode(activeFile.filename, activeScope, activeContent, activeFile.queryVars)
   };
 
   return (

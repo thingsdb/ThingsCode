@@ -12,9 +12,8 @@ interface StudioEditorProps {
 
 export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   const { appearance } = useTheme();
-  const { isExecuting, execCode, activeScope, activeFile, updateFileContent, storeFileContent } = useActiveWorkspace();
+  const { isExecuting, execCode, activeScope, activeFile, activeContent, setActiveContent, storeFileContent } = useActiveWorkspace();
 
-  // 🔑 1. ALL HOOKS ARE DECLARED UNCONDITIONALLY AT THE VERY TOP
   const currentFilename = activeFile?.filename || '';
   const fileContent = activeFile?.content ?? '';
 
@@ -31,16 +30,10 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     queryVars: activeFile?.queryVars
   });
 
-  // 🔄 2. SAFE SYNCHRONOUS RENDER-PHASE TAB TRANSITION
-  // No references (.current) or effects are accessed inside this block!
   if (currentFilename !== prevFilename) {
-    const fileLeaving = prevFilename;
-    const staleLocalCode = localCode; // Use the direct local state variable
-
-    // Force-save the file we are leaving behind if it has pending changes
-    if (fileLeaving && fileLeaving !== 'unknown') {
-      console.log(`[Tab Switch Save] Force-saving edits for ${fileLeaving}...`);
-      storeFileContent(fileLeaving, staleLocalCode);
+    if (prevFilename && prevFilename !== 'unknown') {
+      console.log(`[Tab Switch Save] Force-saving edits for ${prevFilename}...`);
+      storeFileContent(prevFilename, localCode);
     }
 
     // Immediately synchronize local state snapshots for the new file
@@ -57,7 +50,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     };
   }, [currentFilename, activeScope, activeFile?.queryVars]);
 
-  // Safely synchronize our reference wrappers after the render paints
+  // Safely synchronize reference wrappers after the render paints
   useEffect(() => {
     localCodeRef.current = localCode;
   }, [localCode]);
@@ -70,42 +63,29 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     saveActionRef.current = storeFileContent;
   }, [storeFileContent]);
 
-
-  // useEffect(() => {
-  //   if (!currentFilename || localCode === fileContent) return;
-
-  //   // Wait exactly 250ms after you stop typing to sync the global menu bar text
-  //   const contextTimer = setTimeout(() => {
-  //     updateFileContent(currentFilename, localCode);
-  //   }, 250);
-
-  //   return () => clearTimeout(contextTimer);
-  // }, [localCode, currentFilename, fileContent, updateFileContent]);
-
-
-  // 🔄 3. AUTO-SAVE DEBOUNCE COUNTDOWN HOOK
   useEffect(() => {
     if (!currentFilename) return;
 
-    // Send keystroke string updates up to the parent context container layout
-    // if (localCode !== savedBaselineCode) {
-    //   updateFileContent(currentFilename, localCode);
-    // }
+    if (localCode !== activeContent) {
+      setActiveContent(localCode);
+    }
 
     const timer = setTimeout(async () => {
       // Compare local buffered edits directly against our stable text baseline
       console.log(`[Debounce] Auto-saving changes for ${currentFilename}...`);
-      try {
-        await storeFileContent(currentFilename, localCode);
-      } catch (err) {
-        console.error("Failed to auto-save file chunk:", err);
+      if (localCode !== activeContent) {
+        try {
+          await storeFileContent(currentFilename, localCode);
+        } catch (err) {
+          console.error("Failed to auto-save file chunk:", err);
+        }
       }
     }, 2000);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [localCode, currentFilename, updateFileContent, storeFileContent]);
+  }, [localCode, activeContent, currentFilename, setActiveContent, storeFileContent]);
 
   useEffect(() => {
     return () => {

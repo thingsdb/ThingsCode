@@ -42,7 +42,6 @@ export default function StudioResultView() {
   const { activeFile, isExecuting } = useActiveWorkspace();
 
   const result = useMemo<Result | null>(() => {
-    console.log(activeFile?.result?.ts);
     return activeFile?.result || null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFile?.result?.ts]);
