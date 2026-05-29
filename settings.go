@@ -330,10 +330,116 @@ func (s *Settings) UpdateFileContent(u *UpdateFileContent) error {
 		// 0644 :: (owner read/write, group/others read).
 		if err := os.WriteFile(targetPath, []byte(content), 0644); err != nil {
 			log.Printf("[E] Background auto-save failure for file %s: %v", targetPath, err)
-			return
 		}
 	}(fullPath, u.Content)
 	return nil
+}
+
+func (s *Settings) CreateFile(u *CreateFile) error {
+	w, err := s.getWorkspace(u.ID)
+	if err != nil {
+		return err
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	workPath, err := ExpandHomePath(w.Workfolder)
+	if err != nil {
+		return err
+	}
+
+	if w.FileScopes != nil {
+		delete(w.FileScopes, u.Filename) // just to make sure we start empty
+	}
+
+	go func(workPath, filename string) {
+		filePath := filepath.Join(workPath, filename)
+
+		dir := filepath.Dir(workPath)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			log.Printf("[E] Failed to create directories for path %s: %v", dir, err)
+			return
+		}
+		// 0644 :: (owner read/write, group/others read).
+		if err := os.WriteFile(filePath, []byte(""), 0644); err != nil {
+			log.Printf("[E] Background create file fault %s: %v", filePath, err)
+		}
+	}(workPath, u.Filename)
+	return s.Save()
+}
+
+func (s *Settings) RenameFile(u *RenameFile) error {
+	if u.Filename == u.NewFilename {
+		return nil // should not happen
+	}
+	w, err := s.getWorkspace(u.ID)
+	if err != nil {
+		return err
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	workPath, err := ExpandHomePath(w.Workfolder)
+	if err != nil {
+		return err
+	}
+
+	if w.FileScopes != nil {
+		if scope, found := w.FileScopes[u.Filename]; found {
+			w.FileScopes[u.NewFilename] = scope
+			delete(w.FileScopes, u.Filename)
+		}
+	}
+
+	go func(workPath, filename, newFilename string) {
+		if queryVarsPath, found := QueryVarsPath(workPath, filename); found {
+			if queryVarsNewPath, found := QueryVarsPath(workPath, newFilename); found {
+				_ = os.Rename(queryVarsPath, queryVarsNewPath)
+			}
+		}
+		if resultPath, found := ResultPath(workPath, filename); found {
+			if resultNewPath, found := ResultPath(workPath, newFilename); found {
+				_ = os.Rename(resultPath, resultNewPath)
+			}
+		}
+		filePath := filepath.Join(workPath, filename)
+		fileNewPath := filepath.Join(workPath, newFilename)
+		_ = os.Rename(filePath, fileNewPath)
+	}(workPath, u.Filename, u.NewFilename)
+	return s.Save()
+}
+
+func (s *Settings) DeleteFile(u *DeleteFile) error {
+	w, err := s.getWorkspace(u.ID)
+	if err != nil {
+		return err
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	workPath, err := ExpandHomePath(w.Workfolder)
+	if err != nil {
+		return err
+	}
+
+	if w.FileScopes != nil {
+		delete(w.FileScopes, u.Filename)
+	}
+
+	go func(workPath, filename string) {
+		if queryVarsPath, found := QueryVarsPath(workPath, filename); found {
+			_ = os.Remove(queryVarsPath)
+		}
+		if resultPath, found := ResultPath(workPath, filename); found {
+			_ = os.Remove(resultPath)
+		}
+		filePath := filepath.Join(workPath, filename)
+		_ = os.Remove(filePath)
+	}(workPath, u.Filename)
+	return s.Save()
 }
 
 func (s *Settings) UpdateQueryVars(u *UpdateQueryVars) error {

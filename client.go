@@ -170,6 +170,39 @@ func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, "OK")
 			}
+		case "CREATE_FILE":
+			var createFile CreateFile
+			if err := json.Unmarshal(msg.Payload, &createFile); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.CreateFile(&createFile); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
+		case "RENAME_FILE":
+			var renameFile RenameFile
+			if err := json.Unmarshal(msg.Payload, &renameFile); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.RenameFile(&renameFile); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
+		case "DELETE_FILE":
+			var deleteFile DeleteFile
+			if err := json.Unmarshal(msg.Payload, &deleteFile); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.DeleteFile(&deleteFile); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
 		case "UPDATE_EXEC_ARGS":
 			var updateQueryVars UpdateQueryVars
 			if err := json.Unmarshal(msg.Payload, &updateQueryVars); err != nil {

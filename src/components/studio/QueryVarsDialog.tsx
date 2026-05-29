@@ -1,6 +1,5 @@
-// src/components/studio/QueryVarsDialog.tsx
 import { useState } from 'react';
-import { Dialog, Flex, Button, Text, Box } from '@radix-ui/themes';
+import { Dialog, Flex, Button, Box } from '@radix-ui/themes';
 import Editor from '@monaco-editor/react';
 import { useTheme } from '../../hooks';
 
@@ -64,11 +63,11 @@ export default function QueryVarsDialog({
             value={localJson}
             onChange={handleEditorChange}
             options={{
-              minimap: { enabled: false }, // Hide minimap inside small dialog blocks
+              minimap: { enabled: false },
               fontSize: 12,
               lineNumbers: 'on',
               tabSize: 2,
-              automaticLayout: true, // Crucial for rendering inside modals that animate open
+              automaticLayout: true, // For rendering inside modals that animate open
               scrollbar: { vertical: 'visible', horizontal: 'hidden' },
             }}
           />

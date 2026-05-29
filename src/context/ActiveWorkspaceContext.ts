@@ -14,6 +14,7 @@ interface ActiveWorkspaceContextType {
 
   setActiveScopeState: (scope: string) => void;
   setActiveFile: (filename: string) => void;
+  createFile: (filename: string) => void;
   renameFile: (filename: string, newFilename: string) => void;
   deleteFile: (filename: string) => void;
   updateFileContent: (filename: string, newContent: string) => void;

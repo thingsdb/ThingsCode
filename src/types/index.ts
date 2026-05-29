@@ -14,7 +14,7 @@ export interface Workspace {
 }
 
 export interface Result {
-  data: any | null;
+  data: unknown | null;
   error: string | null;
   warning: string | null;
 }

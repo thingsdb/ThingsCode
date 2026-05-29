@@ -4,16 +4,20 @@ import { PlusIcon, FileIcon, Pencil2Icon, TrashIcon, MagnifyingGlassIcon } from 
 import { useActiveWorkspace } from '../../hooks';
 import RenameFileDialog from './RenameFileDialog';
 import { ConfirmDialog } from '..';
+import CreateFileDialog from './CreateFileDialog';
 
 export default function StudioLeftPanel() {
-  const { files, loading, activeFilename, renameFile, deleteFile, setActiveFile } = useActiveWorkspace();
+  const { files, loading, activeFilename, createFile, renameFile, deleteFile, setActiveFile } = useActiveWorkspace();
   const [searchQuery, setSearchQuery] = useState('');
+
+    // Create Dialog
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // Rename Dialog
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [fileToRename, setFileToRename] = useState('');
 
-  //
+  // Delete Dialog
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState('');
 
@@ -27,9 +31,14 @@ export default function StudioLeftPanel() {
     );
   });
 
-  const handleCreateFile = () => {
-    // TODO
-    console.log("Create file action invoked");
+  const handleCreateClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsCreateOpen(true);
+  };
+
+  const handleCreateConfirm = (filename: string) => {
+    console.log(`Create new file request for ${filename}`);
+    createFile(filename);
   };
 
   const handleRenameClick = (e: React.MouseEvent, filename: string) => {
@@ -75,7 +84,7 @@ export default function StudioLeftPanel() {
             size="1"
             variant="soft"
             color="green"
-            onClick={handleCreateFile}
+            onClick={handleCreateClick}
             style={{ cursor: 'pointer' }}
           >
             <PlusIcon width="12" height="12" />
@@ -203,10 +212,17 @@ export default function StudioLeftPanel() {
           }
         `}</style>
       </Flex>
+      <CreateFileDialog
+          isOpen={isCreateOpen}
+          onOpenChange={setIsCreateOpen}
+          existingFiles={files.map(file => file.filename)}
+          onCreate={handleCreateConfirm}
+      />
       <RenameFileDialog
           isOpen={isRenameOpen}
           onOpenChange={setIsRenameOpen}
           filename={fileToRename}
+          existingFiles={files.map(file => file.filename)}
           onRename={handleRenameConfirm}
       />
       <ConfirmDialog

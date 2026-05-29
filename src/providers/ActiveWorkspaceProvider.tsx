@@ -185,6 +185,35 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     });
   };
 
+  const createFile = async (filename: string) => {
+    try {
+      await emit('CREATE_FILE', {
+        id: currentWorkspace.id,
+        filename: filename,
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to create file:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to create file.";
+        setErrorMessage(message);
+      }
+    }
+    setFiles(prev => {
+      return [
+        ...prev,
+        {
+          filename,
+          content: '',
+          result: null,
+          queryVars: null,
+        } as ProjectFile
+      ];
+    });
+    setActiveFilename(filename);
+  };
+
   const renameFile = async (filename: string, newFilename: string) => {
     try {
       await emit('RENAME_FILE', {
@@ -204,10 +233,12 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     setFiles(prev => prev.map(f =>
       f.filename === filename ? { ...f, filename: newFilename } : f
     ));
-    setActiveFile
+    if (activeFilename === filename) {
+      setActiveFilename(newFilename);
+    }
   };
 
-    const deleteFile = async (filename: string) => {
+  const deleteFile = async (filename: string) => {
     try {
       await emit('DELETE_FILE', {
         id: currentWorkspace.id,
@@ -223,6 +254,9 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
       }
     }
     setFiles(prev => prev.filter((file) => file.filename !== filename));
+    if (activeFilename === filename) {
+      setActiveFilename(null);
+    }
   };
 
   const execCode = async (filename: string, scope: string, code: string, queryVars: string | null) => {
@@ -272,6 +306,7 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
 
       setActiveScopeState,
       setActiveFile,
+      createFile,
       renameFile,
       deleteFile,
       updateFileContent,

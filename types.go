@@ -94,6 +94,22 @@ type UpdateFileContent struct {
 	Content  string `json:"content"`
 }
 
+type CreateFile struct {
+	ID       string `json:"id"`
+	Filename string `json:"filename"`
+}
+
+type RenameFile struct {
+	ID          string `json:"id"`
+	Filename    string `json:"filename"`
+	NewFilename string `json:"newFilename"`
+}
+
+type DeleteFile struct {
+	ID       string `json:"id"`
+	Filename string `json:"filename"`
+}
+
 type UpdateQueryVars struct {
 	ID        string `json:"id"`
 	Filename  string `json:"filename"`

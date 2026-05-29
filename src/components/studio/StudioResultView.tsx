@@ -5,7 +5,7 @@ import { useActiveWorkspace, useTheme } from '../../hooks';
 import { useMemo } from 'react';
 
 export interface Result {
-  data: any | null;
+  data: unknown | null;
   error: string | null;
   warning: string | null;
 }
@@ -46,9 +46,9 @@ export default function StudioResultView() {
   }, [activeFile?.result]);
 
   const formattedJson = useMemo(() => {
-    if (!result || result.data === null) return '';
+    if (result?.data === null) return '';
 
-    return JSON.stringify(result.data, null, 2);
+    return JSON.stringify(result?.data, null, 2);
   }, [result?.data]);
 
   if (result === null || (result.data === null && !result.error && !result.warning)) {

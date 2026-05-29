@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Dialog, Flex, Button, TextField, Text } from '@radix-ui/themes';
-import { Pencil1Icon } from '@radix-ui/react-icons';
+import { Dialog, Flex, Button, TextField, Text, Box } from '@radix-ui/themes';
+import { ExclamationTriangleIcon, Pencil1Icon } from '@radix-ui/react-icons';
 
 interface RenameFileDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   filename: string;
+  existingFiles: string[];
   onRename: (oldName: string, newName: string) => void;
 }
 
@@ -13,6 +14,7 @@ export default function RenameFileDialog({
   isOpen,
   onOpenChange,
   filename,
+  existingFiles,
   onRename,
 }: RenameFileDialogProps) {
   const [newName, setNewName] = useState('');
@@ -38,7 +40,12 @@ export default function RenameFileDialog({
 
   // Validation rules
   const trimmedName = newName.trim();
-  const isValid = trimmedName !== '' && trimmedName !== filename;
+  const isDuplicate = existingFiles
+    .filter((f) => f !== filename)
+    .some((f) => f.toLowerCase() == trimmedName.toLowerCase());  // Case-insensitive for Windows?
+  const isSameName = trimmedName === filename;
+  const isEmpty = trimmedName === '';
+  const isValid = !isEmpty && !isDuplicate && !isSameName;
 
   const handleSubmit = (e: React.ChangeEvent) => {
     e.preventDefault();
@@ -71,6 +78,17 @@ export default function RenameFileDialog({
               <Pencil1Icon height="14" width="14" />
             </TextField.Slot>
           </TextField.Root>
+
+          {isDuplicate && (
+            <Box mb="4">
+              <Flex gap="1" align="center" className="text-amber-600 dark:text-amber-400">
+                <ExclamationTriangleIcon width="12" height="12" />
+                <Text size="1" weight="medium">
+                  A file named "{trimmedName}" already exists in this workspace.
+                </Text>
+              </Flex>
+            </Box>
+          )}
 
           <Flex gap="3" justify="end">
             <Dialog.Close>
