@@ -22,8 +22,6 @@ export default function RenameFileDialog({
 
   useEffect(() => {
     if (isOpen) {
-      setNewName(filename);
-
       setTimeout(() => {
         if (inputRef.current) {
           inputRef.current.focus();

@@ -98,7 +98,9 @@ export default function StudioLayout() {
                 defaultSize={400}
                 collapsible={true}
               >
-                <StudioEditor onCreateFile={handleCreateFile} />
+                <StudioEditor
+                  onCreateFile={handleCreateFile}
+                />
               </Panel>
 
               <Separator className="vertical-handle" style={{ width: '100%' }}>

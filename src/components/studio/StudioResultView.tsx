@@ -73,6 +73,8 @@ export default function StudioResultView() {
     );
   }
 
+  console.log('RESULT RENDER');
+
   return (
     <Flex direction="column" gap="2" style={{ height: '100%', width: '100%' }}>
       {result.warning && (

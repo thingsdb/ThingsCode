@@ -15,30 +15,30 @@ export default function CreateFileDialog({
   existingFiles,
   onCreate,
 }: CreateFileDialogProps) {
-  const [filename, setFilename] = useState('');
+  const [filename, setFilename] = useState(() => {
+    let n = 0;
+    let fn = `Untitled-${n}.ti`;
+
+    while (true) {
+      const nameExists = existingFiles.some(
+        (f) => f.toLowerCase() === fn.toLowerCase()
+      );
+      if (!nameExists) {
+        break;
+      }
+      n++;
+      fn = `Untitled-${n}.ti`;
+    }
+    return fn;
+  });
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    console.log('OPEN: ', isOpen);
-    if (isOpen) {let n = 0;
-      let fn = `Untitled-${n}.ti`;
-
-      while (true) {
-        const nameExists = existingFiles.some(
-          (f) => f.toLowerCase() === fn.toLowerCase()
-        );
-        if (!nameExists) {
-          break;
-        }
-        n++;
-        fn = `Untitled-${n}.ti`;
-      }
-      setFilename(fn);
-
+    if (isOpen) {
       setTimeout(() => {
         if (inputRef.current) {
           inputRef.current.focus();
-          const dotIndex = fn.lastIndexOf('.');
+          const dotIndex = filename.lastIndexOf('.');
           if (dotIndex > 0) {
             inputRef.current.setSelectionRange(0, dotIndex);
           } else {
@@ -47,7 +47,7 @@ export default function CreateFileDialog({
         }
       }, 50);
     }
-  }, [isOpen, existingFiles]);
+  }, [isOpen, filename]);
 
   // Validation rules
   const trimmedName = filename.trim();

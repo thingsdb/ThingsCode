@@ -219,6 +219,7 @@ export default function StudioLeftPanel() {
           onCreate={handleCreateConfirm}
       />
       <RenameFileDialog
+          key={`rename-${fileToRename}-${isRenameOpen}`}
           isOpen={isRenameOpen}
           onOpenChange={setIsRenameOpen}
           filename={fileToRename}
@@ -226,6 +227,7 @@ export default function StudioLeftPanel() {
           onRename={handleRenameConfirm}
       />
       <ConfirmDialog
+        key={`delete-${fileToDelete}-${isDeleteOpen}`}
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         title="Remove File"

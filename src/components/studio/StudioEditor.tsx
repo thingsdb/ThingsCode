@@ -14,57 +14,79 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   const { appearance } = useTheme();
   const { isExecuting, execCode, activeScope, activeFile, updateFileContent, storeFileContent } = useActiveWorkspace();
 
+  // 🔑 Safe top-level initialization variables
+  const currentFilename = activeFile?.filename || '';
   const fileContent = activeFile?.content ?? '';
-  const [prevFilename, setPrevFilename] = useState(activeFile?.filename || '');
+
   const [localCode, setLocalCode] = useState(fileContent);
-  const activeFilenameRef = useRef(activeFile?.filename || '');
+  const [trackedFilename, setTrackedFilename] = useState(currentFilename);
+
+  const localCodeRef = useRef(localCode);
+  const fileContentRef = useRef(fileContent);
+  const filenameRef = useRef(currentFilename);
+  const saveActionRef = useRef(storeFileContent);
 
   const executionContextRef = useRef({
-    filename: activeFile?.filename || '',
+    filename: currentFilename,
     activeScope,
     queryVars: activeFile?.queryVars
   });
 
-  const localCodeRef = useRef(localCode);
-  const fileContentRef = useRef(fileContent);
-
+  // Sync execution parameters for Monaco keyboard hotkeys
   useEffect(() => {
     executionContextRef.current = {
-      filename: activeFile?.filename || '',
+      filename: currentFilename,
       activeScope,
       queryVars: activeFile?.queryVars
     };
-  }, [activeFile?.filename, activeScope, activeFile?.queryVars]);
+  }, [currentFilename, activeScope, activeFile?.queryVars]);
 
+  // Synchronize mutable refs safely outside of the rendering pass pipeline
   useEffect(() => {
     localCodeRef.current = localCode;
+  }, [localCode]);
+
+  useEffect(() => {
     fileContentRef.current = fileContent;
-  }, [localCode, fileContent]);
+  }, [fileContent]);
 
   useEffect(() => {
-    if (activeFile) {
-      activeFilenameRef.current = activeFile.filename;
-    }
-  }, [activeFile]);
-
-  if (activeFile && activeFile.filename !== prevFilename) {
-    if (prevFilename && localCode !== fileContentRef.current) {
-      console.log(`[File Switch] Force-saving changes for ${prevFilename} before switching...`);
-      storeFileContent(prevFilename, localCode);
-    }
-    setPrevFilename(activeFile.filename);
-    setLocalCode(fileContent);
-  }
+    filenameRef.current = currentFilename;
+  }, [currentFilename]);
 
   useEffect(() => {
-    if (!activeFile?.filename || localCode === fileContent) return;
-    updateFileContent(activeFile.filename, localCode);
+    saveActionRef.current = storeFileContent;
+  }, [storeFileContent]);
+
+  // 🔑 THE SAFE TAB SWITCH MONITOR (Runs cleanly inside a hook after render paint)
+  useEffect(() => {
+    if (currentFilename && currentFilename !== trackedFilename) {
+      // If the user left a modified file buffer behind, auto-save it
+      if (trackedFilename && trackedFilename !== 'unknown' && localCodeRef.current !== fileContentRef.current) {
+        console.log(`[Tab Switch Save] Force-saving edits for ${trackedFilename}...`);
+        storeFileContent(trackedFilename, localCodeRef.current);
+      }
+
+      // Sync the local states to display the newly active file
+      setTrackedFilename(currentFilename);
+      setLocalCode(fileContent);
+    }
+  }, [currentFilename, trackedFilename, fileContent, storeFileContent]);
+
+  // 🔄 Auto-save Debounce Countdown
+  useEffect(() => {
+    if (!currentFilename) return;
+
+    // Send keystroke string updates up to the parent context container layout
+    if (localCode !== fileContent) {
+      updateFileContent(currentFilename, localCode);
+    }
 
     const timer = setTimeout(async () => {
-      if (activeFilenameRef.current === activeFile.filename) {
-        console.log(`[Debounce] Auto-saving changes for ${activeFile.filename}...`);
+      if (localCode !== fileContentRef.current) {
+        console.log(`[Debounce] Auto-saving changes for ${currentFilename}...`);
         try {
-          await storeFileContent(activeFile.filename, localCode);
+          await storeFileContent(currentFilename, localCode);
         } catch (err) {
           console.error("Failed to auto-save file chunk:", err);
         }
@@ -73,14 +95,24 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
 
     return () => {
       clearTimeout(timer);
-      const currentFile = activeFilenameRef.current;
-      if (currentFile && currentFile !== 'unknown' && localCodeRef.current !== fileContentRef.current) {
-        console.log(`[Unmount] Force-saving ${currentFile}...`);
-        storeFileContent(currentFile, localCodeRef.current);
+    };
+  }, [localCode, currentFilename, fileContent, updateFileContent, storeFileContent]);
+
+  // 📦 APPLICATION CLOSED TEARDOWN SAFEGUARD
+  useEffect(() => {
+    return () => {
+      const fileLeaving = filenameRef.current;
+      const staleLocalCode = localCodeRef.current;
+      const staleServerCode = fileContentRef.current;
+
+      if (fileLeaving && fileLeaving !== 'unknown' && staleLocalCode !== staleServerCode) {
+        console.log(`[Teardown] Unmounting workspace editor. Saving final buffer for ${fileLeaving}...`);
+        saveActionRef.current(fileLeaving, staleLocalCode);
       }
     };
-  }, [localCode, activeFile, fileContent, updateFileContent, storeFileContent]);
+  }, []);
 
+  // Guard Clause sits safely at the bottom, AFTER all hook allocations
   if (!activeFile || !activeScope) {
     return <NoActiveFile onCreateFile={onCreateFile} />;
   }
@@ -93,7 +125,6 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     editorInstance: editor.IStandaloneCodeEditor,
     monaco: Monaco
   ) => {
-    // Inject the active Ctrl + Enter action command
     editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
       const currentCode = editorInstance.getValue();
       const { filename: freshFilename, activeScope: freshScope, queryVars: freshVars } = executionContextRef.current;
@@ -112,10 +143,11 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
         borderBottom: '1px solid var(--gray-4)',
         position: 'relative',
         opacity: isExecuting ? '50%' : '100%',
+        transition: 'opacity 0.2s ease',
       }}
     >
       <Editor
-        path={activeFile.filename}
+        path={currentFilename}
         theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
         value={localCode}
         onChange={(val) => setLocalCode(val || '')}
