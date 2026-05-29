@@ -14,15 +14,16 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   const { appearance } = useTheme();
   const { isExecuting, execCode, activeScope, activeFile, updateFileContent, storeFileContent } = useActiveWorkspace();
 
-  // 🔑 Safe top-level initialization variables
+  // 🔑 1. ALL HOOKS ARE DECLARED UNCONDITIONALLY AT THE VERY TOP
   const currentFilename = activeFile?.filename || '';
   const fileContent = activeFile?.content ?? '';
 
   const [localCode, setLocalCode] = useState(fileContent);
-  const [trackedFilename, setTrackedFilename] = useState(currentFilename);
+  const [prevFilename, setPrevFilename] = useState(currentFilename);
+  const [savedBaselineCode, setSavedBaselineCode] = useState(fileContent);
 
   const localCodeRef = useRef(localCode);
-  const fileContentRef = useRef(fileContent);
+  const savedBaselineRef = useRef(savedBaselineCode);
   const filenameRef = useRef(currentFilename);
   const saveActionRef = useRef(storeFileContent);
 
@@ -31,6 +32,25 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     activeScope,
     queryVars: activeFile?.queryVars
   });
+
+  // 🔄 2. SAFE SYNCHRONOUS RENDER-PHASE TAB TRANSITION
+  // No references (.current) or effects are accessed inside this block!
+  if (currentFilename !== prevFilename) {
+    const fileLeaving = prevFilename;
+    const staleLocalCode = localCode; // Use the direct local state variable
+    const staleServerCode = savedBaselineCode; // Use the direct baseline state variable
+
+    // Force-save the file we are leaving behind if it has pending changes
+    if (fileLeaving && fileLeaving !== 'unknown' && staleLocalCode !== staleServerCode) {
+      console.log(`[Tab Switch Save] Force-saving edits for ${fileLeaving}...`);
+      storeFileContent(fileLeaving, staleLocalCode);
+    }
+
+    // Immediately synchronize local state snapshots for the new file
+    setPrevFilename(currentFilename);
+    setLocalCode(fileContent);
+    setSavedBaselineCode(fileContent);
+  }
 
   // Sync execution parameters for Monaco keyboard hotkeys
   useEffect(() => {
@@ -41,14 +61,14 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     };
   }, [currentFilename, activeScope, activeFile?.queryVars]);
 
-  // Synchronize mutable refs safely outside of the rendering pass pipeline
+  // Safely synchronize our reference wrappers after the render paints
   useEffect(() => {
     localCodeRef.current = localCode;
   }, [localCode]);
 
   useEffect(() => {
-    fileContentRef.current = fileContent;
-  }, [fileContent]);
+    savedBaselineRef.current = savedBaselineCode;
+  }, [savedBaselineCode]);
 
   useEffect(() => {
     filenameRef.current = currentFilename;
@@ -58,35 +78,35 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     saveActionRef.current = storeFileContent;
   }, [storeFileContent]);
 
-  // 🔑 THE SAFE TAB SWITCH MONITOR (Runs cleanly inside a hook after render paint)
-  useEffect(() => {
-    if (currentFilename && currentFilename !== trackedFilename) {
-      // If the user left a modified file buffer behind, auto-save it
-      if (trackedFilename && trackedFilename !== 'unknown' && localCodeRef.current !== fileContentRef.current) {
-        console.log(`[Tab Switch Save] Force-saving edits for ${trackedFilename}...`);
-        storeFileContent(trackedFilename, localCodeRef.current);
-      }
 
-      // Sync the local states to display the newly active file
-      setTrackedFilename(currentFilename);
-      setLocalCode(fileContent);
-    }
-  }, [currentFilename, trackedFilename, fileContent, storeFileContent]);
+  // useEffect(() => {
+  //   if (!currentFilename || localCode === fileContent) return;
 
-  // 🔄 Auto-save Debounce Countdown
+  //   // Wait exactly 250ms after you stop typing to sync the global menu bar text
+  //   const contextTimer = setTimeout(() => {
+  //     updateFileContent(currentFilename, localCode);
+  //   }, 250);
+
+  //   return () => clearTimeout(contextTimer);
+  // }, [localCode, currentFilename, fileContent, updateFileContent]);
+
+
+  // 🔄 3. AUTO-SAVE DEBOUNCE COUNTDOWN HOOK
   useEffect(() => {
     if (!currentFilename) return;
 
     // Send keystroke string updates up to the parent context container layout
-    if (localCode !== fileContent) {
-      updateFileContent(currentFilename, localCode);
-    }
+    // if (localCode !== savedBaselineCode) {
+    //   updateFileContent(currentFilename, localCode);  <--- this is the issue. But if i leave out, and press "RUN" immediatly, it is not updated. However, if I add, activeFile get renewed and we loop
+    // }
 
     const timer = setTimeout(async () => {
-      if (localCode !== fileContentRef.current) {
+      // Compare local buffered edits directly against our stable text baseline
+      if (localCode !== savedBaselineRef.current) {
         console.log(`[Debounce] Auto-saving changes for ${currentFilename}...`);
         try {
           await storeFileContent(currentFilename, localCode);
+          setSavedBaselineCode(localCode); // Lift the baseline up to match the successful save
         } catch (err) {
           console.error("Failed to auto-save file chunk:", err);
         }
@@ -96,14 +116,13 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     return () => {
       clearTimeout(timer);
     };
-  }, [localCode, currentFilename, fileContent, updateFileContent, storeFileContent]);
+  }, [localCode, currentFilename, savedBaselineCode, updateFileContent, storeFileContent]);
 
-  // 📦 APPLICATION CLOSED TEARDOWN SAFEGUARD
   useEffect(() => {
     return () => {
       const fileLeaving = filenameRef.current;
       const staleLocalCode = localCodeRef.current;
-      const staleServerCode = fileContentRef.current;
+      const staleServerCode = savedBaselineRef.current;
 
       if (fileLeaving && fileLeaving !== 'unknown' && staleLocalCode !== staleServerCode) {
         console.log(`[Teardown] Unmounting workspace editor. Saving final buffer for ${fileLeaving}...`);
@@ -112,7 +131,6 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     };
   }, []);
 
-  // Guard Clause sits safely at the bottom, AFTER all hook allocations
   if (!activeFile || !activeScope) {
     return <NoActiveFile onCreateFile={onCreateFile} />;
   }
