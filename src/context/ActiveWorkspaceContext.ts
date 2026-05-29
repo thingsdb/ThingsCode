@@ -10,10 +10,16 @@ interface ActiveWorkspaceContextType {
   scopes: string[];
   activeScope: string | null;
   loading: boolean;
+  isExecuting: boolean;
 
   setActiveScopeState: (scope: string) => void;
   setActiveFile: (filename: string) => void;
-  updateFileContent: (filename: string, newContent: string) => Promise<void>;
+  renameFile: (filename: string, newFilename: string) => void;
+  deleteFile: (filename: string) => void;
+  updateFileContent: (filename: string, newContent: string) => void;
+  storeFileContent: (filename: string, newContent: string) => Promise<void>;
+  updateQueryVars: (filename: string, newQueryVars: string) => Promise<void>;
+  execCode: (filename: string, scope: string, code: string, queryVars: string | null) => Promise<void>;
   refresh: () => void;
 }
 

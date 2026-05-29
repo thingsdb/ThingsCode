@@ -1,14 +1,18 @@
-import { Flex, Text, Button, Tooltip } from '@radix-ui/themes';
-import { ExitIcon, MoonIcon, SunIcon } from '@radix-ui/react-icons';
+import { Flex, Text, Button, Tooltip, IconButton, Separator } from '@radix-ui/themes';
+import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspace, useWebSocket } from '../../hooks';
 import { useTheme } from '../../hooks';
 import ScopeSelector from './ScopeSelector';
+import { useState } from 'react';
+import QueryVarsDialog from './QueryVarsDialog';
 
 export default function StudioTopBar() {
   const { status, emit } = useWebSocket();
-  const { workspace } = useActiveWorkspace();
-  const { activeFilename } = useActiveWorkspace();
+  const { activeScope, activeFile, updateQueryVars , activeFilename, workspace, isExecuting, execCode } = useActiveWorkspace();
   const { appearance, toggleAppearance } = useTheme();
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
+
+  const isTiCode = activeFilename && activeFilename.endsWith('.ti');
 
   const handleLogout = async () => {
     if (status === 'connected') {
@@ -20,6 +24,11 @@ export default function StudioTopBar() {
     }
     window.history.pushState({}, '', '/');
     window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
+  const handleExecuteCode = () => {
+    if (!activeFile || !activeScope) return;
+    execCode(activeFile.filename, activeScope, activeFile.content, activeFile.queryVars)
   };
 
   return (
@@ -46,7 +55,7 @@ export default function StudioTopBar() {
         <Text size="1" weight="bold" color="blue">{workspace.name}</Text>
         {activeFilename && (
           <>
-            <Text size="1" weight="bold">|</Text>
+            <Separator orientation="vertical" size="1" />
             <Text size="1" weight="bold">{activeFilename}</Text>
           </>
         )}
@@ -64,7 +73,44 @@ export default function StudioTopBar() {
           zIndex: 1
         }}
       >
-        <ScopeSelector />
+        <ScopeSelector disabled={!isTiCode} />
+        <Flex align="center" gap="2">
+
+          <Button
+            size="2"
+            color="green"
+            variant="solid"
+            loading={isExecuting}
+            disabled={!isTiCode}
+            onClick={handleExecuteCode}
+            style={{ cursor: isTiCode ? 'pointer' : 'not-allowed' }}
+          >
+            <PlayIcon width="14" height="14" />
+          </Button>
+
+          <Separator orientation="vertical" size="1" />
+
+          <IconButton
+            variant="ghost"
+            color="gray"
+            size="2"
+            disabled={!isTiCode}
+            onClick={() => setIsConfigOpen(true)}
+            title="Edit Execution Arguments (JSON)"
+            style={{ cursor: isTiCode ? 'pointer' : 'not-allowed' }}
+          >
+            <GearIcon width="16" height="16" />
+          </IconButton>
+
+        </Flex>
+
+        {isConfigOpen && (
+          <QueryVarsDialog
+            onOpenChange={setIsConfigOpen}
+            configJson={activeFile?.queryVars || "{ }"}
+            onSave={(validJson) => updateQueryVars(activeFile?.filename || 'unknown.ti', validJson)}
+          />
+        )}
       </Flex>
 
       {/* Right side */}

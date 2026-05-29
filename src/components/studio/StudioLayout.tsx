@@ -7,10 +7,11 @@ import StudioLeftPanel from './StudioLeftPanel';
 import StudioRightPanel from './StudioRightPanel';
 import StudioEditor from './StudioEditor';
 import StudioConsoleHeader from './StudioConsoleHeader';
+import StudioResultView from './StudioResultView';
 
 export default function StudioLayout() {
   const editorPanelRef = useRef<PanelImperativeHandle>(null);
-  const [consoleTab, setConsoleTab] = useState<'output' | 'log'>('output');
+  const [consoleTab, setConsoleTab] = useState<'result' | 'log'>('result');
   const [cachedEditorSize, setCachedEditorSize] = useState<number | null>(null);
   const [isConsoleMaximized, setIsConsoleMaximized] = useState(false);
 
@@ -118,10 +119,10 @@ export default function StudioLayout() {
                     backgroundColor: 'var(--gray-surface)',
                     borderTop: '1px solid var(--gray-4)'
                   }}
-                  p="3"
+                  p="0"
                 >
-                  {consoleTab === 'output' ? (
-                    <Text size="1" style={{ fontFamily: 'monospace' }}>{"..."}</Text>
+                  {consoleTab === 'result' ? (
+                    <StudioResultView />
                   ) : (
                     <Text size="1" style={{ fontFamily: 'monospace', color: '#f39c12' }}>{"..."}</Text>
                   )}

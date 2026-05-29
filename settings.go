@@ -336,6 +336,74 @@ func (s *Settings) UpdateFileContent(u *UpdateFileContent) error {
 	return nil
 }
 
+func (s *Settings) UpdateQueryVars(u *UpdateQueryVars) error {
+	w, err := s.getWorkspace(u.ID)
+	if err != nil {
+		return err
+	}
+	workPath, err := ExpandHomePath(w.Workfolder)
+	if err != nil {
+		return err
+	}
+	if queryVarsPath, found := QueryVarsPath(workPath, u.Filename); found {
+		go func(targetPath string, content string) {
+			// 0644 :: (owner read/write, group/others read). (asume folder exists)
+			if err := os.WriteFile(targetPath, []byte(content), 0644); err != nil {
+				log.Printf("[E] Failed saving execution arguments %s: %v", targetPath, err)
+				return
+			}
+		}(queryVarsPath, u.QueryVars)
+	}
+	return nil
+}
+
+func (s *Settings) ExecCode(c *ExecCode) (*Result, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := getConn(w)
+	if err != nil {
+		return nil, err
+	}
+	res, err := conn.Query(c.Scope, c.Code, c.Vars)
+	result := Result{}
+	if err != nil {
+		result.Error = err.Error()
+	} else {
+		sanitized, found := convertBinary(res)
+		if found {
+			result.Warning = "Warning: binary data was converted to base64"
+		}
+		result.Data = sanitized
+	}
+
+	dump, err := json.Marshal(result)
+	if err != nil {
+		return nil, err
+	}
+
+	if workPath, err := ExpandHomePath(w.Workfolder); err == nil {
+		if resultPath, found := ResultPath(workPath, c.Filename); found {
+			go func(targetPath string, content []byte) {
+				// 0644 :: (owner read/write, group/others read). (asume folder exists)
+				if err := os.WriteFile(resultPath, dump, 0644); err != nil {
+					log.Printf("[E] Failed saving result %s: %v", targetPath, err)
+					return
+				}
+			}(resultPath, dump)
+		}
+	} else {
+		log.Printf("[E] Failed saving result [No workPath]: %v", err)
+	}
+
+	return &result, nil
+}
+
 func (s *Settings) StartCleanTask() {
 	ticker := time.NewTicker(1 * time.Minute)
 	go func() {

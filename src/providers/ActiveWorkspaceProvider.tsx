@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useActiveWorkspaceId, useWebSocket } from '../hooks';
 import WorkspaceNotFound from '../components/WorkspaceNotFound';
 import { ActiveWorkspaceContext, WorkspaceContext } from '../context';
-import type { ProjectFile } from '../types';
+import type { ProjectFile, Result } from '../types';
 import { NotificationToast } from '../components';
 
 
@@ -26,7 +26,7 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [prevWorkspaceId, setPrevWorkspaceId] = useState<string | undefined>(currentWorkspace?.id);
   const [fileScopes, setFileScopes] = useState<Record<string, string>>({});
-
+  const [isExecuting, setIsExecuting] = useState<boolean>(false);
 
   // Reset lifecycle states
   if (currentWorkspace?.id !== prevWorkspaceId) {
@@ -115,10 +115,14 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     }
   };
 
-  const updateFileContent = async (filename: string, newContent: string) => {
+  const updateFileContent = (filename: string, newContent: string) => {
     setFiles(prev => prev.map(f =>
       f.filename === filename ? { ...f, content: newContent } : f
     ));
+  };
+
+  const storeFileContent = async (filename: string, newContent: string) => {
+    updateFileContent(filename, newContent);
     try {
       await emit('UPDATE_FILE_CONTENT', {
         id: currentWorkspace.id,
@@ -136,6 +140,27 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     }
   };
 
+  const updateQueryVars = async (filename: string, newQueryVars: string) => {
+    setFiles(prev => prev.map(f =>
+      f.filename === filename ? { ...f, queryVars: newQueryVars } : f
+    ));
+    try {
+      await emit('UPDATE_EXEC_ARGS', {
+        id: currentWorkspace.id,
+        filename: filename,
+        queryVars: newQueryVars,
+      })
+    } catch (err) {
+      console.error("Failed to save execution arguments:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to save execution arguments.";
+        setErrorMessage(message);
+      }
+    }
+  };
+
   const updateFileScope = async (filename: string, scope: string) => {
     try {
       await emit('UPDATE_FILE_SCOPE', {
@@ -144,7 +169,13 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
         scope: scope,
       });
     } catch (err: unknown) {
-      console.error("Backend failed to save updated file scope context metric:", err);
+      console.error("Backend failed to save updated file scope:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to save file scope.";
+        setErrorMessage(message);
+      }
     }
     setFileScopes((prev) => {
       return {
@@ -154,10 +185,79 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     });
   };
 
+  const renameFile = async (filename: string, newFilename: string) => {
+    try {
+      await emit('RENAME_FILE', {
+        id: currentWorkspace.id,
+        filename: filename,
+        newFilename: newFilename,
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to rename file:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to rename file.";
+        setErrorMessage(message);
+      }
+    }
+    setFiles(prev => prev.map(f =>
+      f.filename === filename ? { ...f, filename: newFilename } : f
+    ));
+    setActiveFile
+  };
+
+    const deleteFile = async (filename: string) => {
+    try {
+      await emit('DELETE_FILE', {
+        id: currentWorkspace.id,
+        filename: filename,
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to delete file:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to delete file.";
+        setErrorMessage(message);
+      }
+    }
+    setFiles(prev => prev.filter((file) => file.filename !== filename));
+  };
+
+  const execCode = async (filename: string, scope: string, code: string, queryVars: string | null) => {
+    setIsExecuting(true);
+    setFiles(prev => prev.map(f =>
+      f.filename === filename ? { ...f, result: null } : f
+    ));
+    try {
+      const vars = queryVars ? JSON.parse(queryVars) : null;
+      const result = await emit('EXEC_CODE', {
+        id: currentWorkspace.id,
+        filename,
+        scope,
+        code,
+        vars,
+      }) as Result;
+      setFiles(prev => prev.map(f =>
+        f.filename === filename ? { ...f, result: result } : f
+      ));
+    } catch (err: unknown) {
+      console.error("Failed to save execution arguments:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to save execution arguments.";
+        setErrorMessage(message);
+      }
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
   const refresh = () => {
     // Re-trigger synchronization queries manually
   };
-
 
   return (
     <ActiveWorkspaceContext.Provider value={{
@@ -168,10 +268,17 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
       scopes,
       activeScope,
       loading,
+      isExecuting,
+
       setActiveScopeState,
       setActiveFile,
+      renameFile,
+      deleteFile,
       updateFileContent,
-      refresh
+      storeFileContent,
+      updateQueryVars,
+      execCode,
+      refresh,
     }}>
       {children}
       {errorMessage && (

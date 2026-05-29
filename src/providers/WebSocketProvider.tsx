@@ -98,13 +98,13 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
       socketRef.current.send(JSON.stringify(message));
 
-      // 10-second timeout so promises don't hang forever if server dies
+      // 20-second timeout so promises don't hang forever if server dies
       setTimeout(() => {
         if (pendingRequestsRef.current.has(msgId)) {
           pendingRequestsRef.current.get(msgId)!.reject(new Error(`Request "${type}" timed out.`));
           pendingRequestsRef.current.delete(msgId);
         }
-      }, 10000);
+      }, 20000);
     });
   }, []);
 

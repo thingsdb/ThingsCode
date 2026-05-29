@@ -16,12 +16,13 @@ var upgrader = websocket.Upgrader{
 }
 
 func writeResponse(wsConn *websocket.Conn, msg *WSMessage, payload any) error {
+	payloadMap := map[string]any{
+		"data": payload,
+	}
 	response := map[string]any{
-		"id":   msg.Id,
-		"type": msg.Type,
-		"payload": map[string]any{
-			"data": payload,
-		},
+		"id":      msg.Id,
+		"type":    msg.Type,
+		"payload": payloadMap,
 	}
 	responseBytes, err := json.Marshal(response)
 	if err != nil {
@@ -168,6 +169,28 @@ func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeError(wsConn, &msg, err)
 			} else {
 				_ = writeResponse(wsConn, &msg, "OK")
+			}
+		case "UPDATE_EXEC_ARGS":
+			var updateQueryVars UpdateQueryVars
+			if err := json.Unmarshal(msg.Payload, &updateQueryVars); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.UpdateQueryVars(&updateQueryVars); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
+		case "EXEC_CODE":
+			var execCode ExecCode
+			if err := json.Unmarshal(msg.Payload, &execCode); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.ExecCode(&execCode); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
 			}
 
 		default:

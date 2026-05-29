@@ -13,7 +13,16 @@ export interface Workspace {
   isQuickConnect: boolean;
 }
 
+export interface Result {
+  data: any | null;
+  error: string | null;
+  warning: string | null;
+}
+
 export interface ProjectFile {
   filename: string;
   content: string;
+  result: Result | null;
+  queryVars: string | null;
 }
+

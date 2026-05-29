@@ -1,9 +1,9 @@
 import { ChevronUpIcon, DragHandleHorizontalIcon } from "@radix-ui/react-icons";
-import { Button, ChevronDownIcon, Flex } from "@radix-ui/themes";
+import { Button, ChevronDownIcon, Flex, SegmentedControl } from "@radix-ui/themes";
 
 interface StudioConsoleHeaderProps {
-  consoleTab: 'output' | 'log';
-  setConsoleTab: (tab: 'output' | 'log') => void
+  consoleTab: 'result' | 'log';
+  setConsoleTab: (tab: 'result' | 'log') => void
   showExpandButton: boolean;
   isMaximized: boolean;
   onToggleMaximize: () => void;
@@ -16,7 +16,6 @@ export default function StudioConsoleHeader({
   isMaximized,
   onToggleMaximize,
 }: StudioConsoleHeaderProps) {
-  console.log('showExpandButton', showExpandButton);
   return (
     <Flex
       px="2"
@@ -37,24 +36,19 @@ export default function StudioConsoleHeader({
           gap: '8px',
         }}
       >
-        <Button
+        <SegmentedControl.Root
           size="1"
-          variant={consoleTab === 'output' ? 'solid' : 'outline'}
-          color={consoleTab === 'output' ? 'iris' : 'gray'}
-          onClick={() => setConsoleTab('output')}
+          value={consoleTab}
+          onValueChange={(value) => setConsoleTab(value as 'result' | 'log')}
           style={{ cursor: 'pointer' }}
         >
-          JSON Output
-        </Button>
-        <Button
-          size="1"
-          variant={consoleTab === 'log' ? 'solid' : 'outline'}
-          color={consoleTab === 'log' ? 'iris' : 'gray'}
-          onClick={() => setConsoleTab('log')}
-          style={{ cursor: 'pointer' }}
-        >
-          Node Logs
-        </Button>
+          <SegmentedControl.Item value="result">
+            Result
+          </SegmentedControl.Item>
+          <SegmentedControl.Item value="log">
+            Node Logs
+          </SegmentedControl.Item>
+        </SegmentedControl.Root>
       </div>
       <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', color: 'var(--gray-8)' }}>
         <DragHandleHorizontalIcon width="20" height="20" />

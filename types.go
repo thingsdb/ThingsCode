@@ -31,8 +31,10 @@ type UserInfoAndNodesInfo struct {
 
 // ProjectFile for returning fetched files
 type ProjectFile struct {
-	Filename string `json:"filename"`
-	Content  string `json:"content,omitempty"`
+	Filename  string  `json:"filename"`
+	Content   string  `json:"content,omitempty"`
+	QueryVars string  `json:"queryVars,omitempty"`
+	Result    *Result `json:"result,omitempty"`
 }
 
 type AuthType string
@@ -90,4 +92,24 @@ type UpdateFileContent struct {
 	ID       string `json:"id"`
 	Filename string `json:"filename"`
 	Content  string `json:"content"`
+}
+
+type UpdateQueryVars struct {
+	ID        string `json:"id"`
+	Filename  string `json:"filename"`
+	QueryVars string `json:"queryVars"`
+}
+
+type ExecCode struct {
+	ID       string         `json:"id"`
+	Filename string         `json:"filename"`
+	Scope    string         `json:"scope"`
+	Code     string         `json:"code"`
+	Vars     map[string]any `json:"vars"`
+}
+
+type Result struct {
+	Data    any    `json:"data,omitempty"`
+	Warning string `json:"warning,omitempty"`
+	Error   string `json:"error,omitempty"`
 }

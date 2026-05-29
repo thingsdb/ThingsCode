@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -8,8 +9,6 @@ import (
 	"slices"
 	"strings"
 )
-
-
 
 func isBinary(path string) (bool, error) {
 	file, err := os.Open(path)
@@ -19,7 +18,6 @@ func isBinary(path string) (bool, error) {
 	defer func() {
 		_ = file.Close()
 	}()
-
 
 	buffer := make([]byte, 512)
 	n, err := file.Read(buffer)
@@ -70,10 +68,27 @@ func ScanWorkspaceFiles(rootFolder string) ([]ProjectFile, error) {
 			continue
 		}
 
-		projectFiles = append(projectFiles, ProjectFile{
+		projectFile := ProjectFile{
 			Filename: entry.Name(),
 			Content:  string(contentBytes),
-		})
+		}
+
+		if resultPath, found := ResultPath(rootFolder, entry.Name()); found {
+			if resultBin, err := os.ReadFile(resultPath); err == nil && len(resultBin) > 0 {
+				var result Result
+				if err := json.Unmarshal(resultBin, &result); err == nil {
+					projectFile.Result = &result
+				}
+			}
+		}
+
+		if queryVarsPath, found := QueryVarsPath(rootFolder, entry.Name()); found {
+			if queryVarsBin, err := os.ReadFile(queryVarsPath); err == nil && len(queryVarsBin) > 0 {
+				projectFile.QueryVars = string(queryVarsBin)
+			}
+		}
+
+		projectFiles = append(projectFiles, projectFile)
 	}
 
 	return projectFiles, nil
