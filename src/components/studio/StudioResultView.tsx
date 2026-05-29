@@ -42,8 +42,10 @@ export default function StudioResultView() {
   const { activeFile, isExecuting } = useActiveWorkspace();
 
   const result = useMemo<Result | null>(() => {
+    console.log(activeFile?.result?.ts);
     return activeFile?.result || null;
-  }, [activeFile?.result]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFile?.result?.ts]);
 
   const formattedJson = useMemo(() => {
     if (result?.data === null) return '';
@@ -72,8 +74,6 @@ export default function StudioResultView() {
       </Flex>
     );
   }
-
-  console.log('RESULT RENDER');
 
   return (
     <Flex direction="column" gap="2" style={{ height: '100%', width: '100%' }}>

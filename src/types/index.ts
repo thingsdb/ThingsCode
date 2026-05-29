@@ -17,6 +17,7 @@ export interface Result {
   data: unknown | null;
   error: string | null;
   warning: string | null;
+  ts: number;
 }
 
 export interface ProjectFile {

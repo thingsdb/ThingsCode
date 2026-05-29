@@ -20,10 +20,8 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
 
   const [localCode, setLocalCode] = useState(fileContent);
   const [prevFilename, setPrevFilename] = useState(currentFilename);
-  const [savedBaselineCode, setSavedBaselineCode] = useState(fileContent);
 
   const localCodeRef = useRef(localCode);
-  const savedBaselineRef = useRef(savedBaselineCode);
   const filenameRef = useRef(currentFilename);
   const saveActionRef = useRef(storeFileContent);
 
@@ -38,10 +36,9 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   if (currentFilename !== prevFilename) {
     const fileLeaving = prevFilename;
     const staleLocalCode = localCode; // Use the direct local state variable
-    const staleServerCode = savedBaselineCode; // Use the direct baseline state variable
 
     // Force-save the file we are leaving behind if it has pending changes
-    if (fileLeaving && fileLeaving !== 'unknown' && staleLocalCode !== staleServerCode) {
+    if (fileLeaving && fileLeaving !== 'unknown') {
       console.log(`[Tab Switch Save] Force-saving edits for ${fileLeaving}...`);
       storeFileContent(fileLeaving, staleLocalCode);
     }
@@ -49,7 +46,6 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     // Immediately synchronize local state snapshots for the new file
     setPrevFilename(currentFilename);
     setLocalCode(fileContent);
-    setSavedBaselineCode(fileContent);
   }
 
   // Sync execution parameters for Monaco keyboard hotkeys
@@ -65,10 +61,6 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   useEffect(() => {
     localCodeRef.current = localCode;
   }, [localCode]);
-
-  useEffect(() => {
-    savedBaselineRef.current = savedBaselineCode;
-  }, [savedBaselineCode]);
 
   useEffect(() => {
     filenameRef.current = currentFilename;
@@ -97,34 +89,30 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
 
     // Send keystroke string updates up to the parent context container layout
     // if (localCode !== savedBaselineCode) {
-    //   updateFileContent(currentFilename, localCode);  <--- this is the issue. But if i leave out, and press "RUN" immediatly, it is not updated. However, if I add, activeFile get renewed and we loop
+    //   updateFileContent(currentFilename, localCode);
     // }
 
     const timer = setTimeout(async () => {
       // Compare local buffered edits directly against our stable text baseline
-      if (localCode !== savedBaselineRef.current) {
-        console.log(`[Debounce] Auto-saving changes for ${currentFilename}...`);
-        try {
-          await storeFileContent(currentFilename, localCode);
-          setSavedBaselineCode(localCode); // Lift the baseline up to match the successful save
-        } catch (err) {
-          console.error("Failed to auto-save file chunk:", err);
-        }
+      console.log(`[Debounce] Auto-saving changes for ${currentFilename}...`);
+      try {
+        await storeFileContent(currentFilename, localCode);
+      } catch (err) {
+        console.error("Failed to auto-save file chunk:", err);
       }
     }, 2000);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [localCode, currentFilename, savedBaselineCode, updateFileContent, storeFileContent]);
+  }, [localCode, currentFilename, updateFileContent, storeFileContent]);
 
   useEffect(() => {
     return () => {
       const fileLeaving = filenameRef.current;
       const staleLocalCode = localCodeRef.current;
-      const staleServerCode = savedBaselineRef.current;
 
-      if (fileLeaving && fileLeaving !== 'unknown' && staleLocalCode !== staleServerCode) {
+      if (fileLeaving && fileLeaving !== 'unknown') {
         console.log(`[Teardown] Unmounting workspace editor. Saving final buffer for ${fileLeaving}...`);
         saveActionRef.current(fileLeaving, staleLocalCode);
       }

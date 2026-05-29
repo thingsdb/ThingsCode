@@ -477,7 +477,9 @@ func (s *Settings) ExecCode(c *ExecCode) (*Result, error) {
 		return nil, err
 	}
 	res, err := conn.Query(c.Scope, c.Code, c.Vars)
-	result := Result{}
+	result := Result{
+		Ts: time.Now(),
+	}
 	if err != nil {
 		result.Error = err.Error()
 	} else {

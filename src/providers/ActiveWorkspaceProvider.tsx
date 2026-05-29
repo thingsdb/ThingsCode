@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
 import { useActiveWorkspaceId, useWebSocket } from '../hooks';
 import WorkspaceNotFound from '../components/WorkspaceNotFound';
 import { ActiveWorkspaceContext, WorkspaceContext } from '../context';
@@ -38,6 +38,7 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     setActiveFilename(null);
     setErrorMessage(null);
     setFileScopes({});
+    setIsExecuting(false);
   }
 
   useEffect(() => {
@@ -95,9 +96,11 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
     loadWorkspaceData();
   }, [currentWorkspace, status, emit]);
 
-  if (!currentWorkspace) return <WorkspaceNotFound />
+  const activeFile = useMemo(() => {
+    return files.find(f => f.filename === activeFilename) || null;
+  }, [files, activeFilename])
 
-  const activeFile = files.find(f => f.filename === activeFilename) || null;
+  if (!currentWorkspace) return <WorkspaceNotFound />
 
   const setActiveFile = (filename: string) => {
     localStorage.setItem('ticode-selected-file', filename);

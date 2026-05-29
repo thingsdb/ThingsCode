@@ -125,7 +125,8 @@ type ExecCode struct {
 }
 
 type Result struct {
-	Data    any    `json:"data,omitempty"`
-	Warning string `json:"warning,omitempty"`
-	Error   string `json:"error,omitempty"`
+	Data    any       `json:"data,omitempty"`
+	Warning string    `json:"warning,omitempty"`
+	Error   string    `json:"error,omitempty"`
+	Ts      time.Time `json:"ts"`
 }
