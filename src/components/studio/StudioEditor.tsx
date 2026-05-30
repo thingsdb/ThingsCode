@@ -31,12 +31,16 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   });
 
   if (currentFilename !== prevFilename) {
-    if (prevFilename && prevFilename !== 'unknown') {
-      console.log(`[Tab Switch Save] Force-saving edits for ${prevFilename}...`);
-      storeFileContent(prevFilename, localCode);
+    const fileLeaving = prevFilename;
+    const codeToSave = localCode;
+
+    if (fileLeaving && fileLeaving !== 'unknown') {
+      queueMicrotask(() => {
+        console.log(`[Tab Switch Save] Safely deferred force-saving edits for ${fileLeaving}...`);
+        storeFileContent(fileLeaving, codeToSave);
+      });
     }
 
-    // Immediately synchronize local state snapshots for the new file
     setPrevFilename(currentFilename);
     setLocalCode(fileContent);
   }
@@ -96,6 +100,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
         console.log(`[Teardown] Unmounting workspace editor. Saving final buffer for ${fileLeaving}...`);
         saveActionRef.current(fileLeaving, staleLocalCode);
       }
+
     };
   }, []);
 

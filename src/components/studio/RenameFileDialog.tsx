@@ -17,7 +17,7 @@ export default function RenameFileDialog({
   existingFiles,
   onRename,
 }: RenameFileDialogProps) {
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState(filename);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
