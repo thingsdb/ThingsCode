@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Dialog, Flex, Button, TextField, Text, Box } from '@radix-ui/themes';
 import { ExclamationTriangleIcon, Pencil1Icon } from '@radix-ui/react-icons';
 
 interface CreateFileDialogProps {
-  isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   existingFiles: string[];
   onCreate: (filename: string) => void;
 }
 
 export default function CreateFileDialog({
-  isOpen,
   onOpenChange,
   existingFiles,
   onCreate,
@@ -19,55 +17,44 @@ export default function CreateFileDialog({
     let n = 0;
     let fn = `Untitled-${n}.ti`;
 
-    while (true) {
-      const nameExists = existingFiles.some(
-        (f) => f.toLowerCase() === fn.toLowerCase()
-      );
-      if (!nameExists) {
-        break;
-      }
+    while (existingFiles.some((f) => f.toLowerCase() === fn.toLowerCase())) {
       n++;
       fn = `Untitled-${n}.ti`;
     }
     return fn;
   });
-  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-          const dotIndex = filename.lastIndexOf('.');
-          if (dotIndex > 0) {
-            inputRef.current.setSelectionRange(0, dotIndex);
-          } else {
-            inputRef.current.select();
-          }
-        }
-      }, 50);
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const inputEl = e.currentTarget;
+    const dotIndex = filename.lastIndexOf('.');
+
+    if (dotIndex > 0) {
+      // Selects only the file name prefix, leaving the extension ".ti" unselected
+      inputEl.setSelectionRange(0, dotIndex);
+    } else {
+      inputEl.select();
     }
-  }, [isOpen, filename]);
+  };
 
-  // Validation rules
+  // Validation processing rules
   const trimmedName = filename.trim();
-  const isDuplicate = existingFiles
-    .filter((f) => f !== filename)
-    .some((f) => f.toLowerCase() == trimmedName.toLowerCase());  // Case-insensitive for Windows?
-  const isSameName = trimmedName === filename;
+  const isDuplicate = existingFiles.some(
+    (f) => f.toLowerCase() === trimmedName.toLowerCase()
+  );
   const isEmpty = trimmedName === '';
-  const isValid = !isEmpty && !isDuplicate && !isSameName;
+  const isValid = !isEmpty && !isDuplicate;
 
   const handleSubmit = (e: React.ChangeEvent) => {
     e.preventDefault();
     if (isValid) {
-      onCreate(filename);
+      onCreate(trimmedName);
       onOpenChange(false);
     }
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog.Root open={true} onOpenChange={onOpenChange}>
       <Dialog.Content style={{ maxWidth: 400, padding: '20px' }}>
         <Dialog.Title size="3" mb="1">
           Create File
@@ -76,48 +63,51 @@ export default function CreateFileDialog({
           Enter a new file name:
         </Dialog.Description>
 
-        <form onSubmit={handleSubmit}>
-          <TextField.Root
-            ref={inputRef}
-            value={filename}
-            onChange={(e) => setFilename(e.target.value)}
-            placeholder="filename.ti"
-            size="2"
-            mb="4"
-          >
-            <TextField.Slot>
-              <Pencil1Icon height="14" width="14" />
-            </TextField.Slot>
-          </TextField.Root>
-
-          {isDuplicate && (
-            <Box mb="4">
-              <Flex gap="1" align="center" className="text-amber-600 dark:text-amber-400">
-                <ExclamationTriangleIcon width="12" height="12" />
-                <Text size="1" weight="medium">
-                  A file named "{trimmedName}" already exists in this workspace.
-                </Text>
-              </Flex>
-            </Box>
-          )}
-
-          <Flex gap="3" justify="end">
-            <Dialog.Close>
-              <Button variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
-                Cancel
-              </Button>
-            </Dialog.Close>
-            <Button
-              type="submit"
+        <div ref={containerRef}>
+          <form onSubmit={handleSubmit}>
+            <TextField.Root
+              value={filename}
+              onChange={(e) => setFilename(e.target.value)}
+              placeholder="filename.ti"
               size="2"
-              color="iris"
-              disabled={!isValid}
-              style={{ cursor: isValid ? 'pointer' : 'not-allowed' }}
+              mb="4"
+              autoFocus
+              onFocus={handleInputFocus}
             >
-              Create
-            </Button>
-          </Flex>
-        </form>
+              <TextField.Slot>
+                <Pencil1Icon height="14" width="14" />
+              </TextField.Slot>
+            </TextField.Root>
+
+            {isDuplicate && (
+              <Box mb="4">
+                <Flex gap="1" align="center" style={{ color: 'var(--amber-9)' }}>
+                  <ExclamationTriangleIcon width="14" height="14" />
+                  <Text size="1" weight="medium">
+                    A file named "{trimmedName}" already exists in this workspace.
+                  </Text>
+                </Flex>
+              </Box>
+            )}
+
+            <Flex gap="3" justify="end">
+              <Dialog.Close>
+                <Button variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Button
+                type="submit"
+                size="2"
+                color="iris"
+                disabled={!isValid}
+                style={{ cursor: isValid ? 'pointer' : 'not-allowed' }}
+              >
+                Create
+              </Button>
+            </Flex>
+          </form>
+        </div>
       </Dialog.Content>
     </Dialog.Root>
   );

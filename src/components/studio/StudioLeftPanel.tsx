@@ -212,12 +212,13 @@ export default function StudioLeftPanel() {
           }
         `}</style>
       </Flex>
-      <CreateFileDialog
-          isOpen={isCreateOpen}
+      {isCreateOpen && (
+        <CreateFileDialog
           onOpenChange={setIsCreateOpen}
           existingFiles={files.map(file => file.filename)}
           onCreate={handleCreateConfirm}
-      />
+        />
+      )}
       <RenameFileDialog
           key={`rename-${fileToRename}-${isRenameOpen}`}
           isOpen={isRenameOpen}

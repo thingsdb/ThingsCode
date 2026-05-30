@@ -20,10 +20,6 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   const [localCode, setLocalCode] = useState(fileContent);
   const [prevFilename, setPrevFilename] = useState(currentFilename);
 
-  const localCodeRef = useRef(localCode);
-  const filenameRef = useRef(currentFilename);
-  const saveActionRef = useRef(storeFileContent);
-
   const executionContextRef = useRef({
     filename: currentFilename,
     activeScope,
@@ -54,19 +50,6 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     };
   }, [currentFilename, activeScope, activeFile?.queryVars]);
 
-  // Safely synchronize reference wrappers after the render paints
-  useEffect(() => {
-    localCodeRef.current = localCode;
-  }, [localCode]);
-
-  useEffect(() => {
-    filenameRef.current = currentFilename;
-  }, [currentFilename]);
-
-  useEffect(() => {
-    saveActionRef.current = storeFileContent;
-  }, [storeFileContent]);
-
   useEffect(() => {
     if (!currentFilename) return;
 
@@ -90,19 +73,6 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
       clearTimeout(timer);
     };
   }, [localCode, activeContent, currentFilename, setActiveContent, storeFileContent]);
-
-  useEffect(() => {
-    return () => {
-      const fileLeaving = filenameRef.current;
-      const staleLocalCode = localCodeRef.current;
-
-      if (fileLeaving && fileLeaving !== 'unknown') {
-        console.log(`[Teardown] Unmounting workspace editor. Saving final buffer for ${fileLeaving}...`);
-        saveActionRef.current(fileLeaving, staleLocalCode);
-      }
-
-    };
-  }, []);
 
   if (!activeFile || !activeScope) {
     return <NoActiveFile onCreateFile={onCreateFile} />;
