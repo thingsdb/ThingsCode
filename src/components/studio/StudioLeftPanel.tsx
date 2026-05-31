@@ -6,12 +6,15 @@ import RenameFileDialog from './RenameFileDialog';
 import { ConfirmDialog } from '..';
 import CreateFileDialog from './CreateFileDialog';
 
-export default function StudioLeftPanel() {
+interface StudioLeftPanelProps {
+  isCreateOpen: boolean;
+  setIsCreateOpen: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: StudioLeftPanelProps) {
   const { files, loading, activeFilename, createFile, renameFile, deleteFile, setActiveFile } = useActiveWorkspace();
   const [searchQuery, setSearchQuery] = useState('');
 
-    // Create Dialog
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // Rename Dialog
   const [isRenameOpen, setIsRenameOpen] = useState(false);

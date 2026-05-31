@@ -9,12 +9,15 @@ import StudioEditor from './StudioEditor';
 import StudioConsoleHeader from './StudioConsoleHeader';
 import StudioResultView from './StudioResultView';
 import type { StudioTab } from '../../types';
+import StudioLogView from './StudioLogView';
 
 export default function StudioLayout() {
   const editorPanelRef = useRef<PanelImperativeHandle>(null);
   const [consoleTab, setConsoleTab] = useState<StudioTab>('result');
   const [cachedEditorSize, setCachedEditorSize] = useState<number | null>(null);
   const [isConsoleMaximized, setIsConsoleMaximized] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
 
   const horizontalLayout = useDefaultLayout({
     id: "ticode-main-horizontal-layout",
@@ -41,8 +44,8 @@ export default function StudioLayout() {
   };
 
 
-  const handleCreateFile = () => {
-    // TODO
+  const handleCreateFileClick = () => {
+    setIsCreateOpen
   }
 
   const handleToggleConsoleMaximize = () => {
@@ -82,7 +85,10 @@ export default function StudioLayout() {
           onLayoutChanged={horizontalLayout.onLayoutChanged}
         >
           <Panel id="explorer-panel" defaultSize={200} minSize={170} maxSize={400}>
-            <StudioLeftPanel />
+            <StudioLeftPanel
+              isCreateOpen={isCreateOpen}
+              setIsCreateOpen={setIsCreateOpen}
+            />
           </Panel>
 
           <Separator className="resize-handle" />
@@ -100,7 +106,7 @@ export default function StudioLayout() {
                 collapsible={true}
               >
                 <StudioEditor
-                  onCreateFile={handleCreateFile}
+                  onCreateFile={() => { setIsCreateOpen(true); }}
                 />
               </Panel>
 
@@ -126,6 +132,8 @@ export default function StudioLayout() {
                 >
                   {consoleTab === 'result' ? (
                     <StudioResultView />
+                  ) : consoleTab === 'log' ? (
+                    <StudioLogView />
                   ) : (
                     <Text size="1" style={{ fontFamily: 'monospace', color: '#f39c12' }}>{"..."}</Text>
                   )}

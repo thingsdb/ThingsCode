@@ -598,7 +598,6 @@ func (s *Settings) registerNodeHandlers(workspaceID string, conn *thingsdb.Conn)
 	}
 	conn.OnWarning = func(we *thingsdb.WarnEvent) {
 		wsConns := s.WM.GetConnections(workspaceID)
-		log.Printf("Connections: %d", len(wsConns))
 		for _, wsConn := range wsConns {
 			pkg := WSPackage{
 				Type:    "ON_WARNING",

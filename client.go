@@ -47,6 +47,7 @@ func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 	}
 	defer func() {
 		_ = wsConn.Close()
+		currentSettings.WM.Unregister(wsConn);
 	}()
 
 	for {

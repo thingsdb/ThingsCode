@@ -20,7 +20,7 @@ export default function NodeStatusBadge() {
 
   return (
     <Flex align="center" px="1">
-      <Tooltip content={`Connected Node ${nodeStatus.Id} is currently ${nodeStatus.Status}`}>
+      <Tooltip content={`Connected Node (ID ${nodeStatus.Id}) has status ${nodeStatus.Status}`}>
         <Badge
           variant="surface"
           color={color}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type NodeStatus } from '../types';
+import { type NodeStatus, type Warning } from '../types';
 import { EventContext } from '../context';
 
 interface EventProviderProps {
@@ -9,21 +9,29 @@ interface EventProviderProps {
 export function EventProvider({children}: EventProviderProps) {
   const [nodeStatus, setNodeStatus] = useState<NodeStatus | null>(null);
   const [workspaceID, setWorkspaceID] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<Warning[]>([])
 
   const setWorkspace = (newWorkspaceID: string | null) => {
-    console.log('SET_WORKSPACE: ', newWorkspaceID);
     if (workspaceID !==  newWorkspaceID) {
-      console.log('Actual set..');
       setWorkspaceID(newWorkspaceID);
       setNodeStatus(null);
+      setWarnings([]);
     }
+  }
+
+  const appendWarning = (warning: Warning) => {
+    console.log(warning);
+    setWarnings(prev => [...prev, warning]);
   }
 
   return (
     <EventContext.Provider value={{
       nodeStatus,
+      warnings,
+
       setWorkspace,
       setNodeStatus,
+      appendWarning,
     }}>
       {children}
     </EventContext.Provider>
