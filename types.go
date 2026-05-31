@@ -65,7 +65,7 @@ type Workspace struct {
 	conn       *thingsdb.Conn    `json:"-"`
 }
 
-type WorkSpaceRes struct {
+type WorkspaceRes struct {
 	ID         string `json:"id"`
 	Workfolder string `json:"workfolder"`
 }
@@ -76,10 +76,17 @@ type WSMessage struct {
 	Payload json.RawMessage `json:"payload"`
 }
 
+type WSPackage struct {
+	Id      string `json:"id"`
+	Type    string `json:"type"`
+	Payload any    `json:"payload"`
+}
+
 type Settings struct {
-	mu         sync.RWMutex `json:"-"`
-	FilePath   string       `json:"-"`
-	Workspaces []*Workspace `json:"workspaces"`
+	mu         sync.RWMutex      `json:"-"`
+	FilePath   string            `json:"-"`
+	WM         *WorkspaceManager `json:"-"`
+	Workspaces []*Workspace      `json:"workspaces"`
 }
 
 type UpdateFileScope struct {

@@ -62,8 +62,11 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       try {
         const msg: WSResponse = JSON.parse(event.data);
 
-        // Check if this incoming message has a correlation ID matching a pending request
-        if (msg.id && pendingRequestsRef.current.has(msg.id)) {
+        if (msg.type === "ON_NODE_STATUS") {
+          console.log(msg);
+        } else if (msg.type === "ON_WARNING") {
+          console.log(msg);
+        } else if (msg.id && pendingRequestsRef.current.has(msg.id)) {
           const { resolve, reject } = pendingRequestsRef.current.get(msg.id)!;
 
           pendingRequestsRef.current.delete(msg.id);

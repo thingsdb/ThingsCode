@@ -19,32 +19,25 @@ func writeResponse(wsConn *websocket.Conn, msg *WSMessage, payload any) error {
 	payloadMap := map[string]any{
 		"data": payload,
 	}
-	response := map[string]any{
-		"id":      msg.Id,
-		"type":    msg.Type,
-		"payload": payloadMap,
+	pkg := WSPackage{
+		Id:      msg.Id,
+		Type:    msg.Type,
+		Payload: payloadMap,
 	}
-	responseBytes, err := json.Marshal(response)
-	if err != nil {
-		return err
-	}
-	return wsConn.WriteMessage(websocket.TextMessage, responseBytes)
+	return wsConn.WriteJSON(&pkg)
 }
 
 func writeError(wsConn *websocket.Conn, msg *WSMessage, err error) error {
-	response := map[string]any{
-		"id":   msg.Id,
-		"type": msg.Type,
-		"payload": map[string]any{
-			"error": err.Error(),
-		},
+	payloadMap := map[string]any{
+		"error": err.Error(),
+	}
+	pkg := WSPackage{
+		Id:      msg.Id,
+		Type:    msg.Type,
+		Payload: payloadMap,
 	}
 	log.Printf("Error: %v", err)
-	responseBytes, err := json.Marshal(response)
-	if err != nil {
-		return err
-	}
-	return wsConn.WriteMessage(websocket.TextMessage, responseBytes)
+	return wsConn.WriteJSON(&pkg)
 }
 
 func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
@@ -88,7 +81,7 @@ func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeError(wsConn, &msg, err)
 				continue
 			}
-			if res, err := currentSettings.AddWorkSpace(&ws); err != nil {
+			if res, err := currentSettings.AddWorkspace(&ws); err != nil {
 				_ = writeError(wsConn, &msg, err)
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
@@ -99,7 +92,7 @@ func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeError(wsConn, &msg, err)
 				continue
 			}
-			if err := currentSettings.RemoveWorkSpace(ws.ID); err != nil {
+			if err := currentSettings.RemoveWorkspace(ws.ID); err != nil {
 				_ = writeError(wsConn, &msg, err)
 			} else {
 				_ = writeResponse(wsConn, &msg, "OK")
@@ -132,7 +125,7 @@ func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeError(wsConn, &msg, err)
 				continue
 			}
-			if res, err := currentSettings.FetchScopes(ws.ID); err != nil {
+			if res, err := currentSettings.FetchScopes(ws.ID, wsConn); err != nil {
 				_ = writeError(wsConn, &msg, err)
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
@@ -220,7 +213,7 @@ func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeError(wsConn, &msg, err)
 				continue
 			}
-			if res, err := currentSettings.ExecCode(&execCode); err != nil {
+			if res, err := currentSettings.ExecCode(&execCode, wsConn); err != nil {
 				_ = writeError(wsConn, &msg, err)
 			} else {
 				_ = writeResponse(wsConn, &msg, res)

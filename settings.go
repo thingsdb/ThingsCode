@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/thingsdb/go-thingsdb"
 	"github.com/vmihailenco/msgpack/v5"
 )
@@ -69,7 +70,7 @@ func (s *Settings) FetchWorkspaces() []*Workspace {
 	return decryptedList
 }
 
-func (s *Settings) AddWorkSpace(w *Workspace) (*WorkSpaceRes, error) {
+func (s *Settings) AddWorkspace(w *Workspace) (*WorkspaceRes, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	w.GenerateID()
@@ -94,7 +95,7 @@ func (s *Settings) AddWorkSpace(w *Workspace) (*WorkSpaceRes, error) {
 
 	s.Workspaces = append(s.Workspaces, w)
 
-	res := WorkSpaceRes{
+	res := WorkspaceRes{
 		ID:         w.ID,
 		Workfolder: w.Workfolder,
 	}
@@ -105,7 +106,7 @@ func (s *Settings) AddWorkSpace(w *Workspace) (*WorkSpaceRes, error) {
 	return &res, nil
 }
 
-func (s *Settings) RemoveWorkSpace(id string) error {
+func (s *Settings) RemoveWorkspace(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	targetIndex := -1
@@ -137,7 +138,7 @@ func (s *Settings) CloseWorkspace(id string) error {
 	return nil
 }
 
-func (s *Settings) UpdateWorkspace(ws *Workspace) (*WorkSpaceRes, error) {
+func (s *Settings) UpdateWorkspace(ws *Workspace) (*WorkspaceRes, error) {
 	w, err := s.getWorkspace(ws.ID)
 	if err != nil {
 		return nil, err
@@ -205,7 +206,7 @@ func (s *Settings) UpdateWorkspace(ws *Workspace) (*WorkSpaceRes, error) {
 		return nil, fmt.Errorf("failed to commit workspace updates to disk: %w", err)
 	}
 
-	res := WorkSpaceRes{
+	res := WorkspaceRes{
 		ID:         w.ID,
 		Workfolder: w.Workfolder,
 	}
@@ -237,7 +238,7 @@ func (s *Settings) FetchFiles(id string) ([]ProjectFile, error) {
 	return ScanWorkspaceFiles(workPath)
 }
 
-func (s *Settings) FetchScopes(id string) ([]string, error) {
+func (s *Settings) FetchScopes(id string, wsConn *websocket.Conn) ([]string, error) {
 	w, err := s.getWorkspace(id)
 	if err != nil {
 		return nil, err
@@ -246,7 +247,7 @@ func (s *Settings) FetchScopes(id string) ([]string, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	conn, err := getConn(w)
+	conn, err := s.getConn(w, wsConn)
 	if err != nil {
 		return nil, err
 	}
@@ -463,7 +464,7 @@ func (s *Settings) UpdateQueryVars(u *UpdateQueryVars) error {
 	return nil
 }
 
-func (s *Settings) ExecCode(c *ExecCode) (*Result, error) {
+func (s *Settings) ExecCode(c *ExecCode, wsConn *websocket.Conn) (*Result, error) {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {
 		return nil, err
@@ -472,7 +473,7 @@ func (s *Settings) ExecCode(c *ExecCode) (*Result, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	conn, err := getConn(w)
+	conn, err := s.getConn(w, wsConn)
 	if err != nil {
 		return nil, err
 	}
@@ -544,8 +545,9 @@ func (s *Settings) getWorkspace(id string) (*Workspace, error) {
 	return w, nil
 }
 
-func getConn(ws *Workspace) (*thingsdb.Conn, error) {
+func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Conn, error) {
 	if ws.conn != nil && ws.conn.IsConnected() {
+		s.WM.Register(ws.ID, wsConn)
 		return ws.conn, nil
 	}
 	var config *tls.Config
@@ -576,12 +578,43 @@ func getConn(ws *Workspace) (*thingsdb.Conn, error) {
 		return nil, fmt.Errorf("unsupported authentication type: %s", ws.AuthType)
 	}
 	ws.conn = conn
+	s.registerNodeHandlers(ws.ID, ws.conn)
+	s.WM.Register(ws.ID, wsConn)
 	return ws.conn, nil
+}
+
+func (s *Settings) registerNodeHandlers(workspaceID string, conn *thingsdb.Conn) {
+	conn.OnNodeStatus = func(ns *thingsdb.NodeStatus) {
+		log.Printf("[Workspace: %s] Received node status: %v", workspaceID, ns)
+
+		wsConns := s.WM.GetConnections(workspaceID)
+		for _, wsConn := range wsConns {
+			pkg := WSPackage{
+				Type:    "ON_NODE_STATUS",
+				Payload: ns,
+			}
+			wsConn.WriteJSON(&pkg)
+		}
+	}
+	conn.OnWarning = func(we *thingsdb.WarnEvent) {
+		log.Printf("[Workspace: %s] Received warning: %v", workspaceID, we)
+
+		wsConns := s.WM.GetConnections(workspaceID)
+		log.Printf("Connections: %d", len(wsConns))
+		for _, wsConn := range wsConns {
+			pkg := WSPackage{
+				Type:    "ON_WARNING",
+				Payload: we,
+			}
+			wsConn.WriteJSON(&pkg)
+		}
+	}
 }
 
 func loadOrCreateSettings(filename string) (*Settings, error) {
 	cfg := &Settings{
 		FilePath: filename,
+		WM:       NewWorkspaceManager(),
 	}
 
 	data, err := os.ReadFile(filename)
@@ -604,9 +637,7 @@ func loadOrCreateSettings(filename string) (*Settings, error) {
 			}
 
 			cfg.Workspaces = []*Workspace{&workspace}
-
 			err = cfg.Save()
-
 			return cfg, err
 		}
 
