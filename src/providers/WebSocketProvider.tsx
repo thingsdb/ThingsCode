@@ -87,7 +87,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         console.warn('Received non-JSON message:', event.data);
       }
     };
-  }, []);
+  }, [appendWarning, setNodeStatus]);
 
   const emit = useCallback(<TResponse = unknown, TPayload = unknown>(type: string, payload?: TPayload): Promise<TResponse> => {
     return new Promise((resolve, reject) => {

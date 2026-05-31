@@ -20,7 +20,6 @@ export function EventProvider({children}: EventProviderProps) {
   }
 
   const appendWarning = (warning: Warning) => {
-    console.log(warning);
     setWarnings(prev => [...prev, warning]);
   }
 

@@ -593,7 +593,7 @@ func (s *Settings) registerNodeHandlers(workspaceID string, conn *thingsdb.Conn)
 				Type:    "ON_NODE_STATUS",
 				Payload: ns,
 			}
-			wsConn.WriteJSON(&pkg)
+			_ = wsConn.WriteJSON(&pkg)
 		}
 	}
 	conn.OnWarning = func(we *thingsdb.WarnEvent) {
@@ -603,7 +603,7 @@ func (s *Settings) registerNodeHandlers(workspaceID string, conn *thingsdb.Conn)
 				Type:    "ON_WARNING",
 				Payload: we,
 			}
-			wsConn.WriteJSON(&pkg)
+			_ = wsConn.WriteJSON(&pkg)
 		}
 	}
 }

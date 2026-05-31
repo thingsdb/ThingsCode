@@ -36,6 +36,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     if (currentWorkspace) {
       setWorkspace(currentWorkspace.id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWorkspace?.id, setWorkspace]);
 
   useEffect(() => {

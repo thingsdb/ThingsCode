@@ -71,7 +71,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     return () => {
       clearTimeout(timer);
     };
-  }, [localCode, activeContent, currentFilename, setActiveContent, storeFileContent]);
+  }, [localCode, fileContent, activeContent, currentFilename, setActiveContent, storeFileContent]);
 
   if (!activeFile || !activeScope) {
     return <NoActiveFile onCreateFile={onCreateFile} />;

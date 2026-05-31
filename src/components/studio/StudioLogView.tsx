@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Box, Card, Flex, Text, Badge, Button, ScrollArea, Heading } from '@radix-ui/themes';
+import { useState, useMemo } from 'react';
+import { Card, Flex, Text, Button, ScrollArea, Heading } from '@radix-ui/themes';
 import { ArrowDownIcon, ArrowUpIcon, InfoCircledIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useEvent } from '../../hooks';
 

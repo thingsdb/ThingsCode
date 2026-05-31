@@ -43,11 +43,6 @@ export default function StudioLayout() {
     }
   };
 
-
-  const handleCreateFileClick = () => {
-    setIsCreateOpen
-  }
-
   const handleToggleConsoleMaximize = () => {
     const editorPanel = editorPanelRef.current;
     if (!editorPanel) return;
