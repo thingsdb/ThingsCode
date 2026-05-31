@@ -4,10 +4,13 @@ import { type Workspace } from '../types';
 import { WorkspaceContext } from '../context';
 import { NotificationToast } from '../components';
 
-export const WorkspaceProvider: React.FC<{
-      children: React.ReactNode;
-      appearance: 'light' | 'dark';
-    }> = ({ children, appearance }) => {
+
+interface WorkspaceProviderProps {
+  children: React.ReactNode;
+  appearance: 'light' | 'dark';
+}
+
+export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps) {
   const { status, emit } = useWebSocket();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [searchQuery, setSearchQuery] = useState('');

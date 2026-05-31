@@ -5,3 +5,4 @@ export { default as ConnectionOverlay } from './ConnectionOverlay';
 export { default as ConfirmDialog } from './ConfirmDialog';
 export { default as NotificationToast } from './NotificationToast';
 export { default as WorkspaceNotFound } from './WorkspaceNotFound';
+export { default as NodeStatusBadge } from './NodeStatusBadge';

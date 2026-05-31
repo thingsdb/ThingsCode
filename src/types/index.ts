@@ -27,4 +27,10 @@ export interface ProjectFile {
   queryVars: string | null;
 }
 
+export interface NodeStatus {
+  Id: number;
+  Status: string;
+}
+
 export type StudioTab = 'result' | 'rooms' | 'log';
+export type WebsocketStatus = 'connecting' | 'connected' | 'disconnected';

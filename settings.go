@@ -578,15 +578,15 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 		return nil, fmt.Errorf("unsupported authentication type: %s", ws.AuthType)
 	}
 	ws.conn = conn
-	s.registerNodeHandlers(ws.ID, ws.conn)
+
+	s.registerNodeHandlers(ws.ID, conn)
 	s.WM.Register(ws.ID, wsConn)
+
 	return ws.conn, nil
 }
 
 func (s *Settings) registerNodeHandlers(workspaceID string, conn *thingsdb.Conn) {
 	conn.OnNodeStatus = func(ns *thingsdb.NodeStatus) {
-		log.Printf("[Workspace: %s] Received node status: %v", workspaceID, ns)
-
 		wsConns := s.WM.GetConnections(workspaceID)
 		for _, wsConn := range wsConns {
 			pkg := WSPackage{
@@ -597,8 +597,6 @@ func (s *Settings) registerNodeHandlers(workspaceID string, conn *thingsdb.Conn)
 		}
 	}
 	conn.OnWarning = func(we *thingsdb.WarnEvent) {
-		log.Printf("[Workspace: %s] Received warning: %v", workspaceID, we)
-
 		wsConns := s.WM.GetConnections(workspaceID)
 		log.Printf("Connections: %d", len(wsConns))
 		for _, wsConn := range wsConns {

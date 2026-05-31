@@ -54,18 +54,16 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     if (!currentFilename) return;
 
     if (localCode !== activeContent) {
+      console.log('HERE!!!', localCode, activeContent);
       setActiveContent(localCode);
     }
 
     const timer = setTimeout(async () => {
-      // Compare local buffered edits directly against our stable text baseline
       console.log(`[Debounce] Auto-saving changes for ${currentFilename}...`);
-      if (localCode !== activeContent) {
-        try {
-          await storeFileContent(currentFilename, localCode);
-        } catch (err) {
-          console.error("Failed to auto-save file chunk:", err);
-        }
+      try {
+        await storeFileContent(currentFilename, localCode);
+      } catch (err) {
+        console.error("Failed to auto-save file chunk:", err);
       }
     }, 2000);
 

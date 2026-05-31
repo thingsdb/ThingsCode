@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
-import { useActiveWorkspaceId, useWebSocket } from '../hooks';
+import { useActiveWorkspaceId, useWebSocket, useEvent } from '../hooks';
 import WorkspaceNotFound from '../components/WorkspaceNotFound';
 import { ActiveWorkspaceContext, WorkspaceContext } from '../context';
 import type { ProjectFile, Result } from '../types';
 import { NotificationToast } from '../components';
 
+interface ActiveWorkspaceProviderProps {
+  children: React.ReactNode;
+}
 
-export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderProps) {
   const activeId = useActiveWorkspaceId();
+  const { setWorkspace } = useEvent();
   const context = useContext(WorkspaceContext);
   if (!context) {
     throw new Error("ActiveWorkspaceProvider must be wrapped within a valid WorkspaceProvider element!");
@@ -25,22 +29,21 @@ export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
   const [loading, setLoading] = useState(true);
   const [activeScope, setActiveScope] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [prevWorkspaceId, setPrevWorkspaceId] = useState<string | undefined>(currentWorkspace?.id);
   const [fileScopes, setFileScopes] = useState<Record<string, string>>({});
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
 
-  // Reset lifecycle states
-  if (currentWorkspace?.id !== prevWorkspaceId) {
-    setPrevWorkspaceId(currentWorkspace?.id);
-    setLoading(true);
-    setFiles([]);
-    setScopes([]);
-    setActiveScope(null);
-    setActiveFilename(null);
-    setErrorMessage(null);
-    setFileScopes({});
-    setIsExecuting(false);
-  }
+  useEffect(() => {
+    if (currentWorkspace) {
+      setWorkspace(currentWorkspace.id);
+    }
+  }, [currentWorkspace?.id, setWorkspace]);
+
+  useEffect(() => {
+    return () => {
+      console.log('[ActiveWorkspaceProvider] Provider unmounting.');
+      setWorkspace(null);
+    };
+  }, [setWorkspace]);
 
   useEffect(() => {
     if (

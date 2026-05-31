@@ -1,6 +1,8 @@
 // src/context/WebSocketContext.tsx
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { WebSocketContext } from '../context';
+import type { NodeStatus, WebsocketStatus } from '../types';
+import { useEvent } from '../hooks';
 
 
 interface WSResponsePayload<T = unknown> {
@@ -25,9 +27,10 @@ interface WebSocketProviderProps {
 }
 
 export function WebSocketProvider({ children }: WebSocketProviderProps) {
-  const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
+  const [status, setStatus] = useState<WebsocketStatus>('connecting');
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);
+  const { setNodeStatus } = useEvent();
 
   const pendingRequestsRef = useRef<Map<string, { resolve: (val: unknown) => void; reject: (err: unknown) => void }>>(new Map());
 
@@ -62,8 +65,8 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       try {
         const msg: WSResponse = JSON.parse(event.data);
 
-        if (msg.type === "ON_NODE_STATUS") {
-          console.log(msg);
+      if (msg.type === "ON_NODE_STATUS") {
+          setNodeStatus(msg.payload as NodeStatus);
         } else if (msg.type === "ON_WARNING") {
           console.log(msg);
         } else if (msg.id && pendingRequestsRef.current.has(msg.id)) {

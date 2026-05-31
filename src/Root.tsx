@@ -3,9 +3,8 @@ import '@radix-ui/themes/styles.css';
 import './App.css';
 import App from './App';
 import { Theme, Box } from '@radix-ui/themes';
-import { WorkspaceProvider } from './providers';
+import { WorkspaceProvider, WebSocketProvider, EventProvider } from './providers';
 import { ThemeContext } from './context';
-import { WebSocketProvider } from './providers/WebSocketProvider';
 
 
 function Root() {
@@ -31,24 +30,26 @@ function Root() {
   }, [appearance]);
 
   return (
-    <WebSocketProvider>
-      <ThemeContext.Provider value={{ appearance, toggleAppearance }}>
-        <Theme appearance={appearance} accentColor="iris" panelBackground="translucent">
-          <Box
-            style={{
-              position: 'relative',
-              minHeight: '100vh',
-              width: '100vw',
-              overflowX: 'hidden'
-            }}
-          >
-            <WorkspaceProvider appearance={appearance}>
-              <App />
-            </WorkspaceProvider>
-          </Box>
-        </Theme>
-      </ThemeContext.Provider>
-    </WebSocketProvider>
+    <EventProvider>
+      <WebSocketProvider>
+        <ThemeContext.Provider value={{ appearance, toggleAppearance }}>
+          <Theme appearance={appearance} accentColor="iris" panelBackground="translucent">
+            <Box
+              style={{
+                position: 'relative',
+                minHeight: '100vh',
+                width: '100vw',
+                overflowX: 'hidden'
+              }}
+            >
+              <WorkspaceProvider appearance={appearance}>
+                <App />
+              </WorkspaceProvider>
+            </Box>
+          </Theme>
+        </ThemeContext.Provider>
+      </WebSocketProvider>
+    </EventProvider>
   );
 }
 
