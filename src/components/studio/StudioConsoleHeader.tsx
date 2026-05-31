@@ -1,9 +1,10 @@
 import { ChevronUpIcon, DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { Button, ChevronDownIcon, Flex, SegmentedControl } from "@radix-ui/themes";
+import type { StudioTab } from "../../types";
 
 interface StudioConsoleHeaderProps {
-  consoleTab: 'result' | 'log';
-  setConsoleTab: (tab: 'result' | 'log') => void
+  consoleTab: StudioTab;
+  setConsoleTab: (tab: StudioTab) => void
   showExpandButton: boolean;
   isMaximized: boolean;
   onToggleMaximize: () => void;
@@ -39,11 +40,14 @@ export default function StudioConsoleHeader({
         <SegmentedControl.Root
           size="1"
           value={consoleTab}
-          onValueChange={(value) => setConsoleTab(value as 'result' | 'log')}
+          onValueChange={(value) => setConsoleTab(value as StudioTab)}
           style={{ cursor: 'pointer' }}
         >
           <SegmentedControl.Item value="result">
             Result
+          </SegmentedControl.Item>
+          <SegmentedControl.Item value="rooms">
+            Rooms
           </SegmentedControl.Item>
           <SegmentedControl.Item value="log">
             Node Logs

@@ -27,3 +27,4 @@ export interface ProjectFile {
   queryVars: string | null;
 }
 
+export type StudioTab = 'result' | 'rooms' | 'log';

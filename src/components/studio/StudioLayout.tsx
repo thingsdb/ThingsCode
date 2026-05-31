@@ -8,10 +8,11 @@ import StudioRightPanel from './StudioRightPanel';
 import StudioEditor from './StudioEditor';
 import StudioConsoleHeader from './StudioConsoleHeader';
 import StudioResultView from './StudioResultView';
+import type { StudioTab } from '../../types';
 
 export default function StudioLayout() {
   const editorPanelRef = useRef<PanelImperativeHandle>(null);
-  const [consoleTab, setConsoleTab] = useState<'result' | 'log'>('result');
+  const [consoleTab, setConsoleTab] = useState<StudioTab>('result');
   const [cachedEditorSize, setCachedEditorSize] = useState<number | null>(null);
   const [isConsoleMaximized, setIsConsoleMaximized] = useState(false);
 
