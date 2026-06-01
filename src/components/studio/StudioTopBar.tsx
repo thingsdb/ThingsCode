@@ -28,7 +28,7 @@ export default function StudioTopBar() {
 
   const handleExecuteCode = () => {
     if (!activeFile || !activeScope || activeContent === null) return;
-    execCode(activeFile.filename, activeScope, activeContent, activeFile.queryVars)
+    execCode(activeFile.filename, activeScope, activeContent, activeFile.queryVars || null)
   };
 
   return (

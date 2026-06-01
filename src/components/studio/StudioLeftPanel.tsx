@@ -87,6 +87,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
             size="1"
             variant="soft"
             color="green"
+            disabled={loading}
             onClick={handleCreateClick}
             style={{ cursor: 'pointer' }}
           >

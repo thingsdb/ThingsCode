@@ -51,7 +51,7 @@ export default function StudioLogView() {
     return (
       <Flex align="center" justify="center" style={{ height: '100%', minHeight: 180 }} direction="column" gap="2">
         <Text size="2" color="gray" weight="medium">
-          No logs or workspace warnings recorded yet.
+          No logs or ThingsDB warnings recorded yet.
         </Text>
       </Flex>
     );

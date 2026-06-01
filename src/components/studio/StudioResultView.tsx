@@ -37,10 +37,8 @@ export default function StudioResultView() {
   const { activeFile, isExecuting } = useActiveWorkspace();
 
   const result = useMemo<Result | null>(() => {
-    console.log('TODO DETECT CHANGE...');
     return activeFile?.result || null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFile?.result?.ts]);
+  }, [activeFile?.result]);
 
   const formattedJson = useMemo(() => {
     if (result?.data === null) return '';

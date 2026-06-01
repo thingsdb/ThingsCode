@@ -55,6 +55,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     activeFetchRef.current = currentWorkspace.id;
 
     const loadWorkspaceData = async () => {
+      let isFailed = false;
       try {
         const [_files, _scopes, _fileScopes] = await Promise.all([
           emit<ProjectFile[]>('FETCH_FILES', currentWorkspace),
@@ -90,10 +91,11 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
             ? err.message
             : typeof err === 'string' ? err : "Failed to load workspace.";
           setErrorMessage(message);
+          isFailed = true;
         }
       } finally {
         if (activeFetchRef.current === currentWorkspace.id) {
-          setLoading(false);
+          setLoading(isFailed);
         }
       }
     };
@@ -134,13 +136,13 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         content: newContent,
       })
     } catch (err) {
-        console.error("Failed to save file:", err);
-        if (activeFetchRef.current === currentWorkspace.id) {
-          const message = err instanceof Error
-            ? err.message
-            : typeof err === 'string' ? err : "Failed to save file.";
-          setErrorMessage(message);
-        }
+      console.error("Failed to save file:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to save file.";
+        setErrorMessage(message);
+      }
     }
   };
 

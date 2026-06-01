@@ -21,8 +21,56 @@ type UserInfo struct {
 
 // NodeInfo -- from thingsdb NodeInfo
 type NodeInfo struct {
-	NodeID int `msgpack:"node_id"`
+	NodeID              int     `msgpack:"node_id" json:"nodeId"`
+	Status              string  `msgpack:"status" json:"status"`
+	Version             string  `msgpack:"version" json:"version"`
+	Uptime              float64 `msgpack:"uptime" json:"uptime"`
+	Architecture        string  `msgpack:"architecture" json:"architecture"`
+	ArchiveFiles        int     `msgpack:"archive_files" json:"archiveFiles"`
+	ArchivedInMemory    int     `msgpack:"archived_in_memory" json:"archivedInMemory"`
+	CacheExpirationTime int     `msgpack:"cache_expiration_time" json:"cacheExpirationTime"`
 }
+
+// {
+//     "cached_names": 272,
+//     "cached_queries": 0,
+//     "changes_in_queue": 0,
+//     "client_port": 9201,
+//     "commit_history": "disabled",
+//     "connected_clients": 0,
+//     "db_stored_change_id": 74324,
+//     "global_committed_change_id": 75247,
+//     "global_stored_change_id": 75247,
+//     "http_api_port": 9211,
+//     "http_status_port": 8081,
+//     "ip_support": "ALL",
+//     "libcleri_version": "1.0.2a",
+//     "libpcre2_version": "10.39",
+//     "libuv_version": "1.43.0",
+//     "libwebsockets_version": "4.3.99-v1.4.16-249-g432858e7",
+//     "local_committed_change_id": 75247,
+//     "local_stored_change_id": 75247,
+//     "log_level": "WARNING",
+//     "modules_path": "/var/thingsdb-modules/node1",
+//     "msgpack_version": "3.2.1",
+//     "next_change_id": 75248,
+//     "next_free_id": 1398,
+//     "node_id": 1,
+//     "node_name": "playground",
+//     "node_port": 9221,
+//     "platform": "linux",
+//     "python_interpreter": "python",
+//     "result_size_limit": 20971520,
+//     "scheduled_backups": 1,
+//     "status": "READY",
+//     "storage_path": "/var/thingsdb/node1/",
+//     "syntax_version": "v1",
+//     "threshold_query_cache": 160,
+//     "uptime": 8765601.074270448,
+//     "version": "1.8.4",
+//     "yajl_version": "2.1.0",
+//     "zone": 0
+// }
 
 type UserInfoAndNodesInfo struct {
 	NodesInfo []NodeInfo `msgpack:"nodes_info"`
@@ -136,4 +184,9 @@ type Result struct {
 	Warning string    `json:"warning,omitempty"`
 	Error   string    `json:"error,omitempty"`
 	Ts      time.Time `json:"ts"`
+}
+
+type Scope struct {
+	ID    string `json:"id"`
+	Scope string `json:"scope"`
 }

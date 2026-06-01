@@ -527,6 +527,40 @@ func (s *Settings) ExecCode(c *ExecCode, wsConn *websocket.Conn) (*Result, error
 	return &result, nil
 }
 
+func (s *Settings) GetNodeInfo(c *Scope, wsConn *websocket.Conn) (*NodeInfo, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetNodeInfo(conn, c.Scope)
+}
+
+func (s *Settings) ShutdownNode(c *Scope, wsConn *websocket.Conn) error {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return err
+	}
+
+	return ShutdownNode(conn, c.Scope)
+}
+
 func (s *Settings) StartCleanTask() {
 	ticker := time.NewTicker(1 * time.Minute)
 	go func() {
@@ -569,6 +603,7 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 		config = &tls.Config{InsecureSkipVerify: false}
 	}
 	conn := thingsdb.NewConn(ws.Host, uint16(ws.Port), config)
+	conn.ReconnectionAttempts = 2
 	if err := conn.Connect(); err != nil {
 		return nil, err
 	}
@@ -595,6 +630,16 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 
 	s.registerNodeHandlers(ws.ID, conn)
 	s.WM.Register(ws.ID, wsConn)
+
+	if nodeInfo, err := GetNodeInfo(conn, "/n"); err == nil {
+		ns := thingsdb.NodeStatus{
+			Id:     uint32(nodeInfo.NodeID),
+			Status: nodeInfo.Status,
+		}
+		conn.OnNodeStatus(&ns)
+	} else {
+		log.Printf("Got error: %v", err)
+	}
 
 	return ws.conn, nil
 }

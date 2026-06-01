@@ -47,8 +47,8 @@ export default function StudioConsoleHeader({
           <SegmentedControl.Item value="result">
             Result
           </SegmentedControl.Item>
-          <SegmentedControl.Item value="rooms">
-            Rooms
+          <SegmentedControl.Item value="events">
+            Events
           </SegmentedControl.Item>
           <SegmentedControl.Item value="log">
             Log

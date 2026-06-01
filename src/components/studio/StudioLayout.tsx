@@ -139,7 +139,7 @@ export default function StudioLayout() {
 
           <Separator className="resize-handle" />
 
-          <Panel id="context-actions-panel" defaultSize={200} minSize={170} maxSize={400}>
+          <Panel id="context-actions-panel" defaultSize={260} minSize={260} maxSize={460}>
             <StudioRightPanel />
           </Panel>
         </Group>

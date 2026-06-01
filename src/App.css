@@ -2,6 +2,8 @@
   --thingscode-blue: rgb(93, 137, 194);
   --thingscode-blue-alpha: rgba(93, 137, 194, 0.25);
   --thingscode-blue-hover: rgb(73, 117, 174);
+  --thingscode-blue-hover-alpha: rgba(93, 137, 194, 0.40);
+  --thingscode-blue-active-alpha: rgba(93, 137, 194, 0.55);
 }
 
 @import 'tailwindcss';
@@ -40,9 +42,17 @@ body {
   --iris-9: var(--thingscode-blue) !important;
   --iris-a9: var(--thingscode-blue-alpha) !important;
   --iris-10: var(--thingscode-blue-hover) !important;
+  --iris-2: var(--thingscode-blue) !important;
   --iris-a2: var(--thingscode-blue-alpha) !important;
   --iris-a7: var(--thingscode-blue) !important;
   --iris-11: var(--thingscode-blue-hover) !important;
   --iris-a11: var(--thingscode-blue-hover) !important;
+  --iris-3: var(--thingscode-blue-alpha) !important;
   --iris-a3: var(--thingscode-blue-alpha) !important;
+  --iris-4: var(--thingscode-blue) !important;
+  --iris-a4: var(--thingscode-blue-hover-alpha) !important;
+  --iris-5: var(--thingscode-blue-active-alpha) !important;
+  --iris-a5: var(--thingscode-blue-active-alpha) !important;
+  --iris-6: var(--thingscode-blue) !important;
+  --iris-a6: var(--thingscode-blue-alpha) !important;
 }

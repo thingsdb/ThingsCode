@@ -32,11 +32,18 @@ export interface NodeStatus {
   Status: string;
 }
 
+export interface NodeInfo {
+  nodeId: number;
+  status: string;
+  uptime: number;
+  version: string;
+}
+
 export interface Warning {
   Msg: string;
   Code: number;
   Timestamp: number;
 }
 
-export type StudioTab = 'result' | 'rooms' | 'log';
+export type StudioTab = 'result' | 'events' | 'log';
 export type WebsocketStatus = 'connecting' | 'connected' | 'disconnected';

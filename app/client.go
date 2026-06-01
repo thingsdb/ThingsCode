@@ -219,6 +219,28 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "GET_NODE_INFO":
+			var scope Scope
+			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.GetNodeInfo(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
+		case "SHUTDOWN_NODE":
+			var scope Scope
+			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.ShutdownNode(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
 
 		default:
 			_ = writeError(wsConn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))

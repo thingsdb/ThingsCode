@@ -1,11 +1,13 @@
 import { Flex, Heading, Text, Button, Box } from '@radix-ui/themes';
 import { FileIcon, PlusIcon } from '@radix-ui/react-icons';
+import { useActiveWorkspace } from '../../hooks';
 
 interface NoActiveFileProps {
   onCreateFile: () => void;
 }
 
 export default function NoActiveFile({ onCreateFile }: NoActiveFileProps) {
+  const { loading } = useActiveWorkspace();
   return (
     <Flex
       align="center"
@@ -62,6 +64,7 @@ export default function NoActiveFile({ onCreateFile }: NoActiveFileProps) {
           variant="solid"
           color="iris"
           onClick={onCreateFile}
+          disabled={loading}
           style={{ cursor: 'pointer', margin: '0 auto' }}
         >
           <PlusIcon width="14" height="14" />
