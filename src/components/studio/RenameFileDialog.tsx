@@ -43,7 +43,8 @@ export default function RenameFileDialog({
     .some((f) => f.toLowerCase() == trimmedName.toLowerCase());  // Case-insensitive for Windows?
   const isSameName = trimmedName === filename;
   const isEmpty = trimmedName === '';
-  const isValid = !isEmpty && !isDuplicate && !isSameName;
+  const isHidden = trimmedName.startsWith('.');
+  const isValid = !isEmpty && !isDuplicate && !isSameName && !isHidden;
 
   const handleSubmit = (e: React.ChangeEvent) => {
     e.preventDefault();

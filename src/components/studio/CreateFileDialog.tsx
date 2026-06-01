@@ -43,7 +43,8 @@ export default function CreateFileDialog({
     (f) => f.toLowerCase() === trimmedName.toLowerCase()
   );
   const isEmpty = trimmedName === '';
-  const isValid = !isEmpty && !isDuplicate;
+  const isHidden = trimmedName.startsWith('.');
+  const isValid = !isEmpty && !isDuplicate && !isHidden;
 
   const handleSubmit = (e: React.ChangeEvent) => {
     e.preventDefault();

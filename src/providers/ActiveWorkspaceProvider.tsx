@@ -210,8 +210,6 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         {
           filename,
           content: '',
-          result: null,
-          queryVars: null,
         } as ProjectFile
       ];
     });
@@ -266,7 +264,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
   const execCode = async (filename: string, scope: string, code: string, queryVars: string | null) => {
     setIsExecuting(true);
     setFiles(prev => prev.map(f =>
-      f.filename === filename ? { ...f, result: null } : f
+      f.filename === filename ? { ...f, result: undefined } : f
     ));
     try {
       const vars = queryVars ? JSON.parse(queryVars) : null;

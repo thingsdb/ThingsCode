@@ -14,17 +14,17 @@ export interface Workspace {
 }
 
 export interface Result {
-  data: unknown | null;
-  error: string | null;
-  warning: string | null;
+  data?: unknown;
+  error?: string;
+  warning?: string;
   ts: number;
 }
 
 export interface ProjectFile {
   filename: string;
   content: string;
-  result: Result | null;
-  queryVars: string | null;
+  result?: Result;
+  queryVars?: string;
 }
 
 export interface NodeStatus {

@@ -3,12 +3,7 @@ import { InfoCircledIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons'
 import Editor from '@monaco-editor/react';
 import { useActiveWorkspace, useTheme } from '../../hooks';
 import { useMemo } from 'react';
-
-export interface Result {
-  data: unknown | null;
-  error: string | null;
-  warning: string | null;
-}
+import type { Result } from '../../types';
 
 const renderTextWithLinks = (text: string) => {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -42,6 +37,7 @@ export default function StudioResultView() {
   const { activeFile, isExecuting } = useActiveWorkspace();
 
   const result = useMemo<Result | null>(() => {
+    console.log('TODO DETECT CHANGE...');
     return activeFile?.result || null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFile?.result?.ts]);
