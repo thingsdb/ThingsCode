@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"cmp"
@@ -17,6 +17,20 @@ import (
 	"github.com/thingsdb/go-thingsdb"
 	"github.com/vmihailenco/msgpack/v5"
 )
+
+// Settings
+var currentSettings *Settings
+
+func InitSettings(settingsFile string) {
+	settings, err := loadOrCreateSettings(settingsFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	currentSettings = settings
+
+	currentSettings.StartCleanTask()
+}
 
 func (s *Settings) Save() error {
 	jsonData, err := json.MarshalIndent(s, "", "  ")

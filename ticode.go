@@ -9,13 +9,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/thingsdb/ThingsCode/app"
 )
 
 //go:embed dist
 var webContent embed.FS
-
-// Settings
-var currentSettings *Settings
 
 func main() {
 	homeDir, err := os.UserHomeDir()
@@ -32,14 +31,7 @@ func main() {
 
 	settingsFile := *settingsFilePtr
 
-	settings, err := loadOrCreateSettings(settingsFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	currentSettings = settings
-
-	currentSettings.StartCleanTask()
+	app.InitSettings(settingsFile)
 
 	// This strips the "dist" prefix so files are served from root.
 	// Without this, you'd access /dist/index.html instead of /index.html
@@ -56,7 +48,7 @@ func main() {
 
 	// Serve websockets
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(w, r)
+		app.ServeWs(w, r)
 	})
 
 	log.Printf("Server starting on :%d\n", *httpPortPtr)

@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"encoding/json"
@@ -40,14 +40,14 @@ func writeError(wsConn *websocket.Conn, msg *WSMessage, err error) error {
 	return wsConn.WriteJSON(&pkg)
 }
 
-func serveWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
+func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 	wsConn, err := upgrader.Upgrade(httpRespWriter, httpRequest, nil)
 	if err != nil {
 		return
 	}
 	defer func() {
 		_ = wsConn.Close()
-		currentSettings.WM.Unregister(wsConn);
+		currentSettings.WM.Unregister(wsConn)
 	}()
 
 	for {
