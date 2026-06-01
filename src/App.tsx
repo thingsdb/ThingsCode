@@ -1,14 +1,25 @@
-import { Container } from '@radix-ui/themes';
-import { WorkspaceLauncher, ConnectionOverlay } from './components';
+import { useActiveWorkspaceId } from './hooks/useActiveWorkspaceId';
+import { ActiveWorkspaceProvider } from './providers/ActiveWorkspaceProvider';
+import WorkspaceLauncher from './components/WorkspaceLauncher';
+import StudioLayout from './components/studio/StudioLayout';
+import ConnectionOverlay from './components/ConnectionOverlay';
 
+export default function App() {
+  const activeWorkspaceId = useActiveWorkspaceId();
 
-const App = () => {
+  if (!activeWorkspaceId) {
+    return (
+      <>
+        <WorkspaceLauncher />
+        <ConnectionOverlay />
+      </>
+    );
+  }
+
   return (
-    <Container size="3" p="5" mt="9">
-      <WorkspaceLauncher />
+    <ActiveWorkspaceProvider key={activeWorkspaceId}>
+      <StudioLayout />
       <ConnectionOverlay />
-    </Container>
+    </ActiveWorkspaceProvider>
   );
-};
-
-export default App;
+}

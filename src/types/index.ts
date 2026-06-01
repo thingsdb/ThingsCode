@@ -9,4 +9,34 @@ export interface Workspace {
   token?: string;
   ssl: boolean;
   workfolder: string;
+  isTmp: boolean;
+  isQuickConnect: boolean;
 }
+
+export interface Result {
+  data: unknown | null;
+  error: string | null;
+  warning: string | null;
+  ts: number;
+}
+
+export interface ProjectFile {
+  filename: string;
+  content: string;
+  result: Result | null;
+  queryVars: string | null;
+}
+
+export interface NodeStatus {
+  Id: number;
+  Status: string;
+}
+
+export interface Warning {
+  Msg: string;
+  Code: number;
+  Timestamp: number;
+}
+
+export type StudioTab = 'result' | 'rooms' | 'log';
+export type WebsocketStatus = 'connecting' | 'connected' | 'disconnected';

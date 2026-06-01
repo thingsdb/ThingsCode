@@ -10,7 +10,6 @@ export function useActiveWorkspaceId() {
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
 
-  // Extracts 'ws-1' out of '/workspace/ws-1'
   if (currentPath.startsWith('/workspace/')) {
     return currentPath.replace('/workspace/', '');
   }

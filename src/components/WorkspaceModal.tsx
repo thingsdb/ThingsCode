@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, Flex, Text, TextField, IconButton, Button, Switch, Select, Box } from '@radix-ui/themes';
+import { Dialog, Flex, Text, TextField, IconButton, Button, Switch, RadioGroup, Box } from '@radix-ui/themes';
 import { type Workspace } from '../types';
 import { useWorkspaces } from '../hooks';
 import { EyeNoneIcon, EyeOpenIcon } from '@radix-ui/react-icons';
@@ -13,7 +13,7 @@ export default function WorkspaceModal() {
   const [showPassword, setShowPassword] = useState(false);
   const [showToken, setShowToken] = useState(false);
 
-  const [prevId, setPrevId] = useState<string | undefined>(editingWorkspace?.id);
+  const [prevId, setPrevId] = useState<string | undefined>(undefined);
 
   if (editingWorkspace?.id !== prevId) {
     setPrevId(editingWorkspace?.id);
@@ -29,8 +29,16 @@ export default function WorkspaceModal() {
   };
 
   return (
-    <Dialog.Root open={!!editingWorkspace} onOpenChange={(open) => !open && setEditingWorkspace(null)}>
-      <Dialog.Content style={{ maxWidth: 450 }}>
+    <Dialog.Root
+      open={!!editingWorkspace}
+      onOpenChange={(open) => !open && setEditingWorkspace(null)}
+    >
+      <Dialog.Content
+        style={{ maxWidth: 450 }}
+        onPointerDownOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
         <Dialog.Title>Edit Workspace Settings</Dialog.Title>
         <Dialog.Description size="2" mb="4">
           Update your connection preferences for this ThingsDB node.
@@ -52,11 +60,13 @@ export default function WorkspaceModal() {
             <label>
               <Text as="div" size="2" weight="bold" mb="1">Workfolder</Text>
               <TextField.Root
-                placeholder='Leave empty for temporary session storage'
+                placeholder="Leave empty for temporary session storage"
                 value={form.workfolder || ''}
-                onChange={e => setForm({ ...form, name: e.target.value })}
+                onChange={e => setForm({ ...form, workfolder: e.target.value })}
               />
             </label>
+
+            <hr style={{ border: '0', borderTop: '1px solid var(--gray-5)' }} />
 
             {/* Connection Address Grid (Host & Port) */}
             <Flex gap="3">
@@ -93,22 +103,29 @@ export default function WorkspaceModal() {
 
             <hr style={{ border: '0', borderTop: '1px solid var(--gray-5)' }} />
 
-            {/* Auth Strategy Selection Flow */}
-            <label>
-              <Text as="div" size="2" weight="bold" mb="1">Authentication Strategy</Text>
-              <Select.Root
+            {/* Authentication Choice */}
+            <Box>
+              <Text as="div" size="2" weight="bold" mb="2">Authentication Mode</Text>
+              <RadioGroup.Root
                 value={form.authType || 'credentials'}
                 onValueChange={(val: 'credentials' | 'token') => setForm({ ...form, authType: val })}
+                size="2"
+                variant="surface"
               >
-                <Select.Trigger className="w-full" />
-                <Select.Content>
-                  <Select.Item value="credentials">Username & Password</Select.Item>
-                  <Select.Item value="token">Authorization Token</Select.Item>
-                </Select.Content>
-              </Select.Root>
-            </label>
+                <Flex gap="4">
+                  <Text as="label" size="2" style={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }}>
+                    <RadioGroup.Item value="credentials" />
+                    User Credentials
+                  </Text>
+                  <Text as="label" size="2" style={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }}>
+                    <RadioGroup.Item value="token" />
+                    Token Security Key
+                  </Text>
+                </Flex>
+              </RadioGroup.Root>
+            </Box>
 
-            {/* Dynamic Rendering Conditions based on Selected Auth Type */}
+            {/* Auth */}
             {form.authType === 'token' ? (
               <label>
                 <Text as="div" size="2" weight="bold" mb="1">ThingsDB Token</Text>

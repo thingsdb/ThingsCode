@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, Flex, Text, TextField, IconButton, Button, Switch, Select, Box } from '@radix-ui/themes';
+import { Dialog, Flex, Text, TextField, IconButton, Button, Switch, RadioGroup, Box } from '@radix-ui/themes';
 import { PlusIcon, EyeOpenIcon, EyeNoneIcon  } from '@radix-ui/react-icons';
 import { useWorkspaces } from '../hooks';
 
@@ -17,8 +17,7 @@ export default function NewWorkspaceModal() {
   const [token, setToken] = useState('');
   const [ssl, setSsl] = useState(false);
 
-  // 📁 Folder tracking state
-  const [workfolder, setWorkfolder] = useState('~/ThingsCode/');
+  // Folder tracking state
   const [customWorkfolder, setCustomWorkfolder] = useState<string | null>(null);
 
   // Visibility states
@@ -26,9 +25,21 @@ export default function NewWorkspaceModal() {
   const [showToken, setShowToken] = useState(false);
 
   const sanitizedName = name.replace(/[^a-zA-Z0-9-_ ]/g, '');
-  const activeWorkfolder = customWorkfolder !== null
+  const workfolder = customWorkfolder !== null
     ? customWorkfolder
     : `~/ThingsCode/${sanitizedName}`;
+
+  const resetForm = () => {
+    setName('');
+    setCustomWorkfolder(null);
+    setHost('127.0.0.1');
+    setPort(9200);
+    setSsl(false);
+    setAuthType('credentials');
+    setUsername('');
+    setPassword('');
+    setToken('');
+  };
 
   const handleSubmit = (e: React.ChangeEvent) => {
     e.preventDefault();
@@ -43,25 +54,35 @@ export default function NewWorkspaceModal() {
       token: authType === 'token' ? token : undefined,
       ssl,
       workfolder,
+      isTmp: workfolder === "",
+      isQuickConnect: false,
     });
 
-    // Reset Form and close
-    setName('');
-    setHost('127.0.0.1');
-    setPort(9200);
-    setWorkfolder('~/ThingsCode/');
+    resetForm();
     setOpen(false);
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      resetForm();
+    }
+  };
+
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger>
+    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+      <Dialog.Trigger style={{ flex: 1 }}>
         <Button size="3" variant="solid" style={{ cursor: 'pointer', backgroundColor: 'var(--thingscode-blue)' }}>
           <PlusIcon width="16" height="16" /> New Workspace
         </Button>
       </Dialog.Trigger>
 
-      <Dialog.Content style={{ maxWidth: 450 }}>
+      <Dialog.Content
+        style={{ maxWidth: 450 }}
+        onPointerDownOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
         <Dialog.Title>Create New Workspace</Dialog.Title>
         <Dialog.Description size="2" mb="4">
           Add a node config profile and link it to a local workspace path.
@@ -84,14 +105,16 @@ export default function NewWorkspaceModal() {
             <label>
               <Text as="div" size="2" weight="bold" mb="1">Workfolder</Text>
               <TextField.Root
-                placeholder="~/ThingsCode/name"
-                value={activeWorkfolder}
+                placeholder="Leave empty for temporary session storage"
+                value={workfolder}
                 onChange={(e) => {
                   setCustomWorkfolder(e.target.value);
                 }}
                 required
               />
             </label>
+
+            <hr style={{ border: '0', borderTop: '1px solid var(--gray-5)' }} />
 
             {/* Connection Address Grid (Host & Port) */}
             <Flex gap="3">
@@ -101,30 +124,49 @@ export default function NewWorkspaceModal() {
               </Box>
               <Box style={{ width: 100 }}>
                 <Text as="div" size="2" weight="bold" mb="1">Port</Text>
-                <TextField.Root type="number" value={port} onChange={(e) => setPort(parseInt(e.target.value) || 0)} required />
+                <TextField.Root
+                  type="number"
+                  value={port}
+                  onChange={(e) => setPort(parseInt(e.target.value) || 0)}
+                  required
+                />
               </Box>
             </Flex>
 
-            {/* SSL Switch */}
+            {/* SSL Toggle Switch Line */}
             <Flex align="center" justify="between" mt="1">
-              <Text size="2" weight="bold">Secure Connection (SSL / TLS)</Text>
+              <Flex direction="column">
+                <Text size="2" weight="bold">Secure Connection (SSL / TLS)</Text>
+                <Text size="1" color="gray">Encrypted network traffic</Text>
+              </Flex>
               <Switch checked={ssl} onCheckedChange={setSsl} />
             </Flex>
 
             <hr style={{ border: '0', borderTop: '1px solid var(--gray-5)' }} />
 
             {/* Authentication Choice */}
-            <label>
-              <Text as="div" size="2" weight="bold" mb="1">Authentication Strategy</Text>
-              <Select.Root value={authType} onValueChange={(val: 'credentials' | 'token') => setAuthType(val)}>
-                <Select.Trigger className="w-full" />
-                <Select.Content>
-                  <Select.Item value="credentials">Username & Password</Select.Item>
-                  <Select.Item value="token">Authorization Token</Select.Item>
-                </Select.Content>
-              </Select.Root>
-            </label>
+            <Box>
+              <Text as="div" size="2" weight="bold" mb="2">Authentication Mode</Text>
+              <RadioGroup.Root
+                value={authType}
+                onValueChange={(value) => setAuthType(value as 'credentials' | 'token')}
+                size="2"
+                variant="surface"
+              >
+                <Flex gap="4">
+                  <Text as="label" size="2" style={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }}>
+                    <RadioGroup.Item value="credentials" />
+                    User Credentials
+                  </Text>
+                  <Text as="label" size="2" style={{ display: 'flex', gap: '8px', alignItems: 'center', cursor: 'pointer' }}>
+                    <RadioGroup.Item value="token" />
+                    Token Security Key
+                  </Text>
+                </Flex>
+              </RadioGroup.Root>
+            </Box>
 
+            {/* Auth */}
             {authType === 'token' ? (
               <label>
                 <Text as="div" size="2" weight="bold" mb="1">ThingsDB Token</Text>

@@ -19,7 +19,7 @@ if (status !== prevStatus) {
     if (status !== 'connected') return;
     const timer = setTimeout(() => {
       setShowOverlay(false);
-    }, 700);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [status]);
@@ -60,7 +60,9 @@ if (status !== prevStatus) {
       >
         {status === 'connecting' || status === 'connected' ? (
           <>
-            <UpdateIcon className="animate-spin" style={{ width: 32, height: 32, color: 'var(--blue-9)' }} />
+            <UpdateIcon
+              className="animate-spin"
+              style={{ width: 32, height: 32, color: 'var(--thingscode-blue)' }} />
             <Heading size="4" mt="2">Initializing connection</Heading>
             <Text size="2" color="gray">
               Trying to connect to ThingsCode...

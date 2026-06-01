@@ -2,15 +2,20 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useWebSocket } from '../hooks';
 import { type Workspace } from '../types';
 import { WorkspaceContext } from '../context';
+import { NotificationToast } from '../components';
 
-export const WorkspaceProvider: React.FC<{
-      children: React.ReactNode;
-      appearance: 'light' | 'dark';
-    }> = ({ children, appearance }) => {
+
+interface WorkspaceProviderProps {
+  children: React.ReactNode;
+  appearance: 'light' | 'dark';
+}
+
+export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps) {
   const { status, emit } = useWebSocket();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (status !== 'connected') {
@@ -18,7 +23,6 @@ export const WorkspaceProvider: React.FC<{
     }
     const fetchWorkspaces = async () => {
       const workspaces = await emit<Workspace[]>('FETCH_WORKSPACES')
-      console.log('HERE', workspaces);
       setWorkspaces(workspaces);
     };
     fetchWorkspaces();
@@ -27,44 +31,100 @@ export const WorkspaceProvider: React.FC<{
   // Search...
   const filteredWorkspaces = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
-    if (!query) return workspaces;
+    if (!query) return workspaces.filter((ws) => !ws.isQuickConnect);
 
     return workspaces.filter((ws) =>
-      ws.name.toLowerCase().includes(query) ||
-      ws.host.toLowerCase().includes(query) ||
-      ws.port.toString().includes(query)
+      !ws.isQuickConnect && (
+        ws.name.toLowerCase().includes(query) ||
+        ws.host.toLowerCase().includes(query) ||
+        ws.port.toString().includes(query)
+      )
     );
   }, [workspaces, searchQuery]);
 
-  const deleteWorkspace = (id: string) => {
-    setWorkspaces((prev) => prev.filter((ws) => ws.id !== id));
-  };
-
-  const updateWorkspace = async (updated: Workspace) => {
-    let fallbackWorkspaces: Workspace[] = [];
-
-    setWorkspaces((prevWorkspaces) => {
-      fallbackWorkspaces = prevWorkspaces; // Capture snapshot
-      return prevWorkspaces.map((ws) => (ws.id === updated.id ? updated : ws));
+  const deleteWorkspace = async (id: string) => {
+    let fallback: Workspace[] = [];
+    setWorkspaces((prev) => {
+      fallback = prev;
+      return prev.filter((ws) => ws.id !== id);
     });
 
     try {
-      await emit('UPDATE_WORKSPACE', updated);
-    } catch (err) {
-      console.error("Backend failed to save workspace settings:", err);
-      setWorkspaces(fallbackWorkspaces);
-      alert(`Failed to save changes to ${updated.name}. Please check your backend logs.`);
+      await emit('REMOVE_WORKSPACE', {id: id});
+    } catch (err: unknown) {
+      console.error("Backend failed to remove workspace:", err);
+      setWorkspaces(fallback);
+      const message = err instanceof Error
+        ? err.message
+        : typeof err === 'string'
+          ? err
+          : `Failed to remove workspace ID ${id}.`;
+      setErrorMessage(message);
     }
   };
 
-  const addWorkspace = async (newWs: Omit<Workspace, 'id'>) => {
+  const updateWorkspace = async (updated: Workspace) => {
+    try {
+      const res = await emit('UPDATE_WORKSPACE', updated) as { id: string, workfolder: string };
+      updated.workfolder = res.workfolder;
+      setWorkspaces((prev) => {
+        return prev.map((ws) => (ws.id === updated.id ? updated : ws));
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to save workspace settings:", err);
+      const message = err instanceof Error
+        ? err.message
+        : typeof err === 'string'
+          ? err
+          : `Failed to save changes to ${updated.name}.`;
+      setErrorMessage(message);
+    }
+  };
+
+  const addWorkspaceHelper = async (newWs: Omit<Workspace, 'id'>) => {
+    const res = await emit('ADD_WORKSPACE', newWs) as { id: string, workfolder: string };
+    if (!res || !res.id) {
+      throw new Error("Backend response did not return a valid workspace ID");
+    }
     setWorkspaces((prev) => [
       ...prev,
       {
         ...newWs,
-        id: `ws-${Date.now()}`, // Simple unique runtime ID generation
-      },
+        id: res.id,
+        workfolder: res.workfolder,
+      } as Workspace,
     ]);
+    return res.id;
+  };
+
+  const addWorkspace = async (newWs: Omit<Workspace, 'id'>) => {
+    try {
+      await addWorkspaceHelper(newWs);
+    } catch (err) {
+      console.error("Backend failed to add workspace:", err);
+      const message = err instanceof Error
+        ? err.message
+        : typeof err === 'string'
+          ? err
+          : `Failed to add workspace ${newWs.name}.`;
+      setErrorMessage(message);
+    }
+  };
+
+  const quickConnect = async (tmpWs: Omit<Workspace, 'id'>) => {
+    try {
+      const id = await addWorkspaceHelper(tmpWs);
+      window.history.pushState({}, '', `/workspace/${id}`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    } catch (err) {
+      console.error("Backend failed to set-up quick connect workspace:", err);
+      const message = err instanceof Error
+        ? err.message
+        : typeof err === 'string'
+          ? err
+          : `Failed to open ${tmpWs.name}.`;
+      setErrorMessage(message);
+    }
   };
 
   return (
@@ -79,9 +139,15 @@ export const WorkspaceProvider: React.FC<{
       setEditingWorkspace,
       updateWorkspace,
       addWorkspace,
+      quickConnect,
     }}>
       {children}
-
+      {errorMessage && (
+        <NotificationToast
+          message={errorMessage}
+          onClear={() => setErrorMessage(null)}
+        />
+      )}
     </WorkspaceContext.Provider>
   );
 };

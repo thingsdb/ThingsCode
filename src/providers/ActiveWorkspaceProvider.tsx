@@ -1,50 +1,332 @@
-import React, { useState, useEffect } from 'react';
-import { useActiveWorkspaceId, useWorkspaces } from '../hooks';
-import { ActiveWorkspaceContext } from '../context';
+import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
+import { useActiveWorkspaceId, useWebSocket, useEvent } from '../hooks';
+import WorkspaceNotFound from '../components/WorkspaceNotFound';
+import { ActiveWorkspaceContext, WorkspaceContext } from '../context';
+import type { ProjectFile, Result } from '../types';
+import { NotificationToast } from '../components';
 
-export const ActiveWorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface ActiveWorkspaceProviderProps {
+  children: React.ReactNode;
+}
+
+export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderProps) {
   const activeId = useActiveWorkspaceId();
-  const { workspaces } = useWorkspaces();
+  const { setWorkspace } = useEvent();
+  const context = useContext(WorkspaceContext);
+  if (!context) {
+    throw new Error("ActiveWorkspaceProvider must be wrapped within a valid WorkspaceProvider element!");
+  }
+  const { workspaces } = context;
+  const { status, emit } = useWebSocket();
 
-  const [files, setFiles] = useState<string[]>([]);
-  const [loadingFiles, setLoadingFiles] = useState(true);
-
+  const activeFetchRef = useRef<string | null>(null);
   const currentWorkspace = workspaces.find((ws) => ws.id === activeId);
 
-  const [prevWorkspaceId, setPrevWorkspaceId] = useState<string | undefined>(currentWorkspace?.id);
-
-  if (currentWorkspace?.id !== prevWorkspaceId) {
-    setPrevWorkspaceId(currentWorkspace?.id);
-    setLoadingFiles(true);
-    setFiles([]);
-  }
+  const [files, setFiles] = useState<ProjectFile[]>([]);
+  const [activeFilename, setActiveFilename] = useState<string | null>(null);
+  const [activeContent, setActiveContent] = useState<string | null>(null);
+  const [scopes, setScopes] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeScope, setActiveScope] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fileScopes, setFileScopes] = useState<Record<string, string>>({});
+  const [isExecuting, setIsExecuting] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!currentWorkspace) return;
+    if (currentWorkspace) {
+      setWorkspace(currentWorkspace.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentWorkspace?.id, setWorkspace]);
 
-    // TODO: emit....
-    console.log(`Scanning Go workfolder directory: ${currentWorkspace.workfolder}`);
+  useEffect(() => {
+    return () => {
+      console.log('[ActiveWorkspaceProvider] Provider unmounting.');
+      setWorkspace(null);
+    };
+  }, [setWorkspace]);
 
-    setTimeout(() => {
-      setFiles(['main.tcl', 'schema.json', 'procedures.tcl', 'backup.db']);
-      setLoadingFiles(false);
-    }, 400); // Simulate network roundtrip
-  }, [currentWorkspace]);
+  useEffect(() => {
+    if (
+      !currentWorkspace ||
+      status !== 'connected' ||
+      activeFetchRef.current === currentWorkspace.id) return;
 
-  if (!currentWorkspace) {
-    return <div className="p-5">Workspace not found.</div>;
-  }
+    activeFetchRef.current = currentWorkspace.id;
 
-  const refreshFiles = () => { /* re-fetch from Go */ };
+    const loadWorkspaceData = async () => {
+      try {
+        const [_files, _scopes, _fileScopes] = await Promise.all([
+          emit<ProjectFile[]>('FETCH_FILES', currentWorkspace),
+          emit<string[]>('FETCH_SCOPES', currentWorkspace),
+          emit<Record<string, string>>('FETCH_FILE_SCOPES', currentWorkspace),
+        ]);
+
+        if (activeFetchRef.current !== currentWorkspace.id) return;
+
+        setFiles(_files);
+        setScopes(_scopes);
+        setFileScopes(_fileScopes);
+
+        if (_files.length > 0) {
+          const savedSelectedFile = localStorage.getItem('ticode-selected-file');
+          const selectedFile = _files.find((file) => file.filename === savedSelectedFile) || _files[0];
+          const fileToSet = selectedFile.filename;
+          setActiveFilename(fileToSet);
+          // Here we do take it from the current Workspace
+          const lastSelectedScope = _fileScopes[fileToSet];
+          if (lastSelectedScope) {
+            setActiveScope(lastSelectedScope);
+          } else if (_scopes.length > 0) {
+            setActiveScope(_scopes[0]);
+          }
+        } else if (_scopes.length > 0) {
+          setActiveScope(_scopes[0]);
+        }
+      } catch (err) {
+        console.error("Workspace initialization aborted:", err);
+        if (activeFetchRef.current === currentWorkspace.id) {
+          const message = err instanceof Error
+            ? err.message
+            : typeof err === 'string' ? err : "Failed to load workspace.";
+          setErrorMessage(message);
+        }
+      } finally {
+        if (activeFetchRef.current === currentWorkspace.id) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadWorkspaceData();
+  }, [currentWorkspace, status, emit]);
+
+  const activeFile = useMemo(() => {
+    return files.find(f => f.filename === activeFilename) || null;
+  }, [files, activeFilename])
+
+  if (!currentWorkspace) return <WorkspaceNotFound />
+
+  const setActiveFile = (filename: string) => {
+    localStorage.setItem('ticode-selected-file', filename);
+    setActiveFilename(filename);
+    const lastSelectedScope = fileScopes[filename];
+    if (lastSelectedScope) {
+      setActiveScope(lastSelectedScope);
+    }
+  };
+
+  const setActiveScopeState = (scope: string) => {
+    setActiveScope(scope);
+    if (activeFilename) {
+      updateFileScope(activeFilename, scope);
+    }
+  };
+
+  const storeFileContent = async (filename: string, newContent: string) => {
+    setFiles(prev => prev.map(f =>
+      f.filename === filename ? { ...f, content: newContent } : f
+    ));
+    try {
+      await emit('UPDATE_FILE_CONTENT', {
+        id: currentWorkspace.id,
+        filename: filename,
+        content: newContent,
+      })
+    } catch (err) {
+        console.error("Failed to save file:", err);
+        if (activeFetchRef.current === currentWorkspace.id) {
+          const message = err instanceof Error
+            ? err.message
+            : typeof err === 'string' ? err : "Failed to save file.";
+          setErrorMessage(message);
+        }
+    }
+  };
+
+  const updateQueryVars = async (filename: string, newQueryVars: string) => {
+    setFiles(prev => prev.map(f =>
+      f.filename === filename ? { ...f, queryVars: newQueryVars } : f
+    ));
+    try {
+      await emit('UPDATE_EXEC_ARGS', {
+        id: currentWorkspace.id,
+        filename: filename,
+        queryVars: newQueryVars,
+      })
+    } catch (err) {
+      console.error("Failed to save execution arguments:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to save execution arguments.";
+        setErrorMessage(message);
+      }
+    }
+  };
+
+  const updateFileScope = async (filename: string, scope: string) => {
+    try {
+      await emit('UPDATE_FILE_SCOPE', {
+        id: currentWorkspace.id,
+        filename: filename,
+        scope: scope,
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to save updated file scope:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to save file scope.";
+        setErrorMessage(message);
+      }
+    }
+    setFileScopes((prev) => {
+      return {
+        ...prev,
+        [filename]: scope,
+      };
+    });
+  };
+
+  const createFile = async (filename: string) => {
+    try {
+      await emit('CREATE_FILE', {
+        id: currentWorkspace.id,
+        filename: filename,
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to create file:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to create file.";
+        setErrorMessage(message);
+      }
+    }
+    setFiles(prev => {
+      return [
+        ...prev,
+        {
+          filename,
+          content: '',
+          result: null,
+          queryVars: null,
+        } as ProjectFile
+      ];
+    });
+    setActiveFilename(filename);
+  };
+
+  const renameFile = async (filename: string, newFilename: string) => {
+    try {
+      await emit('RENAME_FILE', {
+        id: currentWorkspace.id,
+        filename: filename,
+        newFilename: newFilename,
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to rename file:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to rename file.";
+        setErrorMessage(message);
+      }
+    }
+    setFiles(prev => prev.map(f =>
+      f.filename === filename ? { ...f, filename: newFilename } : f
+    ));
+    if (activeFilename === filename) {
+      setActiveFilename(newFilename);
+    }
+  };
+
+  const deleteFile = async (filename: string) => {
+    try {
+      await emit('DELETE_FILE', {
+        id: currentWorkspace.id,
+        filename: filename,
+      });
+    } catch (err: unknown) {
+      console.error("Backend failed to delete file:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to delete file.";
+        setErrorMessage(message);
+      }
+    }
+    setFiles(prev => prev.filter((file) => file.filename !== filename));
+    if (activeFilename === filename) {
+      setActiveFilename(null);
+    }
+  };
+
+  const execCode = async (filename: string, scope: string, code: string, queryVars: string | null) => {
+    setIsExecuting(true);
+    setFiles(prev => prev.map(f =>
+      f.filename === filename ? { ...f, result: null } : f
+    ));
+    try {
+      const vars = queryVars ? JSON.parse(queryVars) : null;
+      const result = await emit('EXEC_CODE', {
+        id: currentWorkspace.id,
+        filename,
+        scope,
+        code,
+        vars,
+      }) as Result;
+      setFiles(prev => prev.map(f =>
+        f.filename === filename ? { ...f, result: result } : f
+      ));
+    } catch (err: unknown) {
+      console.error("Failed to save execution arguments:", err);
+      if (activeFetchRef.current === currentWorkspace.id) {
+        const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Failed to save execution arguments.";
+        setErrorMessage(message);
+      }
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
+  const refresh = () => {
+    // Re-trigger synchronization queries manually
+  };
 
   return (
     <ActiveWorkspaceContext.Provider value={{
       workspace: currentWorkspace,
       files,
-      loadingFiles,
-      refreshFiles
+      activeFilename,
+      activeContent,
+      activeFile,
+      scopes,
+      activeScope,
+      loading,
+      isExecuting,
+
+      setActiveScopeState,
+      setActiveContent,
+      setActiveFile,
+      createFile,
+      renameFile,
+      deleteFile,
+      storeFileContent,
+      updateQueryVars,
+      execCode,
+      refresh,
     }}>
       {children}
+      {errorMessage && (
+        <NotificationToast
+          message={errorMessage}
+          onClear={() => setErrorMessage(null)}
+        />
+      )}
     </ActiveWorkspaceContext.Provider>
   );
 };

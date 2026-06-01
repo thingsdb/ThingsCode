@@ -18,13 +18,6 @@ import (
 // Key will be generated once and stored in user profile
 var theSecretKey []byte
 
-type AuthType string
-
-const (
-	AuthTypeCredentials AuthType = "credentials"
-	AuthTypeToken       AuthType = "token"
-)
-
 func (a *AuthType) UnmarshalJSON(b []byte) error {
 	var s string
 	if err := json.Unmarshal(b, &s); err != nil {
@@ -41,20 +34,6 @@ func (a *AuthType) UnmarshalJSON(b []byte) error {
 	}
 }
 
-// Workspace matches the individual items inside the array
-type Workspace struct {
-	ID         string   `json:"id"`
-	Name       string   `json:"name"`
-	Host       string   `json:"host"`
-	Port       int      `json:"port"`
-	AuthType   AuthType `json:"authType"`
-	Username   string   `json:"username,omitempty"`
-	Password   string   `json:"password,omitempty"`
-	Token      string   `json:"token,omitempty"`
-	SSL        bool     `json:"ssl"`
-	Workfolder string   `json:"workfolder"`
-}
-
 func (w *Workspace) GenerateID() {
 	bytes := make([]byte, 4)
 	if _, err := rand.Read(bytes); err == nil {
@@ -62,7 +41,7 @@ func (w *Workspace) GenerateID() {
 	}
 }
 
-// SetUserPassAuth encrypts username/password credentials block
+// SetUserPassAuth encrypts credentials block
 func (w *Workspace) SetUserPassAuth(username, password string) error {
 	secretKey, err := getOrCreateSecretKey()
 	if err != nil {
@@ -121,6 +100,76 @@ func (w *Workspace) GetCredentials() (username, password, token string, err erro
 	}
 	token, err = decrypt(w.Token, secretKey)
 	return
+}
+
+func (w *Workspace) EnsureWorkolder() error {
+	if w.Workfolder != "" {
+		return nil
+	}
+	tempDir := fmt.Sprintf("ticode-%s", w.ID)
+	absTempDir, err := os.MkdirTemp("", tempDir)
+	if err != nil {
+		return fmt.Errorf("failed to create temporary directory: %w", err)
+	}
+
+	w.Workfolder = absTempDir
+	return nil
+}
+
+func (w *Workspace) EncryptAuth() error {
+	switch w.AuthType {
+	case AuthTypeToken:
+		if err := w.SetTokenAuth(w.Token); err != nil {
+			return err
+		}
+	case AuthTypeCredentials:
+		if err := w.SetUserPassAuth(w.Username, w.Password); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("unsupported authentication type: %s", w.AuthType)
+	}
+	return nil
+}
+
+func (w *Workspace) EnsureWorkolderExists() error {
+	if err := w.EnsureWorkolder(); err != nil {
+		return err
+	}
+
+	workPath, err := ExpandHomePath(w.Workfolder)
+	if err != nil {
+		return err
+	}
+
+	info, err := os.Stat(workPath)
+	if os.IsNotExist(err) {
+		err := os.MkdirAll(workPath, 0755)
+		if err != nil {
+			return fmt.Errorf("failed to create workfolder %s: %w", w.Workfolder, err)
+		}
+		defaultFilePath := filepath.Join(workPath, "Untitled-0.ti")
+		defaultContent := []byte("// ThingsCode IDE Engine\n\"Hello World\";\n")
+		err = os.WriteFile(defaultFilePath, defaultContent, 0644)
+		if err != nil {
+			return fmt.Errorf("failed to create default file %s: %w", defaultFilePath, err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("error inspecting workfolder path %s: %w", w.Workfolder, err)
+	} else if !info.IsDir() {
+		return fmt.Errorf("provided workfolder path %s is an existing file, not a directory", w.Workfolder)
+	}
+
+	return nil
+}
+
+func (w *Workspace) LockCloseConn() {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if w.conn != nil && w.conn.IsConnected() {
+		w.conn.Close()
+		w.conn = nil
+	}
 }
 
 // Helper to encrypt plain text into a Base64 encrypted string
