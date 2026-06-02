@@ -8,6 +8,8 @@ github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/thingsdb/go-thingsdb v1.0.10 h1:KZhdELUSOf8aQzLv9k0pqSC3QqKsy1bq1dl5YX/TMC4=
 github.com/thingsdb/go-thingsdb v1.0.10/go.mod h1:Egsm5zNcshZtdjLR6Dd02Wjk8UR626XTcaZLc03Hnpw=
+github.com/thingsdb/go-thingsdb v1.1.0 h1:mwaP5UhT2qQQnHklp3rFdXn71YCtaDH8Q8ApMxGBpds=
+github.com/thingsdb/go-thingsdb v1.1.0/go.mod h1:Egsm5zNcshZtdjLR6Dd02Wjk8UR626XTcaZLc03Hnpw=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=

@@ -8,7 +8,7 @@ import QueryVarsDialog from './QueryVarsDialog';
 
 export default function StudioTopBar() {
   const { status, emit } = useWebSocket();
-  const { activeScope, activeFile, updateQueryVars, activeFilename, activeContent, workspace, isExecuting, execCode } = useActiveWorkspace();
+  const { loading, activeScope, activeFile, updateQueryVars, activeFilename, activeContent, workspace, isExecuting, execCode } = useActiveWorkspace();
   const { appearance, toggleAppearance } = useTheme();
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
@@ -73,7 +73,7 @@ export default function StudioTopBar() {
           zIndex: 1
         }}
       >
-        <ScopeSelector disabled={!isTiCode} />
+        <ScopeSelector disabled={loading} />
         <Flex align="center" gap="2">
 
           <Button

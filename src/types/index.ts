@@ -27,9 +27,25 @@ export interface ProjectFile {
   queryVars?: string;
 }
 
+export interface Room {
+  scope: string;
+  name: string;
+  code: string;
+  errMsg?: string;
+  isJoined: boolean;
+}
+
+// NodeStatus is direct from go-thingsdb
 export interface NodeStatus {
   Id: number;
   Status: string;
+}
+
+// Warning is direct from go-thingsdb
+export interface Warning {
+  Msg: string;
+  Code: number;
+  Timestamp: number;
 }
 
 export interface NodeInfo {
@@ -37,12 +53,53 @@ export interface NodeInfo {
   status: string;
   uptime: number;
   version: string;
+  architecture: string;
+  archiveFiles: number;
+  archivedInMemory: number;
+  cacheExpirationTime: number;
+  cachedNames: number;
+  cachedQueries: number;
+  changesInQueue: number;
+  clientPort: number;
+  commitHistory: string | number;
+  connectedClients: number;
+  dbStoredChangeId: number;
+  globalCommittedChangeId: number;
+  globalStoredChangeId: number;
+  httpApiPort: number | string;
+  httpStatusPort: number | string;
+  ipSupport: string;
+  libcleriVersion: string;
+  libpcre2Version: string;
+  libuvVersion: string;
+  libwebsocketsVersion: string;
+  localCommittedChangeId: number;
+  localStoredChangeId: number;
+  logLevel: string;
+  modulesPath: string;
+  msgpackVersion: string;
+  nextChangeId: number;
+  nextFreeId: number;
+  nodeID: number;
+  nodeName: string;
+  nodePort: number;
+  platform: string;
+  pythonInterpreter: string;
+  resultSizeLimit: number;
+  scheduledBackups: number;
+  storagePath: string;
+  syntaxVersion: string;
+  thresholdQueryCache: number;
+  yajlVersion: string;
+  zone: number;
 }
 
-export interface Warning {
-  Msg: string;
-  Code: number;
-  Timestamp: number;
+export interface EmitEvent {
+  workspaceID: string;
+  roomId: number;
+  ts: number;
+  event: string;
+  args: unknown[];
 }
 
 export type StudioTab = 'result' | 'events' | 'log';

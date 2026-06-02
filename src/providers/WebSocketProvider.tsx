@@ -1,7 +1,7 @@
 // src/context/WebSocketContext.tsx
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { WebSocketContext } from '../context';
-import type { NodeStatus, Warning, WebsocketStatus } from '../types';
+import type { EmitEvent, NodeStatus, Warning, WebsocketStatus } from '../types';
 import { useEvent } from '../hooks';
 
 
@@ -30,7 +30,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const [status, setStatus] = useState<WebsocketStatus>('connecting');
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);
-  const { setNodeStatus, appendWarning } = useEvent();
+  const { setNodeStatus, appendWarning, appendEmitEvent } = useEvent();
 
   const pendingRequestsRef = useRef<Map<string, { resolve: (val: unknown) => void; reject: (err: unknown) => void }>>(new Map());
 
@@ -65,12 +65,16 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       try {
         const msg: WSResponse = JSON.parse(event.data);
 
-      if (msg.type === "ON_NODE_STATUS") {
+        if (msg.type === "ON_NODE_STATUS") {
           setNodeStatus(msg.payload as NodeStatus);
         } else if (msg.type === "ON_WARNING") {
           const warning = msg.payload as Warning;
           warning.Timestamp = Date.now();
           appendWarning(warning);
+        } else if (msg.type === "ON_EMIT") {
+          const emitEvent = msg.payload as EmitEvent;
+          appendEmitEvent(emitEvent);
+
         } else if (msg.id && pendingRequestsRef.current.has(msg.id)) {
           const { resolve, reject } = pendingRequestsRef.current.get(msg.id)!;
 
@@ -87,7 +91,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         console.warn('Received non-JSON message:', event.data);
       }
     };
-  }, [appendWarning, setNodeStatus]);
+  }, [appendWarning, setNodeStatus, appendEmitEvent]);
 
   const emit = useCallback(<TResponse = unknown, TPayload = unknown>(type: string, payload?: TPayload): Promise<TResponse> => {
     return new Promise((resolve, reject) => {

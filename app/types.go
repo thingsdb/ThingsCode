@@ -21,56 +21,72 @@ type UserInfo struct {
 
 // NodeInfo -- from thingsdb NodeInfo
 type NodeInfo struct {
-	NodeID              int     `msgpack:"node_id" json:"nodeId"`
-	Status              string  `msgpack:"status" json:"status"`
-	Version             string  `msgpack:"version" json:"version"`
-	Uptime              float64 `msgpack:"uptime" json:"uptime"`
-	Architecture        string  `msgpack:"architecture" json:"architecture"`
-	ArchiveFiles        int     `msgpack:"archive_files" json:"archiveFiles"`
-	ArchivedInMemory    int     `msgpack:"archived_in_memory" json:"archivedInMemory"`
-	CacheExpirationTime int     `msgpack:"cache_expiration_time" json:"cacheExpirationTime"`
+	Architecture            string  `msgpack:"architecture" json:"architecture"`
+	ArchiveFiles            int     `msgpack:"archive_files" json:"archiveFiles"`
+	ArchivedInMemory        int     `msgpack:"archived_in_memory" json:"archivedInMemory"`
+	CacheExpirationTime     int     `msgpack:"cache_expiration_time" json:"cacheExpirationTime"`
+	CachedNames             int64   `msgpack:"cached_names" json:"cachedNames"`
+	CachedQueries           int     `msgpack:"cached_queries" json:"cachedQueries"`
+	ChangesInQueue          int     `msgpack:"changes_in_queue" json:"changesInQueue"`
+	ClientPort              int     `msgpack:"client_port" json:"clientPort"`
+	CommitHistory           any     `msgpack:"commit_history" json:"commitHistory"`
+	ConnectedClients        int     `msgpack:"connected_clients" json:"connectedClients"`
+	DbStoredChangeId        int64   `msgpack:"db_stored_change_id" json:"dbStoredChangeId"`
+	GlobalCommittedChangeId int64   `msgpack:"global_committed_change_id" json:"globalCommittedChangeId"`
+	GlobalStoredChangeId    int64   `msgpack:"global_stored_change_id" json:"globalStoredChangeId"`
+	HttpApiPort             any     `msgpack:"http_api_port" json:"httpApiPort"`
+	HttpStatusPort          any     `msgpack:"http_status_port" json:"httpStatusPort"`
+	IpSupport               string  `msgpack:"ip_support" json:"ipSupport"`
+	LibcleriVersion         string  `msgpack:"libcleri_version" json:"libcleriVersion"`
+	Libpcre2Version         string  `msgpack:"libpcre2_version" json:"libpcre2Version"`
+	LibuvVersion            string  `msgpack:"libuv_version" json:"libuvVersion"`
+	LibwebsocketsVersion    string  `msgpack:"libwebsockets_version" json:"libwebsocketsVersion"`
+	LocalCommittedChangeId  int64   `msgpack:"local_committed_change_id" json:"localCommittedChangeId"`
+	LocalStoredChangeId     int64   `msgpack:"local_stored_change_id" json:"localStoredChangeId"`
+	LogLevel                string  `msgpack:"log_level" json:"logLevel"`
+	ModulesPath             string  `msgpack:"modules_path" json:"modulesPath"`
+	MsgpackVersion          string  `msgpack:"msgpack_version" json:"msgpackVersion"`
+	NextChangeId            int64   `msgpack:"next_change_id" json:"nextChangeId"`
+	NextFreeId              int64   `msgpack:"next_free_id" json:"nextFreeId"`
+	NodeID                  int     `msgpack:"node_id" json:"nodeId"`
+	NodeName                string  `msgpack:"node_name" json:"nodeName"`
+	NodePort                int     `msgpack:"node_port" json:"nodePort"`
+	Platform                string  `msgpack:"platform" json:"platform"`
+	PythonInterpreter       string  `msgpack:"python_interpreter" json:"pythonInterpreter"`
+	ResultSizeLimit         int64   `msgpack:"result_size_limit" json:"resultSizeLimit"`
+	ScheduledBackups        int     `msgpack:"scheduled_backups" json:"scheduledBackups"`
+	Status                  string  `msgpack:"status" json:"status"`
+	StoragePath             string  `msgpack:"storage_path" json:"storagePath"`
+	SyntaxVersion           string  `msgpack:"syntax_version" json:"syntaxVersion"`
+	ThresholdQueryCache     int64   `msgpack:"threshold_query_cache" json:"thresholdQueryCache"`
+	Uptime                  float64 `msgpack:"uptime" json:"uptime"`
+	Version                 string  `msgpack:"version" json:"version"`
+	YajlVersion             string  `msgpack:"yajl_version" json:"yajlVersion"`
+	Zone                    int     `msgpack:"zone" json:"zone"`
 }
 
-// {
-//     "cached_names": 272,
-//     "cached_queries": 0,
-//     "changes_in_queue": 0,
-//     "client_port": 9201,
-//     "commit_history": "disabled",
-//     "connected_clients": 0,
-//     "db_stored_change_id": 74324,
-//     "global_committed_change_id": 75247,
-//     "global_stored_change_id": 75247,
-//     "http_api_port": 9211,
-//     "http_status_port": 8081,
-//     "ip_support": "ALL",
-//     "libcleri_version": "1.0.2a",
-//     "libpcre2_version": "10.39",
-//     "libuv_version": "1.43.0",
-//     "libwebsockets_version": "4.3.99-v1.4.16-249-g432858e7",
-//     "local_committed_change_id": 75247,
-//     "local_stored_change_id": 75247,
-//     "log_level": "WARNING",
-//     "modules_path": "/var/thingsdb-modules/node1",
-//     "msgpack_version": "3.2.1",
-//     "next_change_id": 75248,
-//     "next_free_id": 1398,
-//     "node_id": 1,
-//     "node_name": "playground",
-//     "node_port": 9221,
-//     "platform": "linux",
-//     "python_interpreter": "python",
-//     "result_size_limit": 20971520,
-//     "scheduled_backups": 1,
-//     "status": "READY",
-//     "storage_path": "/var/thingsdb/node1/",
-//     "syntax_version": "v1",
-//     "threshold_query_cache": 160,
-//     "uptime": 8765601.074270448,
-//     "version": "1.8.4",
-//     "yajl_version": "2.1.0",
-//     "zone": 0
-// }
+type NodeCounters struct {
+	AverageChangeDuration float64 `msgpack:"average_change_duration" json:"averageChangeDuration"`
+	AverageQueryDuration  float64 `msgpack:"average_query_duration" json:"averageQueryDuration"`
+	ChangesCommitted      int64   `msgpack:"changes_committed" json:"changesCommitted"`
+	ChangesFailed         int64   `msgpack:"changes_failed" json:"changesFailed"`
+	ChangesKilled         int64   `msgpack:"changes_killed" json:"changesKilled"`
+	ChangesSkipped        int64   `msgpack:"changes_skipped" json:"changesSkipped"`
+	ChangesUnaligned      int64   `msgpack:"changes_unaligned" json:"changesUnaligned"`
+	ChangesWithGap        int64   `msgpack:"changes_with_gap" json:"changesWithGap"`
+	GarbageCollected      int64   `msgpack:"garbage_collected" json:"garbageCollected"`
+	LargestResultSize     int64   `msgpack:"largest_result_size" json:"largestResultSize"`
+	LongestChangeDuration float64 `msgpack:"longest_change_duration" json:"longestChangeDuration"`
+	LongestQueryDuration  float64 `json:"longestQueryDuration" msgpack:"longest_query_duration"`
+	QueriesFromCache      int64   `msgpack:"queries_from_cache" json:"queriesFromCache"`
+	QueriesSuccess        int64   `msgpack:"queries_success" json:"queriesSuccess"`
+	QueriesWithError      int64   `msgpack:"queries_with_error" json:"queriesWithError"`
+	QuorumLost            int64   `msgpack:"quorum_lost" json:"quorumLost"`
+	StartedAt             int64   `msgpack:"started_at" json:"startedAt"` // Unix timestamp in seconds
+	TasksSuccess          int64   `msgpack:"tasks_success" json:"tasksSuccess"`
+	TasksWithError        int64   `msgpack:"tasks_with_error" json:"tasksWithError"`
+	WastedCache           int64   `msgpack:"wasted_cache" json:"wastedCache"`
+}
 
 type UserInfoAndNodesInfo struct {
 	NodesInfo []NodeInfo `msgpack:"nodes_info"`
@@ -92,6 +108,15 @@ const (
 	AuthTypeToken       AuthType = "token"
 )
 
+type Room struct {
+	Scope    string         `json:"scope"`
+	Name     string         `json:"name"`
+	Code     string         `json:"code"`
+	ErrMsg   string         `json:"errMsg,omitempty"`
+	IsJoined bool           `json:"isJoined"`
+	Room     *thingsdb.Room `json:"-"`
+}
+
 type Workspace struct {
 	ID             string    `json:"id"`
 	Name           string    `json:"name"`
@@ -107,8 +132,9 @@ type Workspace struct {
 	IsTmp          bool      `json:"isTmp"`
 	IsQuickConnect bool      `json:"isQuickConnect"`
 
-	// FileScopes only for local JSON, webserver by own request
+	// Room & FileScopes only for local JSON, webserver by own request
 	FileScopes map[string]string `json:"fileScopes"`
+	Rooms      []Room            `json:"rooms"`
 	mu         sync.RWMutex      `json:"-"`
 	conn       *thingsdb.Conn    `json:"-"`
 }
@@ -128,6 +154,14 @@ type WSPackage struct {
 	Id      string `json:"id"`
 	Type    string `json:"type"`
 	Payload any    `json:"payload"`
+}
+
+type WSEmitPayload struct {
+	WorkspaceID string    `json:"workspaceID"`
+	RoomID      uint64    `json:"roomId"`
+	Ts          time.Time `json:"ts"`
+	Event       string    `json:"event"`
+	Args        []any     `json:"args"`
 }
 
 type Settings struct {
@@ -189,4 +223,10 @@ type Result struct {
 type Scope struct {
 	ID    string `json:"id"`
 	Scope string `json:"scope"`
+}
+
+type SetNodeLogLevel struct {
+	ID       string `json:"id"`
+	Scope    string `json:"scope"`
+	LogLevel int    `json:"logLevel"`
 }

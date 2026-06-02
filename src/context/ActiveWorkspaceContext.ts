@@ -22,7 +22,7 @@ interface ActiveWorkspaceContextType {
   storeFileContent: (filename: string, newContent: string) => Promise<void>;
   updateQueryVars: (filename: string, newQueryVars: string) => Promise<void>;
   execCode: (filename: string, scope: string, code: string, queryVars: string | null) => Promise<void>;
-  refresh: () => void;
+  refreshFiles: () => Promise<void>;
 }
 
 export const ActiveWorkspaceContext = createContext<ActiveWorkspaceContextType | undefined>(undefined);

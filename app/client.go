@@ -142,6 +142,17 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "FETCH_ROOMS":
+			var ws Workspace
+			if err := json.Unmarshal(msg.Payload, &ws); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchRooms(ws.ID, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
 		case "UPDATE_FILE_SCOPE":
 			var updateFileScope UpdateFileScope
 			if err := json.Unmarshal(msg.Payload, &updateFileScope); err != nil {
@@ -230,6 +241,28 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "GET_NODE_COUNTERS":
+			var scope Scope
+			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.GetNodeCounters(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
+		case "RESET_NODE_COUNTERS":
+			var scope Scope
+			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.ResetNodeCounters(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
 		case "SHUTDOWN_NODE":
 			var scope Scope
 			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
@@ -237,6 +270,17 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				continue
 			}
 			if err := currentSettings.ShutdownNode(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
+		case "SET_NODE_LOG_LEVEL":
+			var data SetNodeLogLevel
+			if err := json.Unmarshal(msg.Payload, &data); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.SetNodeLogLevel(&data, wsConn); err != nil {
 				_ = writeError(wsConn, &msg, err)
 			} else {
 				_ = writeResponse(wsConn, &msg, "OK")

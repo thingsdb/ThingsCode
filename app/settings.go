@@ -312,6 +312,42 @@ func (s *Settings) FetchFileScopes(id string) (map[string]string, error) {
 	return map[string]string{}, nil
 }
 
+func (s *Settings) FetchRooms(id string, wsConn *websocket.Conn) ([]Room, error) {
+	w, err := s.getWorkspace(id)
+	if err != nil {
+		return nil, err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+
+	if w.Rooms != nil {
+		for _, room := range w.Rooms {
+			if room.Room == nil {
+				r := thingsdb.NewRoom(room.Scope, room.Code)
+				r.Data = w.ID
+				r.OnEmit = OnEmitHandler
+				err := r.Join(conn, time.Second*3)
+				if err == nil {
+					room.Room = r
+					room.IsConnected = true
+					room.ErrMsg = ""
+				} else {
+					room.Room = nil
+					room.IsConnected = false
+					room.ErrMsg = err.Error()
+				}
+			}
+		}
+	}
+	return []Room{}, nil
+}
+
 func (s *Settings) UpdateFileScope(u *UpdateFileScope) error {
 	w, err := s.getWorkspace(u.ID)
 	if err != nil {
@@ -544,6 +580,40 @@ func (s *Settings) GetNodeInfo(c *Scope, wsConn *websocket.Conn) (*NodeInfo, err
 	return GetNodeInfo(conn, c.Scope)
 }
 
+func (s *Settings) GetNodeCounters(c *Scope, wsConn *websocket.Conn) (*NodeCounters, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetNodeCounters(conn, c.Scope)
+}
+
+func (s *Settings) ResetNodeCounters(c *Scope, wsConn *websocket.Conn) error {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return err
+	}
+
+	return ResetNodeCounters(conn, c.Scope)
+}
+
 func (s *Settings) ShutdownNode(c *Scope, wsConn *websocket.Conn) error {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {
@@ -559,6 +629,23 @@ func (s *Settings) ShutdownNode(c *Scope, wsConn *websocket.Conn) error {
 	}
 
 	return ShutdownNode(conn, c.Scope)
+}
+
+func (s *Settings) SetNodeLogLevel(c *SetNodeLogLevel, wsConn *websocket.Conn) error {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return err
+	}
+
+	return SetLogLevel(conn, c.Scope, c.LogLevel)
 }
 
 func (s *Settings) StartCleanTask() {
@@ -647,21 +734,21 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 func (s *Settings) registerNodeHandlers(workspaceID string, conn *thingsdb.Conn) {
 	conn.OnNodeStatus = func(ns *thingsdb.NodeStatus) {
 		wsConns := s.WM.GetConnections(workspaceID)
+		pkg := WSPackage{
+			Type:    "ON_NODE_STATUS",
+			Payload: ns,
+		}
 		for _, wsConn := range wsConns {
-			pkg := WSPackage{
-				Type:    "ON_NODE_STATUS",
-				Payload: ns,
-			}
 			_ = wsConn.WriteJSON(&pkg)
 		}
 	}
 	conn.OnWarning = func(we *thingsdb.WarnEvent) {
 		wsConns := s.WM.GetConnections(workspaceID)
+		pkg := WSPackage{
+			Type:    "ON_WARNING",
+			Payload: we,
+		}
 		for _, wsConn := range wsConns {
-			pkg := WSPackage{
-				Type:    "ON_WARNING",
-				Payload: we,
-			}
 			_ = wsConn.WriteJSON(&pkg)
 		}
 	}

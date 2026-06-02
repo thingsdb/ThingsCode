@@ -4,7 +4,7 @@ import { EventContext } from "../context";
 export function useEvent() {
   const context = useContext(EventContext);
   if (!context) {
-    throw new Error("useWebSocket must be used within a WebSocketProvider");
+    throw new Error("useWebSocket must be used within a EventProvider");
   }
   return context;
 }

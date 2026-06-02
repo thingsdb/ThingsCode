@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, Flex, Button, TextField, Code } from '@radix-ui/themes';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
+import { useActiveWorkspaceId, useError, useWebSocket } from '../../hooks';
 
 interface NodeShutdownModalProps {
   isOpen: boolean;
@@ -18,6 +18,7 @@ export default function NodeShutdownModal({
 }: NodeShutdownModalProps) {
   const activeId = useActiveWorkspaceId();
   const { emit } = useWebSocket();
+  const { setErrorMessage } = useError();
   const [confirmInput, setConfirmInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,7 +37,11 @@ export default function NodeShutdownModal({
       });
       onOpenChange(false);
     } catch (err) {
-      console.error("Shutdown signal rejected by cluster:", err);
+      const message = err instanceof Error
+          ? err.message
+          : typeof err === 'string' ? err : "Shutdown failed:";
+      console.error("Shutdown failed:", err);
+      setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
       setConfirmInput('');

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
-import { useActiveWorkspaceId, useWebSocket, useEvent } from '../hooks';
+import { useActiveWorkspaceId, useWebSocket, useEvent, useError } from '../hooks';
 import WorkspaceNotFound from '../components/WorkspaceNotFound';
 import { ActiveWorkspaceContext, WorkspaceContext } from '../context';
-import type { ProjectFile, Result } from '../types';
-import { NotificationToast } from '../components';
+import type { ProjectFile, Result, Room } from '../types';
 
 interface ActiveWorkspaceProviderProps {
   children: React.ReactNode;
@@ -12,6 +11,7 @@ interface ActiveWorkspaceProviderProps {
 export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderProps) {
   const activeId = useActiveWorkspaceId();
   const { setWorkspace } = useEvent();
+  const { setErrorMessage } = useError();
   const context = useContext(WorkspaceContext);
   if (!context) {
     throw new Error("ActiveWorkspaceProvider must be wrapped within a valid WorkspaceProvider element!");
@@ -23,12 +23,12 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
   const currentWorkspace = workspaces.find((ws) => ws.id === activeId);
 
   const [files, setFiles] = useState<ProjectFile[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [activeFilename, setActiveFilename] = useState<string | null>(null);
   const [activeContent, setActiveContent] = useState<string | null>(null);
   const [scopes, setScopes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeScope, setActiveScope] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fileScopes, setFileScopes] = useState<Record<string, string>>({});
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
 
@@ -57,10 +57,11 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     const loadWorkspaceData = async () => {
       let isFailed = false;
       try {
-        const [_files, _scopes, _fileScopes] = await Promise.all([
+        const [_files, _scopes, _fileScopes, _rooms] = await Promise.all([
           emit<ProjectFile[]>('FETCH_FILES', currentWorkspace),
           emit<string[]>('FETCH_SCOPES', currentWorkspace),
           emit<Record<string, string>>('FETCH_FILE_SCOPES', currentWorkspace),
+          emit<Room[]>('FETCH_ROOMS', currentWorkspace),
         ]);
 
         if (activeFetchRef.current !== currentWorkspace.id) return;
@@ -68,6 +69,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         setFiles(_files);
         setScopes(_scopes);
         setFileScopes(_fileScopes);
+        setRooms(_rooms);
 
         if (_files.length > 0) {
           const savedSelectedFile = localStorage.getItem('ticode-selected-file');
@@ -101,7 +103,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     };
 
     loadWorkspaceData();
-  }, [currentWorkspace, status, emit]);
+  }, [currentWorkspace, status, emit, setErrorMessage]);
 
   const activeFile = useMemo(() => {
     return files.find(f => f.filename === activeFilename) || null;
@@ -120,7 +122,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
 
   const setActiveScopeState = (scope: string) => {
     setActiveScope(scope);
-    if (activeFilename) {
+    if (activeFilename && activeFilename.endsWith('.ti')) {
       updateFileScope(activeFilename, scope);
     }
   };
@@ -293,8 +295,9 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     }
   };
 
-  const refresh = () => {
-    // Re-trigger synchronization queries manually
+  const refreshFiles = async () => {
+    const _files = await emit<ProjectFile[]>('FETCH_FILES', currentWorkspace);
+    setFiles(_files);
   };
 
   return (
@@ -318,15 +321,9 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
       storeFileContent,
       updateQueryVars,
       execCode,
-      refresh,
+      refreshFiles,
     }}>
       {children}
-      {errorMessage && (
-        <NotificationToast
-          message={errorMessage}
-          onClear={() => setErrorMessage(null)}
-        />
-      )}
     </ActiveWorkspaceContext.Provider>
   );
 };

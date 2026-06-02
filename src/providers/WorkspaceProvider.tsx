@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useWebSocket } from '../hooks';
+import { useError, useWebSocket } from '../hooks';
 import { type Workspace } from '../types';
 import { WorkspaceContext } from '../context';
-import { NotificationToast } from '../components';
 
 
 interface WorkspaceProviderProps {
@@ -12,10 +11,10 @@ interface WorkspaceProviderProps {
 
 export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps) {
   const { status, emit } = useWebSocket();
+  const { setErrorMessage } = useError();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (status !== 'connected') {
@@ -142,12 +141,6 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
       quickConnect,
     }}>
       {children}
-      {errorMessage && (
-        <NotificationToast
-          message={errorMessage}
-          onClear={() => setErrorMessage(null)}
-        />
-      )}
     </WorkspaceContext.Provider>
   );
 };
