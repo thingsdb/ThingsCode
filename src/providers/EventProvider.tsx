@@ -34,7 +34,6 @@ export function EventProvider({children}: EventProviderProps) {
   const appendEmitEvent = useCallback((emitEvent: EmitEvent) => {
     if (emitEvent.workspaceID === activeWorkspaceIDRef.current ) {
       setEmitEvents(prev => [...prev, emitEvent]);
-      console.log(emitEvent);
     }
   }, []);
 
