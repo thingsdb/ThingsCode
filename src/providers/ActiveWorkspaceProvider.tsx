@@ -300,10 +300,15 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     setFiles(_files);
   };
 
+  const joinRoom = async () => {
+
+  }
+
   return (
     <ActiveWorkspaceContext.Provider value={{
       workspace: currentWorkspace,
       files,
+      rooms,
       activeFilename,
       activeContent,
       activeFile,

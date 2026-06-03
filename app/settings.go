@@ -335,11 +335,9 @@ func (s *Settings) FetchRooms(id string, wsConn *websocket.Conn) ([]Room, error)
 				err := r.Join(conn, time.Second*3)
 				if err == nil {
 					room.Room = r
-					room.IsConnected = true
 					room.ErrMsg = ""
 				} else {
 					room.Room = nil
-					room.IsConnected = false
 					room.ErrMsg = err.Error()
 				}
 			}
@@ -681,10 +679,13 @@ func (s *Settings) getWorkspace(id string) (*Workspace, error) {
 }
 
 func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Conn, error) {
+	log.Println("CONN..1")
 	if ws.conn != nil && ws.conn.IsConnected() {
+		log.Println("CONN..FINAL")
 		s.WM.Register(ws.ID, wsConn)
 		return ws.conn, nil
 	}
+	log.Println("CONN..2")
 	var config *tls.Config
 	if ws.SSL {
 		config = &tls.Config{InsecureSkipVerify: false}
@@ -715,6 +716,7 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 	}
 	ws.conn = conn
 
+	log.Println("CONN..5")
 	s.registerNodeHandlers(ws.ID, conn)
 	s.WM.Register(ws.ID, wsConn)
 
@@ -728,6 +730,7 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 		log.Printf("Got error: %v", err)
 	}
 
+	log.Println("CONN..YES")
 	return ws.conn, nil
 }
 

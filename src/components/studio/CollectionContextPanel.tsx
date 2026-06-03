@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, Flex, Text, Em } from '@radix-ui/themes';
 import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
+import CollectionRoomsPanel from './CollectionRoomsPanel';
 
 interface CollectionContextPanelProps {
   scope: string;
@@ -49,9 +50,7 @@ export default function CollectionContextPanel({ scope }: CollectionContextPanel
           <Text size="2" weight="bold">Rooms</Text>
           {openSection === 'rooms' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
-        {openSection === 'rooms' && (
-          <Em>Blabla</Em>
-        )}
+        {openSection === 'rooms' && <CollectionRoomsPanel scope={scope} />}
       </Card>
     </Flex>
   );

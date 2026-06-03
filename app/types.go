@@ -109,12 +109,11 @@ const (
 )
 
 type Room struct {
-	Scope    string         `json:"scope"`
-	Name     string         `json:"name"`
-	Code     string         `json:"code"`
-	ErrMsg   string         `json:"errMsg,omitempty"`
-	IsJoined bool           `json:"isJoined"`
-	Room     *thingsdb.Room `json:"-"`
+	Scope  string         `json:"scope"`
+	Name   string         `json:"name"`
+	Code   string         `json:"code"`
+	ErrMsg string         `json:"errMsg,omitempty"`
+	Room   *thingsdb.Room `json:"-"`
 }
 
 type Workspace struct {

@@ -32,7 +32,6 @@ export interface Room {
   name: string;
   code: string;
   errMsg?: string;
-  isJoined: boolean;
 }
 
 // NodeStatus is direct from go-thingsdb

@@ -117,8 +117,10 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			}
 			if res, err := currentSettings.FetchFiles(ws.ID); err != nil {
 				_ = writeError(wsConn, &msg, err)
+				log.Println("FETCH FILES FAILED...")
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
+				log.Println("FETCH FILES SUCCESS...")
 			}
 		case "FETCH_SCOPES":
 			var ws Workspace

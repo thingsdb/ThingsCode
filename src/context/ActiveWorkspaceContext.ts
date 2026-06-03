@@ -1,10 +1,11 @@
 import { createContext } from 'react';
-import { type ProjectFile, type Workspace } from '../types';
+import { type ProjectFile, type Room, type Workspace } from '../types';
 
 
 interface ActiveWorkspaceContextType {
   workspace: Workspace;
   files: ProjectFile[];
+  rooms: Room[];
   activeFilename: string | null;
   activeContent: string | null;
   activeFile: ProjectFile | null;  // derived from activeFilename
