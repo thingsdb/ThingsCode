@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Flex, Text, Card, Box, Badge, IconButton, Tooltip } from '@radix-ui/themes';
 import { InfoCircledIcon, ExclamationTriangleIcon, CopyIcon, CheckIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
@@ -19,7 +19,7 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [copiedTaskId, setCopiedTaskId] = useState<number | null>(null);
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     setIsLoading(true);
     setFetchError(null);
     try {
@@ -32,11 +32,11 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeId, emit, scope]);
 
   useEffect(() => {
-    fetchTasks();
-  }, [scope]);
+    queueMicrotask(fetchTasks);
+  }, [fetchTasks]);
 
   const handleCopyDebugCode = async (taskId: number) => {
     const debugSnippet = `{\n  error: task(${taskId}).err(),\n  closure: task(${taskId}).closure(),\n  args: task(${taskId}).args(),\n};`;
@@ -146,12 +146,12 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
                 </Flex>
 
                 {hasError && (
-                  <Flex direction="column" gap="1.5">
+                  <Flex direction="column" gap="2">
                     {/* Error message card snippet */}
                     <Flex
                       align="start"
-                      gap="1.5"
-                      p="1.5"
+                      gap="2"
+                      p="2"
                       style={{
                         backgroundColor: 'var(--orange-2)',
                         borderRadius: 'var(--radius-1)',
@@ -166,7 +166,7 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
 
                     {/* Quick-copy code instruction callout helper */}
                     <Box
-                      p="1.5"
+                      p="2"
                       style={{
                         backgroundColor: 'var(--gray-3)',
                         border: '1px solid var(--gray-5)',
@@ -174,14 +174,14 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
                       }}
                     >
                       <Flex align="center" justify="between" gap="2">
-                        <Flex align="center" gap="1.5" style={{ minWidth: 0 }}>
+                        <Flex align="center" gap="2" style={{ minWidth: 0 }}>
                           <InfoCircledIcon color="var(--gray-9)" style={{ flexShrink: 0 }} />
                           <Text size="1" color="gray" truncate>
-                            Copy debug command snippet for <Text style={{ fontFamily: 'monospace' }}>task({task.id})</Text>
+                            Copy debug snippet
                           </Text>
                         </Flex>
 
-                        <Tooltip content={copiedTaskId === task.id ? "Copied!" : "Copy diagnostic expression to clipboard"}>
+                        <Tooltip content={copiedTaskId === task.id ? "Copied!" : "Copy debug snippet to clipboard"}>
                           <IconButton
                             size="1"
                             variant="ghost"

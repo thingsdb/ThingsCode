@@ -36,13 +36,18 @@ export default function RoomJoinModal({
   useEffect(() => {
     if (isOpen) {
       if (selectedRoom) {
-        setName(selectedRoom.name);
-        setCode(selectedRoom.code || '');
+        queueMicrotask(() => {
+          setName(selectedRoom.name);
+          setCode(selectedRoom.code || '');
+          setValidationError(null);
+      });
       } else {
-        setName('');
-        setCode('// Enter expression resolving to a Room ID or Name\n');
+        queueMicrotask(() => {
+          setName('');
+          setCode('// Enter expression resolving to a Room ID or Name\n');
+          setValidationError(null);
+        });
       }
-      setValidationError(null); // Clear errors from previous session instances
     }
   }, [isOpen, selectedRoom]);
 

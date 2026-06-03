@@ -49,7 +49,7 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
 
   const handleJoinRoomClick = (room: Room | null) => {
     setSelectedRoom(room);
-    setIsRoomJoinOpen(true)
+    setIsRoomJoinOpen(true);
   };
 
   if (isRefreshing || loading) {

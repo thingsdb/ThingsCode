@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Card, Flex, Text, Button, ScrollArea, Heading, TextField, Badge, Tooltip, IconButton } from '@radix-ui/themes';
-import { ArrowDownIcon, ArrowUpIcon, EraserIcon, LightningBoltIcon, MagnifyingGlassIcon, SlashIcon } from '@radix-ui/react-icons';
-import { useEvent } from '../../hooks'; // Assuming EmitEvents are exposed here like warnings
+import { ArrowDownIcon, ArrowUpIcon, EraserIcon, LightningBoltIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { useEvent } from '../../hooks';
 import type { EmitEvent } from '../../types';
 import EventArgsModal from './EventArgsModal';
 
@@ -44,7 +44,7 @@ export default function StudioEventView() {
       };
     });
 
-    // 2. Filter records based on textual user input matching
+    // Filter records based on user input
     const query = searchQuery.trim().toLowerCase();
     const filtered = query
       ? formatted.filter((item) => {
@@ -56,7 +56,7 @@ export default function StudioEventView() {
         })
       : formatted;
 
-    // 3. Sort stream elements based on time matrix bounds matching
+    // Sort based on time
     return filtered.sort((a, b) => {
       return sortNewestFirst ? b.epochMs - a.epochMs : a.epochMs - b.epochMs;
     });
@@ -74,8 +74,6 @@ export default function StudioEventView() {
 
   return (
     <Flex direction="column" style={{ height: '100%', width: '100%', backgroundColor: 'var(--gray-surface)' }}>
-
-      {/* HEADER CONTROL AND SEARCH BAR TOOLBOX */}
       <Flex
         px="3"
         py="2"
@@ -115,7 +113,6 @@ export default function StudioEventView() {
           </Flex>
         </Flex>
 
-        {/* INPUT FILTER TRACKER SEARCH FIELD */}
         <TextField.Root
           size="1"
           placeholder="Filter by event name, room ID, or raw arguments..."
@@ -128,7 +125,6 @@ export default function StudioEventView() {
         </TextField.Root>
       </Flex>
 
-      {/* EVENT ITEMS SCROLL panel AREA */}
       <ScrollArea scrollbars="vertical" style={{ flexGrow: 1, padding: 12 }}>
         {processedEvents.length === 0 ? (
           <Flex align="center" justify="center" p="4">

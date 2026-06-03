@@ -46,7 +46,7 @@ export default function StudioResultView() {
       return '';
     }
     return JSON.stringify(result.data, null, 2);
-  }, [result?.data]);
+  }, [result]);
 
   const localTime = useMemo(() => {
     if (!result?.ts) {
@@ -63,7 +63,7 @@ export default function StudioResultView() {
     } catch {
       return null;
     }
-  }, [result?.ts]);
+  }, [result]);
 
   const handleCopyToClipboard = async () => {
     if (!formattedJson) {
@@ -153,7 +153,7 @@ export default function StudioResultView() {
             }}
           >
             {localTime && (
-              <Tooltip content={`Execution timestamp: ${result.ts}`}>
+              <Tooltip content={`Time: ${result.ts}`}>
                 <Flex
                   align="center"
                   gap="1"
