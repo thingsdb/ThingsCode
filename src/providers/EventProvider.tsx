@@ -37,6 +37,14 @@ export function EventProvider({children}: EventProviderProps) {
     }
   }, []);
 
+  const clearWarnings = useCallback(() => {
+    setWarnings([]);
+  }, []);
+
+  const clearEmitEvents = useCallback(() => {
+    setEmitEvents([]);
+  }, []);
+
   return (
     <EventContext.Provider value={{
       nodeStatus,
@@ -47,6 +55,8 @@ export function EventProvider({children}: EventProviderProps) {
       setNodeStatus,
       appendWarning,
       appendEmitEvent,
+      clearWarnings,
+      clearEmitEvents,
     }}>
       {children}
     </EventContext.Provider>

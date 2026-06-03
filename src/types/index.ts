@@ -102,5 +102,12 @@ export interface EmitEvent {
   args: unknown[];
 }
 
+export interface Task {
+  id: number;
+  at: string | null;
+  owner: string;
+  error: string | null;
+}
+
 export type StudioTab = 'result' | 'events' | 'log';
 export type WebsocketStatus = 'connecting' | 'connected' | 'disconnected';

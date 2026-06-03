@@ -10,6 +10,8 @@ interface EventContextType {
   setNodeStatus: (nodeStatus: NodeStatus) => void;
   appendWarning: (warning: Warning) => void;
   appendEmitEvent: (emitEvent: EmitEvent) => void;
+  clearWarnings: () => void;
+  clearEmitEvents: () => void;
 }
 
 export const EventContext = createContext<EventContextType | undefined>(undefined);

@@ -662,6 +662,42 @@ func (s *Settings) JoinRoom(c *JoinRoom, wsConn *websocket.Conn) (*Room, error) 
 	return room, nil
 }
 
+func (s *Settings) UpdateRoom(c *JoinRoom, wsConn *websocket.Conn) (*Room, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, room := range w.Rooms {
+		if room.Name == c.Name && room.Scope == c.Scope {
+			if room.Room != nil {
+				_ = room.Room.Leave()
+				room.Room = nil
+			}
+			room.Id = 0
+			room.ErrMsg = ""
+			room.Code = c.Code
+			room.Join(w.ID, conn)
+
+			w.Rooms = append(w.Rooms, room)
+
+			s.mu.Lock()
+			defer s.mu.Unlock()
+			s.Save()
+			return room, nil
+		}
+	}
+	return nil, fmt.Errorf("Room %s in scope %s not found", c.Name, c.Scope)
+}
+
 func (s *Settings) LeaveRoom(c *LeaveRoom, wsConn *websocket.Conn) error {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {
@@ -685,6 +721,20 @@ func (s *Settings) LeaveRoom(c *LeaveRoom, wsConn *websocket.Conn) error {
 	defer s.mu.Unlock()
 	s.Save()
 	return nil
+}
+
+func (s *Settings) FetchTasks(c *Scope, wsConn *websocket.Conn) ([]Task, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchTasks(conn, c.Scope)
 }
 
 func (s *Settings) StartCleanTask() {

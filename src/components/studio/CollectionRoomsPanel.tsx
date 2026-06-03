@@ -3,15 +3,17 @@ import { Flex, Text, Card, Box, Badge, IconButton, Tooltip, Spinner } from '@rad
 import { PlusIcon, InfoCircledIcon, UpdateIcon, LinkBreak2Icon, Pencil1Icon } from '@radix-ui/react-icons';
 import { useActiveWorkspace } from '../../hooks';
 import RoomJoinModal from './RoomJoinModal';
+import type { Room } from '../../types';
 
 interface CollectionRoomsPanelProps {
   scope: string;
 }
 
 export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProps) {
-  const { rooms, joinRoom, leaveRoom, refreshRooms, loading } = useActiveWorkspace();
+  const { rooms, joinRoom, updateRoom, leaveRoom, refreshRooms, loading } = useActiveWorkspace();
   const [isRoomJoinOpen, setIsRoomJoinOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   const filteredRooms = rooms.filter((room) => room.scope === scope);
 
@@ -21,7 +23,7 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
       await leaveRoom(scope, roomName);
       setIsRefreshing(false);
     } catch (err: unknown) {
-      console.error(`Failed to sever room stream link [${roomName}]:`, err);
+      console.error(`Failed to leave room [${roomName}]:`, err);
     }
   };
 
@@ -30,7 +32,12 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
     return null;
   };
 
-  const handleRefresClick = (e: React.MouseEvent) => {
+  const handleOnUpdate = async (name: string, code: string) => {
+    await updateRoom(scope, name, code);
+    return null;
+  };
+
+  const handleRefreshClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     const refresh = async () => {
       setIsRefreshing(true);
@@ -40,15 +47,19 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
     refresh();
   };
 
+  const handleJoinRoomClick = (room: Room | null) => {
+    setSelectedRoom(room);
+    setIsRoomJoinOpen(true)
+  };
+
   if (isRefreshing || loading) {
     return <Flex justify="center" py="3"><Spinner size="2" /></Flex>;
   }
 
   return (
     <Flex direction="column" gap="3">
-      {/* HEADER SECTION LAYOUT */}
       <Flex justify="between" align="center">
-        <Text size="1" color="gray" weight="bold">
+        <Text size="1" color="gray" weight="bold" mt="2">
           WATCHING ({filteredRooms.length})
         </Text>
         <Flex gap="1">
@@ -57,10 +68,10 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
               size="1"
               variant="soft"
               color="gray"
-              onClick={handleRefresClick}
-              style={{ cursor: 'pointer', height: 20, width: 20 }}
+              onClick={handleRefreshClick}
+              style={{ cursor: isRefreshing ? 'not-allowed' : 'pointer' }}
             >
-              <UpdateIcon width="13" height="13" />
+              <UpdateIcon width="13" height="13" className={isRefreshing ? 'animate-spin' : ''} />
             </IconButton>
           </Tooltip>
           <Tooltip content="Join room">
@@ -68,8 +79,8 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
               size="1"
               variant="soft"
               color="iris"
-              onClick={() => setIsRoomJoinOpen(true)}
-              style={{ cursor: 'pointer', height: 20, width: 20 }}
+              onClick={() => handleJoinRoomClick(null)}
+              style={{ cursor: 'pointer' }}
             >
               <PlusIcon width="14" height="14" />
             </IconButton>
@@ -77,7 +88,6 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
         </Flex>
       </Flex>
 
-      {/* EMPTY TRACKER FALLBACK BOUNDARY */}
       {filteredRooms.length === 0 ? (
         <Box
           py="3"
@@ -110,10 +120,10 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
                     align="center"
                     gap="2"
                     style={{ cursor: 'pointer', flexGrow: 1, minWidth: 0 }}
-                    onClick={() => setIsRoomJoinOpen(true)}
+                    onClick={() => handleJoinRoomClick(room)}
                   >
                     {isWorking ? (
-                      <Flex align="center" gap="2" style={{ minWidth: 0 }}>
+                      <Flex align="center" gap="2">
                         <Badge size="1" color="iris" variant="outline" style={{ fontVariantNumeric: 'tabular-nums' }}>
                           #{room.id}
                         </Badge>
@@ -133,7 +143,7 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
                   </Flex>
 
                   {/* LEAVE ROOM */}
-                  <Tooltip content="Disconnect from room stream">
+                  <Tooltip content="Disconnect from (leave) room">
                     <IconButton
                       size="1"
                       variant="ghost"
@@ -175,7 +185,8 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
           onOpenChange={setIsRoomJoinOpen}
           scope={scope}
           existingRooms={filteredRooms}
-          onJoin={handleOnJoin}
+          onJoin={selectedRoom === null ? handleOnJoin : handleOnUpdate}
+          selectedRoom={selectedRoom}
         />
       )}
     </Flex>

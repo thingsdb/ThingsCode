@@ -1,0 +1,206 @@
+import { useEffect, useState } from 'react';
+import { Flex, Text, Card, Box, Badge, IconButton, Tooltip } from '@radix-ui/themes';
+import { InfoCircledIcon, ExclamationTriangleIcon, CopyIcon, CheckIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
+import type { Task } from '../../types';
+import { errStr } from '../../utils';
+
+
+
+interface CollectionTasksPanelProps {
+  scope: string;
+}
+
+export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProps) {
+  const { emit } = useWebSocket();
+  const activeId = useActiveWorkspaceId();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [copiedTaskId, setCopiedTaskId] = useState<number | null>(null);
+
+  const fetchTasks = async () => {
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+      const response = await emit('FETCH_TASKS', { id: activeId, scope }) as Task[];
+      console.log(response);
+      setTasks(response || []);
+    } catch (err: unknown) {
+      console.error("Failed to fetch tasks:", err);
+      setFetchError(errStr(err, "Failed to fetch tasks."));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, [scope]);
+
+  const handleCopyDebugCode = async (taskId: number) => {
+    const debugSnippet = `{\n  error: task(${taskId}).err(),\n  closure: task(${taskId}).closure(),\n  args: task(${taskId}).args(),\n};`;
+    try {
+      await navigator.clipboard.writeText(debugSnippet);
+      setCopiedTaskId(taskId);
+      setTimeout(() => setCopiedTaskId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy task debug snippet:', err);
+    }
+  };
+
+  return (
+    <Flex direction="column" gap="3">
+      <Flex justify="between" align="center">
+        <Text size="1" color="gray" weight="bold" mt="2">
+          TASKS ({tasks.length})
+        </Text>
+        <Tooltip content="Refresh tasks list">
+          <IconButton
+            size="1"
+            variant="soft"
+            color="gray"
+            disabled={isLoading}
+            onClick={fetchTasks}
+            style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
+          >
+            <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
+          </IconButton>
+        </Tooltip>
+      </Flex>
+
+      {fetchError && tasks.length === 0 && !isLoading && (
+        <Box
+          py="3"
+          px="2"
+          style={{
+            backgroundColor: 'var(--red-2)',
+            borderRadius: 'var(--radius-2)',
+            border: '1px dashed var(--red-4)',
+            textAlign: 'center',
+          }}
+        >
+          <Text size="1" color="red">{fetchError}</Text>
+        </Box>
+      )}
+
+      {!fetchError && tasks.length === 0 && !isLoading && (
+        <Box
+          py="3"
+          px="2"
+          style={{
+            textAlign: 'center',
+            border: '1px dashed var(--gray-5)',
+            borderRadius: 'var(--radius-2)'
+          }}
+        >
+          <Text size="1" color="gray">No active or faulted tasks found in this scope.</Text>
+        </Box>
+      )}
+
+      {!fetchError && isLoading && tasks.length === 0 && (
+        <Flex justify="center" py="2">
+          <Text size="1" color="gray" className="animate-pulse">Loading scheduled tasks...</Text>
+        </Flex>
+      )}
+
+      <Flex direction="column" gap="2">
+        {tasks.map((task) => {
+          const hasError = !!task.error;
+
+          let displayTime = 'Not scheduled';
+          if (task.at) {
+            try {
+              displayTime = new Date(task.at).toLocaleTimeString(undefined, {
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+              });
+            } catch {
+              displayTime = 'Invalid Date';
+            }
+          }
+
+          return (
+            <Card
+              key={task.id}
+              size="1"
+              style={{
+                padding: '6px 8px',
+                backgroundColor: 'var(--gray-2)',
+                borderColor: hasError ? 'var(--orange-6)' : 'var(--gray-4)'
+              }}
+            >
+              <Flex direction="column" gap="2">
+                <Flex align="center" justify="between">
+                  <Flex align="center" gap="2">
+                    <Badge size="1" color={hasError ? 'orange' : 'iris'} variant="outline" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      #{task.id}
+                    </Badge>
+                    <Text size="1" color="gray" weight="medium">
+                      Owner: <Text color="gray" highContrast>{task.owner}</Text>
+                    </Text>
+                  </Flex>
+
+                  <Text size="1" color="gray" style={{ fontFamily: 'monospace' }}>
+                    {displayTime}
+                  </Text>
+                </Flex>
+
+                {hasError && (
+                  <Flex direction="column" gap="1.5">
+                    {/* Error message card snippet */}
+                    <Flex
+                      align="start"
+                      gap="1.5"
+                      p="1.5"
+                      style={{
+                        backgroundColor: 'var(--orange-2)',
+                        borderRadius: 'var(--radius-1)',
+                        borderLeft: '2px solid var(--orange-8)'
+                      }}
+                    >
+                      <ExclamationTriangleIcon color="var(--orange-9)" style={{ marginTop: 2, flexShrink: 0 }} />
+                      <Text size="1" color="orange" style={{ fontFamily: 'monospace', wordBreak: 'break-all', lineHeight: '1.2' }}>
+                        {task.error}
+                      </Text>
+                    </Flex>
+
+                    {/* Quick-copy code instruction callout helper */}
+                    <Box
+                      p="1.5"
+                      style={{
+                        backgroundColor: 'var(--gray-3)',
+                        border: '1px solid var(--gray-5)',
+                        borderRadius: 'var(--radius-2)'
+                      }}
+                    >
+                      <Flex align="center" justify="between" gap="2">
+                        <Flex align="center" gap="1.5" style={{ minWidth: 0 }}>
+                          <InfoCircledIcon color="var(--gray-9)" style={{ flexShrink: 0 }} />
+                          <Text size="1" color="gray" truncate>
+                            Copy debug command snippet for <Text style={{ fontFamily: 'monospace' }}>task({task.id})</Text>
+                          </Text>
+                        </Flex>
+
+                        <Tooltip content={copiedTaskId === task.id ? "Copied!" : "Copy diagnostic expression to clipboard"}>
+                          <IconButton
+                            size="1"
+                            variant="ghost"
+                            color={copiedTaskId === task.id ? "green" : "gray"}
+                            onClick={() => handleCopyDebugCode(task.id)}
+                            style={{ cursor: 'pointer', height: 18, width: 18 }}
+                          >
+                            {copiedTaskId === task.id ? <CheckIcon width="12" height="12" /> : <CopyIcon width="12" height="12" />}
+                          </IconButton>
+                        </Tooltip>
+                      </Flex>
+                    </Box>
+                  </Flex>
+                )}
+              </Flex>
+            </Card>
+          );
+        })}
+      </Flex>
+    </Flex>
+  );
+}

@@ -46,3 +46,24 @@ func SetLogLevel(conn *thingsdb.Conn, scope string, level int) error {
 	_, err := conn.QueryRaw(scope, "set_log_level(n);", args)
 	return err
 }
+
+func FetchTasks(conn *thingsdb.Conn, scope string) ([]Task, error) {
+	var tasks []Task
+	res, err := conn.QueryRaw(scope, `
+		// TiCode query tasks
+		assert(tasks().len() <= 40, 'too many tasks; use "tasks()" instead');
+		tasks().map(|task| {
+			id: task.id(),
+			owner: task.owner(),
+			at: task.at(),
+			error: task.err(),
+		});
+	`, nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &tasks); err != nil {
+		return nil, err
+	}
+	return tasks, nil
+}

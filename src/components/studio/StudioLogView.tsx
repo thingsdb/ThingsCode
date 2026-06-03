@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Card, Flex, Text, Button, ScrollArea, Heading } from '@radix-ui/themes';
-import { ArrowDownIcon, ArrowUpIcon, InfoCircledIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { Card, Flex, Text, Button, ScrollArea, Heading, Tooltip, IconButton } from '@radix-ui/themes';
+import { ArrowDownIcon, ArrowUpIcon, InfoCircledIcon, ExclamationTriangleIcon, EraserIcon } from '@radix-ui/react-icons';
 import { useEvent } from '../../hooks';
 
 // Map warning codes to presentable UI designations and colors
@@ -13,7 +13,7 @@ const getLogTypeMeta = (code: number) => {
 };
 
 export default function StudioLogView() {
-  const { warnings } = useEvent();
+  const { warnings = [], clearWarnings } = useEvent();
   const [sortNewestFirst, setSortNewestFirst] = useState<boolean>(true);
 
   // Parse, format, and sort the logs based on user selection
@@ -50,7 +50,7 @@ export default function StudioLogView() {
   if (warnings.length === 0) {
     return (
       <Flex align="center" justify="center" style={{ height: '100%', minHeight: 180 }} direction="column" gap="2">
-        <Text size="2" color="gray" weight="medium">
+        <Text size="1" style={{ fontFamily: 'monospace', color: 'var(--gray-8)' }}>
           No logs or ThingsDB warnings recorded yet.
         </Text>
       </Flex>
@@ -59,7 +59,6 @@ export default function StudioLogView() {
 
   return (
     <Flex direction="column" style={{ height: '100%', width: '100%', backgroundColor: 'var(--gray-surface)' }}>
-      {/* CONTROL BAR */}
       <Flex
         px="3"
         py="2"
@@ -70,26 +69,35 @@ export default function StudioLogView() {
         <Heading size="1" color="gray" weight="bold" highContrast>
           Node Warnings/Log ({warnings.length})
         </Heading>
-        <Button
-          size="1"
-          variant="soft"
-          color="gray"
-          onClick={() => setSortNewestFirst((prev) => !prev)}
-          style={{ cursor: 'pointer' }}
-        >
-          {sortNewestFirst ? (
-            <>
-              Newest First <ArrowDownIcon />
-            </>
-          ) : (
-            <>
-              Oldest First <ArrowUpIcon />
-            </>
-          )}
-        </Button>
+        <Flex gap="2">
+          <Button
+            size="1"
+            variant="soft"
+            color="gray"
+            onClick={() => setSortNewestFirst((prev) => !prev)}
+            style={{ cursor: 'pointer' }}
+          >
+            {sortNewestFirst ? (
+              <>Newest First <ArrowDownIcon /></>
+            ) : (
+              <>Oldest First <ArrowUpIcon /></>
+            )}
+          </Button>
+          <Tooltip content="Clear all warnings and logs">
+            <IconButton
+              size="1"
+              variant="soft"
+              color="gray"
+              onClick={clearWarnings}
+              style={{ cursor: 'pointer' }}
+            >
+              <EraserIcon width="14" height="14" />
+            </IconButton>
+          </Tooltip>
+        </Flex>
       </Flex>
 
-      {/* LOG STREAM SCROLL PANEL */}
+      {/* LOG PANEL */}
       <ScrollArea scrollbars="vertical" style={{ flexGrow: 1, padding: 12 }}>
         <Flex direction="column" gap="2" pb="4">
           {processedLogs.map((log, index) => (

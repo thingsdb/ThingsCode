@@ -26,6 +26,7 @@ interface ActiveWorkspaceContextType {
   refreshFiles: () => Promise<void>;
   refreshRooms: () => Promise<void>;
   joinRoom: (scope: string, name: string, code: string) => Promise<void>;
+  updateRoom: (scope: string, name: string, code: string) => Promise<void>;
   leaveRoom: (scope: string, name: string) => Promise<void>;
 }
 

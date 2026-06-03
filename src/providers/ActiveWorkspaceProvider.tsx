@@ -320,6 +320,23 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     }
   };
 
+  const updateRoom = async (scope: string, name: string, code: string) => {
+    console.log('UPDATE ROOM');
+    try {
+      const room = await emit('UPDATE_ROOM', {
+        id: currentWorkspace.id,
+        scope,
+        name,
+        code,
+      }) as Room;
+      setRooms(prev => prev.map(r => (r.scope === scope && r.name === name) ? room : r));
+    } catch (err: unknown) {
+      console.error("Failed to update and join room:", err);
+      const message = errStr(err, "Failed to update and join room.");
+      setErrorMessage(message);
+    }
+  };
+
   const leaveRoom = async (scope: string, name: string) => {
     try {
       await emit('LEAVE_ROOM', {
@@ -327,7 +344,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         scope,
         name,
       });
-      setRooms(prev => prev.filter(room => room.scope === scope && room.name === name));
+      setRooms(prev => prev.filter(room => room.scope !== scope || room.name !== name));
     } catch (err: unknown) {
       console.error("Failed to leave room:", err);
       const message = errStr(err, "Failed to leave room:");
@@ -360,6 +377,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
       refreshFiles,
       refreshRooms,
       joinRoom,
+      updateRoom,
       leaveRoom,
     }}>
       {children}

@@ -1,8 +1,8 @@
-import { Box, Callout, Flex, Text } from '@radix-ui/themes';
-import { InfoCircledIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { Box, Callout, Flex, Text, IconButton, Tooltip } from '@radix-ui/themes';
+import { InfoCircledIcon, ExclamationTriangleIcon, CopyIcon, CheckIcon, ClockIcon } from '@radix-ui/react-icons';
 import Editor from '@monaco-editor/react';
 import { useActiveWorkspace, useTheme } from '../../hooks';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { Result } from '../../types';
 
 const renderTextWithLinks = (text: string) => {
@@ -35,18 +35,50 @@ const renderTextWithLinks = (text: string) => {
 export default function StudioResultView() {
   const { appearance } = useTheme();
   const { activeFile, isExecuting } = useActiveWorkspace();
+  const [copied, setCopied] = useState(false);
 
   const result = useMemo<Result | null>(() => {
     return activeFile?.result || null;
   }, [activeFile?.result]);
 
   const formattedJson = useMemo(() => {
-    if (result?.data === null) return '';
-
-    return JSON.stringify(result?.data, null, 2);
+    if (result?.data === undefined) {
+      return '';
+    }
+    return JSON.stringify(result.data, null, 2);
   }, [result?.data]);
 
-  if (result === null || (result.data === null && !result.error && !result.warning)) {
+  const localTime = useMemo(() => {
+    if (!result?.ts) {
+      return null;
+    }
+    try {
+      const date = new Date(result.ts);
+      return date.toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      });
+    } catch {
+      return null;
+    }
+  }, [result?.ts]);
+
+  const handleCopyToClipboard = async () => {
+    if (!formattedJson) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(formattedJson);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset icon after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy json execution result payload:', err);
+    }
+  };
+
+  if (result === null || (result.data === undefined && !result.error && !result.warning)) {
     return (
       <Flex align="center" justify="center" style={{ height: '100%' }}>
         {isExecuting ? (
@@ -101,7 +133,7 @@ export default function StudioResultView() {
         </Box>
       )}
 
-      {result.data !== null && !result.error && (
+      {result.data !== undefined && !result.error && (
         <Box
           style={{
             flexGrow: 1,
@@ -109,10 +141,62 @@ export default function StudioResultView() {
             position: 'relative'
           }}
         >
+          <Flex
+            gap="2"
+            align="center"
+            style={{
+              position: 'absolute',
+              top: '8px',
+              right: '24px',
+              zIndex: 10,
+              pointerEvents: 'none'
+            }}
+          >
+            {localTime && (
+              <Tooltip content={`Execution timestamp: ${result.ts}`}>
+                <Flex
+                  align="center"
+                  gap="1"
+                  px="2"
+                  py="1"
+                  style={{
+                    backgroundColor: 'var(--gray-surface)',
+                    border: '1px solid var(--gray-5)',
+                    borderRadius: 'var(--radius-2)',
+                    boxShadow: 'var(--shadow-1)',
+                    pointerEvents: 'auto'
+                  }}
+                >
+                  <ClockIcon width="12" height="12" color="var(--gray-9)" />
+                  <Text size="1" weight="medium" style={{ fontFamily: 'monospace', color: 'var(--gray-11)' }}>
+                    {localTime}
+                  </Text>
+                </Flex>
+              </Tooltip>
+            )}
+
+            <Tooltip content={copied ? "Copied!" : "Copy JSON to clipboard"}>
+              <IconButton
+                size="1"
+                variant="soft"
+                color={copied ? "green" : "gray"}
+                highContrast={!copied}
+                onClick={handleCopyToClipboard}
+                style={{
+                  cursor: 'pointer',
+                  boxShadow: 'var(--shadow-1)',
+                  pointerEvents: 'auto'
+                }}
+              >
+                {copied ? <CheckIcon width="14" height="14" /> : <CopyIcon width="13" height="13" />}
+              </IconButton>
+            </Tooltip>
+          </Flex>
+
           <Editor
             height="100%"
             language="json"
-            path="ticode-query-result.json" // Unique namespace token
+            path="ticode-query-result.json"
             value={formattedJson}
             theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
             loading={null}
@@ -130,7 +214,7 @@ export default function StudioResultView() {
                 vertical: 'visible',
                 horizontal: 'visible'
               },
-              contextmenu: true,  // Allows users to right-click copy
+              contextmenu: true,
             }}
           />
         </Box>

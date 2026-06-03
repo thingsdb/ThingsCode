@@ -296,6 +296,17 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "UPDATE_ROOM":
+			var data JoinRoom
+			if err := json.Unmarshal(msg.Payload, &data); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.UpdateRoom(&data, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
 		case "LEAVE_ROOM":
 			var data LeaveRoom
 			if err := json.Unmarshal(msg.Payload, &data); err != nil {
@@ -306,6 +317,17 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeError(wsConn, &msg, err)
 			} else {
 				_ = writeResponse(wsConn, &msg, "OK")
+			}
+		case "FETCH_TASKS":
+			var scope Scope
+			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchTasks(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
 			}
 		default:
 			_ = writeError(wsConn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))

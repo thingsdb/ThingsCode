@@ -1,21 +1,24 @@
-import React, { useState, useMemo } from 'react';
-import { Card, Flex, Text, Button, ScrollArea, Heading, TextField, Badge, Tooltip } from '@radix-ui/themes';
-import { ArrowDownIcon, ArrowUpIcon, LightningBoltIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { useState, useMemo } from 'react';
+import { Card, Flex, Text, Button, ScrollArea, Heading, TextField, Badge, Tooltip, IconButton } from '@radix-ui/themes';
+import { ArrowDownIcon, ArrowUpIcon, EraserIcon, LightningBoltIcon, MagnifyingGlassIcon, SlashIcon } from '@radix-ui/react-icons';
 import { useEvent } from '../../hooks'; // Assuming EmitEvents are exposed here like warnings
 import type { EmitEvent } from '../../types';
+import EventArgsModal from './EventArgsModal';
 
 
 export default function StudioEventView() {
-  const { emitEvents = [] } = useEvent(); // Safe fallback array initialization
+  const { emitEvents = [], clearEmitEvents } = useEvent();
   const [sortNewestFirst, setSortNewestFirst] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isArgsModalOpen, setIsArgsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EmitEvent | null>(null);
 
-  // Open inspection view placeholder
-  const handleInspectArgs = (eventItem: EmitEvent) => {
-    alert(`Arguments Inspector for Event: "${eventItem.event}"\nPayload data: ${JSON.stringify(eventItem.args, null, 2)}`);
+
+  const handleViewArgs = (eventItem: EmitEvent) => {
+    setSelectedEvent(eventItem);
+    setIsArgsModalOpen(true);
   };
 
-  // Process, search-filter, and sort events cleanly inside a useMemo cache loop
   const processedEvents = useMemo(() => {
     const formatted = emitEvents.map((item: EmitEvent) => {
       let localTime = 'Unknown Time';
@@ -62,8 +65,8 @@ export default function StudioEventView() {
   if (emitEvents.length === 0) {
     return (
       <Flex align="center" justify="center" style={{ height: '100%', minHeight: 180 }} direction="column" gap="2">
-        <Text size="2" color="gray" weight="medium">
-          No live room events emitted or tracked yet.
+        <Text size="1" style={{ fontFamily: 'monospace', color: 'var(--gray-8)' }}>
+          No room events emitted or tracked yet.
         </Text>
       </Flex>
     );
@@ -84,20 +87,32 @@ export default function StudioEventView() {
           <Heading size="1" color="gray" weight="bold" highContrast>
             Room Emit Events ({processedEvents.length})
           </Heading>
-
-          <Button
-            size="1"
-            variant="soft"
-            color="gray"
-            onClick={() => setSortNewestFirst((prev) => !prev)}
-            style={{ cursor: 'pointer' }}
-          >
-            {sortNewestFirst ? (
-              <>Newest First <ArrowDownIcon /></>
-            ) : (
-              <>Oldest First <ArrowUpIcon /></>
-            )}
-          </Button>
+          <Flex gap="2">
+            <Button
+              size="1"
+              variant="soft"
+              color="gray"
+              onClick={() => setSortNewestFirst((prev) => !prev)}
+              style={{ cursor: 'pointer' }}
+            >
+              {sortNewestFirst ? (
+                <>Newest First <ArrowDownIcon /></>
+              ) : (
+                <>Oldest First <ArrowUpIcon /></>
+              )}
+            </Button>
+            <Tooltip content="Clear all events">
+              <IconButton
+                size="1"
+                variant="soft"
+                color="gray"
+                onClick={clearEmitEvents}
+                style={{ cursor: 'pointer' }}
+              >
+                <EraserIcon width="14" height="14" />
+              </IconButton>
+            </Tooltip>
+          </Flex>
         </Flex>
 
         {/* INPUT FILTER TRACKER SEARCH FIELD */}
@@ -136,30 +151,23 @@ export default function StudioEventView() {
                     <Text color="iris" style={{ display: 'inline-flex', alignItems: 'center' }}>
                       <LightningBoltIcon width="14" height="14" />
                     </Text>
-
-                    {/* TIMESTAMP FIELD */}
                     <Text size="1" color="gray" style={{ fontFamily: 'monospace', minWidth: 65, flexShrink: 0 }}>
                       {item.localTime}
                     </Text>
-
-                    {/* SCOPE BOUNDARY ROOM IDENTIFIER DISPLAY BADGE */}
                     <Badge color="iris" variant="outline" size="1" style={{ fontVariantNumeric: 'tabular-nums' }}>
                       #{item.roomId}
                     </Badge>
-
-                    {/* EVENT EMISSION NAME */}
                     <Text size="1" weight="bold" truncate style={{ fontFamily: 'monospace', color: 'var(--gray-12)' }}>
                       {item.event}
                     </Text>
                   </Flex>
 
-                  {/* ARGUMENTS ACTION DISCLOSURE ELEMENT TRIGGER */}
-                  <Tooltip content="Inspect event arguments payload payload data object">
+                  <Tooltip content="Inspect event arguments">
                     <Button
                       size="1"
                       variant="soft"
                       color={item.args.length > 0 ? 'iris' : 'gray'}
-                      onClick={() => handleInspectArgs(item)}
+                      onClick={() => handleViewArgs(item)}
                       style={{ cursor: 'pointer', fontVariantNumeric: 'tabular-nums' }}
                     >
                       ARGS {item.args.length}
@@ -171,6 +179,11 @@ export default function StudioEventView() {
           </Flex>
         )}
       </ScrollArea>
+      <EventArgsModal
+        isOpen={isArgsModalOpen}
+        onOpenChange={setIsArgsModalOpen}
+        eventItem={selectedEvent}
+      />
     </Flex>
   );
 }

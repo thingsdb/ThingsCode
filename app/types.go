@@ -164,6 +164,11 @@ type WSEmitPayload struct {
 	Args        []any     `json:"args"`
 }
 
+type WSRoomDeletePayload struct {
+	WorkspaceID string `json:"workspaceID"`
+	RoomID      uint64 `json:"roomId"`
+}
+
 type Settings struct {
 	mu         sync.RWMutex      `json:"-"`
 	FilePath   string            `json:"-"`
@@ -214,7 +219,7 @@ type ExecCode struct {
 }
 
 type Result struct {
-	Data    any       `json:"data,omitempty"`
+	Data    any       `json:"data"`
 	Warning string    `json:"warning,omitempty"`
 	Error   string    `json:"error,omitempty"`
 	Ts      time.Time `json:"ts"`
@@ -242,4 +247,11 @@ type LeaveRoom struct {
 	ID    string `json:"id"`
 	Scope string `json:"scope"`
 	Name  string `json:"name"`
+}
+
+type Task struct {
+	ID    uint64 `msgpack:"id" json:"id"`
+	Owner string `msgpack:"owner" json:"owner"`
+	At    string `msgpack:"at" json:"at,omitempty"`
+	Error string `msgpack:"error" json:"error,omitempty"`
 }

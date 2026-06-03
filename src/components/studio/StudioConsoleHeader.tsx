@@ -2,7 +2,7 @@ import { ChevronUpIcon, DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { Button, ChevronDownIcon, Flex, SegmentedControl } from "@radix-ui/themes";
 import type { Result, StudioTab } from "../../types";
 import { NodeStatusBadge } from "..";
-import { useActiveWorkspace } from "../../hooks";
+import { useActiveWorkspace, useEvent } from "../../hooks";
 import { useMemo } from "react";
 
 interface StudioConsoleHeaderProps {
@@ -21,6 +21,7 @@ export default function StudioConsoleHeader({
   onToggleMaximize,
 }: StudioConsoleHeaderProps) {
   const { activeFile } = useActiveWorkspace();
+  const { emitEvents, warnings } = useEvent();
 
     const result = useMemo<Result | null>(() => {
       return activeFile?.result || null;
@@ -56,10 +57,10 @@ export default function StudioConsoleHeader({
             Result
           </SegmentedControl.Item>
           <SegmentedControl.Item value="events">
-            Events
+            Events {emitEvents.length > 0 && `(${emitEvents.length})`}
           </SegmentedControl.Item>
           <SegmentedControl.Item value="log">
-            Log
+            Log {warnings.length > 0 && `(${warnings.length})`}
           </SegmentedControl.Item>
         </SegmentedControl.Root>
       </div>
