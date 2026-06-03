@@ -24,7 +24,6 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
     setFetchError(null);
     try {
       const response = await emit('FETCH_TASKS', { id: activeId, scope }) as Task[];
-      console.log(response);
       setTasks(response || []);
     } catch (err: unknown) {
       console.error("Failed to fetch tasks:", err);

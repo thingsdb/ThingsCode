@@ -321,7 +321,6 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
   };
 
   const updateRoom = async (scope: string, name: string, code: string) => {
-    console.log('UPDATE ROOM');
     try {
       const room = await emit('UPDATE_ROOM', {
         id: currentWorkspace.id,
