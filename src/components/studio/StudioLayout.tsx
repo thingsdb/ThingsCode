@@ -10,6 +10,7 @@ import StudioConsoleHeader from './StudioConsoleHeader';
 import StudioResultView from './StudioResultView';
 import type { StudioTab } from '../../types';
 import StudioLogView from './StudioLogView';
+import StudioEventView from './StudioEventView';
 
 export default function StudioLayout() {
   const editorPanelRef = useRef<PanelImperativeHandle>(null);
@@ -127,6 +128,8 @@ export default function StudioLayout() {
                 >
                   {consoleTab === 'result' ? (
                     <StudioResultView />
+                  ) : consoleTab === 'events' ? (
+                    <StudioEventView />
                   ) : consoleTab === 'log' ? (
                     <StudioLogView />
                   ) : (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, Flex, Button, TextField, Code } from '@radix-ui/themes';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspaceId, useError, useWebSocket } from '../../hooks';
+import { errStr } from '../../utils';
 
 interface NodeShutdownModalProps {
   isOpen: boolean;
@@ -36,11 +37,9 @@ export default function NodeShutdownModal({
         scope,
       });
       onOpenChange(false);
-    } catch (err) {
-      const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Shutdown failed:";
+    } catch (err: unknown) {
       console.error("Shutdown failed:", err);
+      const message = errStr(err, "Shutdown failed.");
       setErrorMessage(message);
     } finally {
       setIsSubmitting(false);

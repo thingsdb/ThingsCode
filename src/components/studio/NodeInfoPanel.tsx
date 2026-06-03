@@ -6,6 +6,7 @@ import NodeShutdownModal from './NodeShutdownModal';
 import type { NodeInfo } from '../../types';
 import NodeInspectModal from './NodeInspectModal';
 import NodeLogLevelModal from './NodeLogLevelModal';
+import { errStr } from '../../utils';
 
 interface NodeInfoPanelProps {
   scope: string;
@@ -36,12 +37,10 @@ export default function NodeInfoPanel({ scope }: NodeInfoPanelProps) {
       if (!abortCheck || abortCheck.isMounted) {
         setNodeInfo(data);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       if (!abortCheck || abortCheck.isMounted) {
-        const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to acquire node info.";
         console.error("Failed to acquire node info:", err);
+        const message = errStr(err, "Failed to acquire node info.");
         setErrorMessage(message);
       }
     } finally {

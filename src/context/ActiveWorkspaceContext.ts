@@ -24,6 +24,9 @@ interface ActiveWorkspaceContextType {
   updateQueryVars: (filename: string, newQueryVars: string) => Promise<void>;
   execCode: (filename: string, scope: string, code: string, queryVars: string | null) => Promise<void>;
   refreshFiles: () => Promise<void>;
+  refreshRooms: () => Promise<void>;
+  joinRoom: (scope: string, name: string, code: string) => Promise<void>;
+  leaveRoom: (scope: string, name: string) => Promise<void>;
 }
 
 export const ActiveWorkspaceContext = createContext<ActiveWorkspaceContextType | undefined>(undefined);

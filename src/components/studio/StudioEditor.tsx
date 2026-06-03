@@ -62,7 +62,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
         console.log(`[Debounce] Auto-saving changes for ${currentFilename}...`);
         try {
           await storeFileContent(currentFilename, localCode);
-        } catch (err) {
+        } catch (err: unknown) {
           console.error("Failed to auto-save file chunk:", err);
         }
       }

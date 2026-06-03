@@ -25,3 +25,27 @@ func OnEmitHandler(room *thingsdb.Room, event string, args []any) {
 		}
 	}
 }
+
+func NewRoom(scope string, name string, code string) *Room {
+	return &Room{
+		Scope: scope,
+		Name:  name,
+		Code:  code,
+	}
+}
+
+func (room *Room) Join(workspaceID string, conn *thingsdb.Conn) {
+	r := thingsdb.NewRoom(room.Scope, room.Code)
+	r.Data = workspaceID
+	r.OnEmit = OnEmitHandler
+	err := r.Join(conn, time.Second*3)
+	if err == nil {
+		room.Id = r.Id()
+		room.Room = r
+		room.ErrMsg = ""
+	} else {
+		room.Id = 0
+		room.Room = nil
+		room.ErrMsg = err.Error()
+	}
+}

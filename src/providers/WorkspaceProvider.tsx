@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useError, useWebSocket } from '../hooks';
 import { type Workspace } from '../types';
 import { WorkspaceContext } from '../context';
+import { errStr } from '../utils';
 
 
 interface WorkspaceProviderProps {
@@ -14,14 +15,14 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
   const { setErrorMessage } = useError();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null)
+  const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null);
 
   useEffect(() => {
     if (status !== 'connected') {
       return;
     }
     const fetchWorkspaces = async () => {
-      const workspaces = await emit<Workspace[]>('FETCH_WORKSPACES')
+      const workspaces = await emit<Workspace[]>('FETCH_WORKSPACES');
       setWorkspaces(workspaces);
     };
     fetchWorkspaces();
@@ -51,13 +52,9 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
     try {
       await emit('REMOVE_WORKSPACE', {id: id});
     } catch (err: unknown) {
-      console.error("Backend failed to remove workspace:", err);
       setWorkspaces(fallback);
-      const message = err instanceof Error
-        ? err.message
-        : typeof err === 'string'
-          ? err
-          : `Failed to remove workspace ID ${id}.`;
+      console.error("Failed to remove workspace:", err);
+      const message = errStr(err, "Failed to remove workspace.");
       setErrorMessage(message);
     }
   };
@@ -70,12 +67,8 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
         return prev.map((ws) => (ws.id === updated.id ? updated : ws));
       });
     } catch (err: unknown) {
-      console.error("Backend failed to save workspace settings:", err);
-      const message = err instanceof Error
-        ? err.message
-        : typeof err === 'string'
-          ? err
-          : `Failed to save changes to ${updated.name}.`;
+      console.error("Failed to save workspace settings:", err);
+      const message = errStr(err, "Failed to save workspace settings.");
       setErrorMessage(message);
     }
   };
@@ -99,13 +92,9 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
   const addWorkspace = async (newWs: Omit<Workspace, 'id'>) => {
     try {
       await addWorkspaceHelper(newWs);
-    } catch (err) {
-      console.error("Backend failed to add workspace:", err);
-      const message = err instanceof Error
-        ? err.message
-        : typeof err === 'string'
-          ? err
-          : `Failed to add workspace ${newWs.name}.`;
+    } catch (err: unknown) {
+      console.error("Failed to add workspace:", err);
+      const message = errStr(err, "Failed to add workspace.");
       setErrorMessage(message);
     }
   };
@@ -115,13 +104,9 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
       const id = await addWorkspaceHelper(tmpWs);
       window.history.pushState({}, '', `/workspace/${id}`);
       window.dispatchEvent(new PopStateEvent('popstate'));
-    } catch (err) {
-      console.error("Backend failed to set-up quick connect workspace:", err);
-      const message = err instanceof Error
-        ? err.message
-        : typeof err === 'string'
-          ? err
-          : `Failed to open ${tmpWs.name}.`;
+    } catch (err: unknown) {
+      console.error("Failed to set-up quick connect workspace:", err);
+      const message = errStr(err, "Failed to set-up quick connect workspace.");
       setErrorMessage(message);
     }
   };

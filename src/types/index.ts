@@ -29,6 +29,7 @@ export interface ProjectFile {
 
 export interface Room {
   scope: string;
+  id?: number;
   name: string;
   code: string;
   errMsg?: string;

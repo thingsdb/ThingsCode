@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Flex, Box, Text, Button, ScrollArea, IconButton, TextField } from '@radix-ui/themes';
+import { Flex, Box, Text, Button, ScrollArea, IconButton, TextField, Tooltip } from '@radix-ui/themes';
 import { PlusIcon, FileIcon, Pencil2Icon, TrashIcon, MagnifyingGlassIcon, UpdateIcon } from '@radix-ui/react-icons';
-import { useActiveWorkspace, useError } from '../../hooks';
+import { useActiveWorkspace } from '../../hooks';
 import RenameFileDialog from './RenameFileDialog';
 import { ConfirmDialog } from '..';
 import CreateFileDialog from './CreateFileDialog';
@@ -12,7 +12,6 @@ interface StudioLeftPanelProps {
 }
 
 export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: StudioLeftPanelProps) {
-  const { setErrorMessage } = useError();
   const { files, loading, activeFilename, refreshFiles, createFile, renameFile, deleteFile, setActiveFile } = useActiveWorkspace();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -42,24 +41,15 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
     setIsCreateOpen(true);
   };
 
-  const handleRefreshFilesClick = (e: React.MouseEvent) => {
+  const handleRefreshClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     const refresh = async () => {
       setIsRefreshing(true);
-      try {
-        await refreshFiles();
-      } catch (err) {
-        const message = err instanceof Error
-            ? err.message
-            : typeof err === 'string' ? err : "Refresh files failed";
-        console.error("Refresh files failed:", err);
-        setErrorMessage(message);
-      } finally {
-        setIsRefreshing(false)
-      }
-    }
+      await refreshFiles();
+      setIsRefreshing(false);
+    };
     refresh();
-  }
+  };
 
   const handleCreateConfirm = (filename: string) => {
     console.log(`Create new file request for ${filename}`);
@@ -90,7 +80,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
 
   const handleSelectFile = (e: React.MouseEvent, filename: string) => {
     setActiveFile(filename);
-  }
+  };
 
   return (
     <>
@@ -105,27 +95,31 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
         {/* Header Actions */}
         <Flex p="2" align="center" justify="between" style={{ borderBottom: '1px solid var(--gray-3)' }}>
           <Text size="1" weight="bold" color="gray">WORKSPACE FILES</Text>
-          <Flex gap="2">
-            <IconButton
-              size="1"
-              variant="soft"
-              color="gray"
-              disabled={loading || isRefreshing}
-              onClick={handleRefreshFilesClick}
-              style={{ cursor: 'pointer' }}
-            >
-              <UpdateIcon width="12" height="12" />
-            </IconButton>
-            <IconButton
-              size="1"
-              variant="soft"
-              color="green"
-              disabled={loading || isRefreshing}
-              onClick={handleCreateClick}
-              style={{ cursor: 'pointer' }}
-            >
-              <PlusIcon width="12" height="12" />
-            </IconButton>
+          <Flex gap="1">
+            <Tooltip content="Refresh workspace files">
+              <IconButton
+                size="1"
+                variant="soft"
+                color="gray"
+                disabled={loading || isRefreshing}
+                onClick={handleRefreshClick}
+                style={{ cursor: 'pointer' }}
+              >
+                <UpdateIcon width="12" height="12" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip content="Add new workspace file">
+              <IconButton
+                size="1"
+                variant="soft"
+                color="iris"
+                disabled={loading || isRefreshing}
+                onClick={handleCreateClick}
+                style={{ cursor: 'pointer' }}
+              >
+                <PlusIcon width="12" height="12" />
+              </IconButton>
+            </Tooltip>
             </Flex>
         </Flex>
 

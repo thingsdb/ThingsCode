@@ -3,6 +3,7 @@ import { Flex, Text, Button, Spinner, DataList, Grid, Box, Tooltip } from '@radi
 import { UpdateIcon, TrashIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspaceId, useError, useWebSocket } from '../../hooks';
 import { ConfirmDialog } from '..';
+import { errStr } from '../../utils';
 
 interface NodeCountersPanelProps {
   scope: string;
@@ -50,12 +51,10 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
       if (!abortCheck || abortCheck.isMounted) {
         setCounters(data);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       if (!abortCheck || abortCheck.isMounted) {
-        const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to acquire node counters.";
         console.error("Failed to acquire node counters:", err);
+        const message = errStr(err, "Failed to acquire node counters.");
         setErrorMessage(message);
       }
 
@@ -75,7 +74,7 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
       });
       // Immediately pull fresh zeroed records from the cluster node
       await fetchCounters();
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to execute counters reset:", err);
     } finally {
       setIsResetting(false);
@@ -124,19 +123,19 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
     );
   }
 
-  // Critical issue alert check flags
-  // const hasCriticalErrors = counters.changesFailed > 0 || counters.tasksWithError > 0 || counters.queriesWithError > 0;
+  // Critical issues
+  const hasCriticalErrors = counters.changesFailed > 0 || counters.changesKilled > 0 || counters.changesSkipped > 0;
 
   return (
     <>
       <Flex direction="column" gap="3">
 
-        {/* CRITICAL ATTENTION CALLOUT INDICATOR */}
-        {counters.changesFailed > 0 && (
+        {/* CRITICAL INDICATOR */}
+        {hasCriticalErrors && (
           <Flex align="center" gap="2" p="2" style={{ backgroundColor: 'var(--red-2)', borderRadius: 4, border: '1px solid var(--red-4)' }}>
             <ExclamationTriangleIcon color="var(--red-9)" />
             <Text size="1" color="red" weight="bold">
-              Critical: {counters.changesFailed} Failed Changes detected!
+              Critical problems detected!
             </Text>
           </Flex>
         )}

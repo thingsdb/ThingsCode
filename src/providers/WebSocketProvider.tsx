@@ -74,7 +74,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         } else if (msg.type === "ON_EMIT") {
           const emitEvent = msg.payload as EmitEvent;
           appendEmitEvent(emitEvent);
-
         } else if (msg.id && pendingRequestsRef.current.has(msg.id)) {
           const { resolve, reject } = pendingRequestsRef.current.get(msg.id)!;
 

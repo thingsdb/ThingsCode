@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, Flex, Button, Text, Select } from '@radix-ui/themes';
 import { useActiveWorkspaceId, useError, useWebSocket } from '../../hooks';
+import { errStr } from '../../utils';
 
 interface NodeLogLevelModalProps {
   isOpen: boolean;
@@ -40,11 +41,9 @@ export default function NodeLogLevelModal({
         logLevel: target ? target.level : 2,
       });
       onOpenChange(false);
-    } catch (err) {
-      const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to update node log level";
+    } catch (err: unknown) {
       console.error("Failed to update node log level:", err);
+      const message = errStr(err, "Failed to update node log level.");
       setErrorMessage(message);
     } finally {
       setIsSubmitting(false);

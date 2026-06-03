@@ -312,7 +312,7 @@ func (s *Settings) FetchFileScopes(id string) (map[string]string, error) {
 	return map[string]string{}, nil
 }
 
-func (s *Settings) FetchRooms(id string, wsConn *websocket.Conn) ([]Room, error) {
+func (s *Settings) FetchRooms(id string, wsConn *websocket.Conn) ([]*Room, error) {
 	w, err := s.getWorkspace(id)
 	if err != nil {
 		return nil, err
@@ -329,21 +329,12 @@ func (s *Settings) FetchRooms(id string, wsConn *websocket.Conn) ([]Room, error)
 	if w.Rooms != nil {
 		for _, room := range w.Rooms {
 			if room.Room == nil {
-				r := thingsdb.NewRoom(room.Scope, room.Code)
-				r.Data = w.ID
-				r.OnEmit = OnEmitHandler
-				err := r.Join(conn, time.Second*3)
-				if err == nil {
-					room.Room = r
-					room.ErrMsg = ""
-				} else {
-					room.Room = nil
-					room.ErrMsg = err.Error()
-				}
+				room.Join(w.ID, conn)
 			}
 		}
+		return w.Rooms, nil
 	}
-	return []Room{}, nil
+	return []*Room{}, nil
 }
 
 func (s *Settings) UpdateFileScope(u *UpdateFileScope) error {
@@ -646,6 +637,56 @@ func (s *Settings) SetNodeLogLevel(c *SetNodeLogLevel, wsConn *websocket.Conn) e
 	return SetLogLevel(conn, c.Scope, c.LogLevel)
 }
 
+func (s *Settings) JoinRoom(c *JoinRoom, wsConn *websocket.Conn) (*Room, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+
+	room := NewRoom(c.Scope, c.Name, c.Code)
+	room.Join(w.ID, conn)
+
+	w.Rooms = append(w.Rooms, room)
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.Save()
+	return room, nil
+}
+
+func (s *Settings) LeaveRoom(c *LeaveRoom, wsConn *websocket.Conn) error {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	for idx, room := range w.Rooms {
+		if room.Name == c.Name && room.Scope == c.Scope {
+			if room.Room != nil {
+				_ = room.Room.Leave()
+			}
+			w.Rooms = slices.Delete(w.Rooms, idx, idx+1)
+			break
+		}
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.Save()
+	return nil
+}
+
 func (s *Settings) StartCleanTask() {
 	ticker := time.NewTicker(1 * time.Minute)
 	go func() {
@@ -679,13 +720,10 @@ func (s *Settings) getWorkspace(id string) (*Workspace, error) {
 }
 
 func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Conn, error) {
-	log.Println("CONN..1")
 	if ws.conn != nil && ws.conn.IsConnected() {
-		log.Println("CONN..FINAL")
 		s.WM.Register(ws.ID, wsConn)
 		return ws.conn, nil
 	}
-	log.Println("CONN..2")
 	var config *tls.Config
 	if ws.SSL {
 		config = &tls.Config{InsecureSkipVerify: false}
@@ -716,7 +754,6 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 	}
 	ws.conn = conn
 
-	log.Println("CONN..5")
 	s.registerNodeHandlers(ws.ID, conn)
 	s.WM.Register(ws.ID, wsConn)
 
@@ -730,7 +767,6 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 		log.Printf("Got error: %v", err)
 	}
 
-	log.Println("CONN..YES")
 	return ws.conn, nil
 }
 

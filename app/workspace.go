@@ -170,6 +170,12 @@ func (w *Workspace) LockCloseConn() {
 		w.conn.Close()
 		w.conn = nil
 	}
+	for _, room := range w.Rooms {
+		if room.Room != nil {
+			_ = room.Room.Leave()
+			room.Room = nil
+		}
+	}
 }
 
 // Helper to encrypt plain text into a Base64 encrypted string

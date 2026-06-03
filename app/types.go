@@ -110,6 +110,7 @@ const (
 
 type Room struct {
 	Scope  string         `json:"scope"`
+	Id     uint64         `json:"id,omitempty"`
 	Name   string         `json:"name"`
 	Code   string         `json:"code"`
 	ErrMsg string         `json:"errMsg,omitempty"`
@@ -133,7 +134,7 @@ type Workspace struct {
 
 	// Room & FileScopes only for local JSON, webserver by own request
 	FileScopes map[string]string `json:"fileScopes"`
-	Rooms      []Room            `json:"rooms"`
+	Rooms      []*Room           `json:"rooms"`
 	mu         sync.RWMutex      `json:"-"`
 	conn       *thingsdb.Conn    `json:"-"`
 }
@@ -228,4 +229,17 @@ type SetNodeLogLevel struct {
 	ID       string `json:"id"`
 	Scope    string `json:"scope"`
 	LogLevel int    `json:"logLevel"`
+}
+
+type JoinRoom struct {
+	ID    string `json:"id"`
+	Scope string `json:"scope"`
+	Name  string `json:"name"`
+	Code  string `json:"code"`
+}
+
+type LeaveRoom struct {
+	ID    string `json:"id"`
+	Scope string `json:"scope"`
+	Name  string `json:"name"`
 }

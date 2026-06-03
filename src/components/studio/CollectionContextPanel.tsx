@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, Flex, Text, Em } from '@radix-ui/themes';
+import { Card, Flex, Text } from '@radix-ui/themes';
 import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import CollectionRoomsPanel from './CollectionRoomsPanel';
 
@@ -52,6 +52,22 @@ export default function CollectionContextPanel({ scope }: CollectionContextPanel
         </Flex>
         {openSection === 'rooms' && <CollectionRoomsPanel scope={scope} />}
       </Card>
+
+      {/* TASKS */}
+      <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+        <Flex
+          align="center"
+          justify="between"
+          py="1"
+          style={{ cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => toggleSection('tasks')}
+        >
+          <Text size="2" weight="bold">Tasks</Text>
+          {openSection === 'tasks' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+        </Flex>
+        {openSection === 'tasks' && 'Blabla'}
+      </Card>
+
     </Flex>
   );
 }

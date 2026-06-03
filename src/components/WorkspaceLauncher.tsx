@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Card, Container, Flex, Grid, Heading, Text, TextField, IconButton, Tooltip, Button } from '@radix-ui/themes';
 import { MagnifyingGlassIcon, Pencil2Icon, TrashIcon, Link2Icon, SunIcon, MoonIcon } from '@radix-ui/react-icons';
 import { useWorkspaces, useTheme } from '../hooks';
-import { NewWorkspaceModal, WorkspaceModal, ConfirmDialog } from './'
+import { NewWorkspaceModal, WorkspaceModal, ConfirmDialog } from './';
 import QuickConnectModal from './QuickConnectModal';
 import type { Workspace } from '../types';
 

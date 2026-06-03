@@ -37,7 +37,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
       await navigator.clipboard.writeText(JSON.stringify(nodeInfo, null, 2));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to copy json snapshot:', err);
     }
   };
@@ -48,7 +48,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
     setIsRefreshing(true);
     try {
       await onRefresh();
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to refresh node information specs:', err);
     } finally {
       setIsRefreshing(false);

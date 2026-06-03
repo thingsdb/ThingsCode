@@ -3,6 +3,7 @@ import { useActiveWorkspaceId, useWebSocket, useEvent, useError } from '../hooks
 import WorkspaceNotFound from '../components/WorkspaceNotFound';
 import { ActiveWorkspaceContext, WorkspaceContext } from '../context';
 import type { ProjectFile, Result, Room } from '../types';
+import { errStr } from '../utils';
 
 interface ActiveWorkspaceProviderProps {
   children: React.ReactNode;
@@ -86,12 +87,10 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         } else if (_scopes.length > 0) {
           setActiveScope(_scopes[0]);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error("Workspace initialization aborted:", err);
         if (activeFetchRef.current === currentWorkspace.id) {
-          const message = err instanceof Error
-            ? err.message
-            : typeof err === 'string' ? err : "Failed to load workspace.";
+          const message = errStr(err, "Failed to load workspace.");
           setErrorMessage(message);
           isFailed = true;
         }
@@ -107,9 +106,11 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
 
   const activeFile = useMemo(() => {
     return files.find(f => f.filename === activeFilename) || null;
-  }, [files, activeFilename])
+  }, [files, activeFilename]);
 
-  if (!currentWorkspace) return <WorkspaceNotFound />
+  if (!currentWorkspace) {
+    return <WorkspaceNotFound />;
+  }
 
   const setActiveFile = (filename: string) => {
     localStorage.setItem('ticode-selected-file', filename);
@@ -136,13 +137,11 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         id: currentWorkspace.id,
         filename: filename,
         content: newContent,
-      })
-    } catch (err) {
+      });
+    } catch (err: unknown) {
       console.error("Failed to save file:", err);
       if (activeFetchRef.current === currentWorkspace.id) {
-        const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to save file.";
+        const message = errStr(err, "Failed to save file.");
         setErrorMessage(message);
       }
     }
@@ -157,13 +156,11 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         id: currentWorkspace.id,
         filename: filename,
         queryVars: newQueryVars,
-      })
-    } catch (err) {
+      });
+    } catch (err: unknown) {
       console.error("Failed to save execution arguments:", err);
       if (activeFetchRef.current === currentWorkspace.id) {
-        const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to save execution arguments.";
+        const message = errStr(err, "Failed to save execution arguments.");
         setErrorMessage(message);
       }
     }
@@ -179,9 +176,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     } catch (err: unknown) {
       console.error("Backend failed to save updated file scope:", err);
       if (activeFetchRef.current === currentWorkspace.id) {
-        const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to save file scope.";
+        const message = errStr(err, "Failed to save file scope.");
         setErrorMessage(message);
       }
     }
@@ -200,11 +195,9 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         filename: filename,
       });
     } catch (err: unknown) {
-      console.error("Backend failed to create file:", err);
+      console.error("Failed to create file:", err);
       if (activeFetchRef.current === currentWorkspace.id) {
-        const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to create file.";
+        const message = errStr(err, "Failed to create file.");
         setErrorMessage(message);
       }
     }
@@ -228,11 +221,9 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         newFilename: newFilename,
       });
     } catch (err: unknown) {
-      console.error("Backend failed to rename file:", err);
+      console.error("Failed to rename file:", err);
       if (activeFetchRef.current === currentWorkspace.id) {
-        const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to rename file.";
+        const message = errStr(err, "Failed to rename file.");
         setErrorMessage(message);
       }
     }
@@ -251,11 +242,9 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         filename: filename,
       });
     } catch (err: unknown) {
-      console.error("Backend failed to delete file:", err);
+      console.error("Failed to delete file:", err);
       if (activeFetchRef.current === currentWorkspace.id) {
-        const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to delete file.";
+        const message = errStr(err, "Failed to delete file.");
         setErrorMessage(message);
       }
     }
@@ -285,9 +274,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     } catch (err: unknown) {
       console.error("Failed to save execution arguments:", err);
       if (activeFetchRef.current === currentWorkspace.id) {
-        const message = err instanceof Error
-          ? err.message
-          : typeof err === 'string' ? err : "Failed to save execution arguments.";
+        const message = errStr(err, "Failed to save execution arguments.");
         setErrorMessage(message);
       }
     } finally {
@@ -296,13 +283,57 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
   };
 
   const refreshFiles = async () => {
-    const _files = await emit<ProjectFile[]>('FETCH_FILES', currentWorkspace);
-    setFiles(_files);
+    try {
+      const _files = await emit<ProjectFile[]>('FETCH_FILES', currentWorkspace);
+      setFiles(_files);
+    } catch (err: unknown) {
+      console.error("Refresh files failed:", err);
+      const message = errStr(err, "Refresh files failed.");
+      setErrorMessage(message);
+    }
   };
 
-  const joinRoom = async () => {
+  const refreshRooms = async () => {
+    try {
+      const _rooms = await emit<Room[]>('FETCH_ROOMS', currentWorkspace);
+      setRooms(_rooms);
+    } catch (err: unknown) {
+      console.error("Refresh rooms failed:", err);
+      const message = errStr(err, "Refresh rooms failed.");
+      setErrorMessage(message);
+    }
+  };
 
-  }
+  const joinRoom = async (scope: string, name: string, code: string) => {
+    try {
+      const room = await emit('JOIN_ROOM', {
+        id: currentWorkspace.id,
+        scope,
+        name,
+        code,
+      }) as Room;
+      setRooms(prev => [...prev, room]);
+    } catch (err: unknown) {
+      console.error("Failed to join room:", err);
+      const message = errStr(err, "Failed to join room.");
+      setErrorMessage(message);
+    }
+  };
+
+  const leaveRoom = async (scope: string, name: string) => {
+    try {
+      await emit('LEAVE_ROOM', {
+        id: currentWorkspace.id,
+        scope,
+        name,
+      });
+      setRooms(prev => prev.filter(room => room.scope === scope && room.name === name));
+    } catch (err: unknown) {
+      console.error("Failed to leave room:", err);
+      const message = errStr(err, "Failed to leave room:");
+      setErrorMessage(message);
+    }
+  };
 
   return (
     <ActiveWorkspaceContext.Provider value={{
@@ -327,6 +358,9 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
       updateQueryVars,
       execCode,
       refreshFiles,
+      refreshRooms,
+      joinRoom,
+      leaveRoom,
     }}>
       {children}
     </ActiveWorkspaceContext.Provider>

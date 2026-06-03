@@ -1,44 +1,83 @@
-import { Flex, Text, Button, Card, Box, Badge, IconButton, Tooltip } from '@radix-ui/themes';
-import { PlusIcon, TrashIcon, InfoCircledIcon } from '@radix-ui/react-icons';
-import type { Room } from '../../types';
+import React, { useState } from 'react';
+import { Flex, Text, Card, Box, Badge, IconButton, Tooltip, Spinner } from '@radix-ui/themes';
+import { PlusIcon, InfoCircledIcon, UpdateIcon, LinkBreak2Icon, Pencil1Icon } from '@radix-ui/react-icons';
 import { useActiveWorkspace } from '../../hooks';
+import RoomJoinModal from './RoomJoinModal';
 
 interface CollectionRoomsPanelProps {
   scope: string;
 }
 
 export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProps) {
-  const { rooms } = useActiveWorkspace()
-  // 🔑 THE FILTER: Keep the view contextual by isolating only this specific scope's rooms
+  const { rooms, joinRoom, leaveRoom, refreshRooms, loading } = useActiveWorkspace();
+  const [isRoomJoinOpen, setIsRoomJoinOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const filteredRooms = rooms.filter((room) => room.scope === scope);
 
   const handleLeaveRoom = async (roomName: string) => {
     try {
-      // await leaveRoom(room);
-    } catch (err) {
-      console.error(`Failed to un-register or leave room tracker [${roomName}]:`, err);
+      setIsRefreshing(true);
+      await leaveRoom(scope, roomName);
+      setIsRefreshing(false);
+    } catch (err: unknown) {
+      console.error(`Failed to sever room stream link [${roomName}]:`, err);
     }
   };
 
+  const handleOnJoin = async (name: string, code: string) => {
+    await joinRoom(scope, name, code);
+    return null;
+  };
+
+  const handleRefresClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const refresh = async () => {
+      setIsRefreshing(true);
+      await refreshRooms();
+      setIsRefreshing(false);
+    };
+    refresh();
+  };
+
+  if (isRefreshing || loading) {
+    return <Flex justify="center" py="3"><Spinner size="2" /></Flex>;
+  }
+
   return (
-    <Flex direction="column" gap="2">
-      {/* SECTION HEADER ACTIONS TRIGGER */}
-      <Flex justify="between" align="center" mb="1">
-        <Text size="1" color="gray" weight="bold" style={{ letterSpacing: '0.05em' }}>
+    <Flex direction="column" gap="3">
+      {/* HEADER SECTION LAYOUT */}
+      <Flex justify="between" align="center">
+        <Text size="1" color="gray" weight="bold">
           WATCHING ({filteredRooms.length})
         </Text>
-        <Button
-          size="1"
-          variant="ghost"
-          color="iris"
-          onClick={() => null}
-          style={{ cursor: 'pointer', height: 20, padding: '0 6px' }}
-        >
-          <PlusIcon width="14" height="14" /> Add Room
-        </Button>
+        <Flex gap="1">
+          <Tooltip content="Refresh rooms">
+            <IconButton
+              size="1"
+              variant="soft"
+              color="gray"
+              onClick={handleRefresClick}
+              style={{ cursor: 'pointer', height: 20, width: 20 }}
+            >
+              <UpdateIcon width="13" height="13" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip content="Join room">
+            <IconButton
+              size="1"
+              variant="soft"
+              color="iris"
+              onClick={() => setIsRoomJoinOpen(true)}
+              style={{ cursor: 'pointer', height: 20, width: 20 }}
+            >
+              <PlusIcon width="14" height="14" />
+            </IconButton>
+          </Tooltip>
+        </Flex>
       </Flex>
 
-      {/* EMPTY RUNTIME FALLBACK STATE */}
+      {/* EMPTY TRACKER FALLBACK BOUNDARY */}
       {filteredRooms.length === 0 ? (
         <Box
           py="3"
@@ -52,68 +91,92 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
           <Text size="1" color="gray">No rooms monitored on this collection scope.</Text>
         </Box>
       ) : (
-        /* ACTIVE ROOMS STREAM STACK */
-        <Flex direction="column" gap="1.5">
+        <Flex direction="column" gap="2">
           {filteredRooms.map((room) => {
+            const isWorking = room.id !== undefined;
             const hasError = !!room.errMsg;
-
             return (
               <Card
                 key={room.name}
                 size="1"
                 style={{
-                  padding: '8px 10px',
+                  padding: '6px 8px',
                   backgroundColor: 'var(--gray-2)',
                   borderColor: hasError ? 'var(--orange-6)' : 'var(--gray-4)'
                 }}
               >
-                <Flex direction="column" gap="1.5">
-                  <Flex align="center" justify="between">
-                    <Flex align="center" gap="2">
-                      <Text size="2" weight="bold">
-                        {room.name}
-                      </Text>
-                      <Badge size="1" color="gray" variant="surface" style={{ fontFamily: 'monospace' }}>
-                        {room.code}
-                      </Badge>
-                    </Flex>
-
-                    <Tooltip content="Stop watching and un-subscribe from room events">
-                      <IconButton
-                        size="1"
-                        variant="ghost"
-                        color="red"
-                        onClick={() => handleLeaveRoom(room.name)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <TrashIcon width="14" height="14" />
-                      </IconButton>
-                    </Tooltip>
+                <Flex align="center" justify="between">
+                  <Flex
+                    align="center"
+                    gap="2"
+                    style={{ cursor: 'pointer', flexGrow: 1, minWidth: 0 }}
+                    onClick={() => setIsRoomJoinOpen(true)}
+                  >
+                    {isWorking ? (
+                      <Flex align="center" gap="2" style={{ minWidth: 0 }}>
+                        <Badge size="1" color="iris" variant="outline" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                          #{room.id}
+                        </Badge>
+                        <Text size="2" weight="bold" color="gray">
+                          {room.name}
+                        </Text>
+                      </Flex>
+                    ) : (
+                      <Flex align="center" gap="2" style={{ minWidth: 0 }}>
+                        <InfoCircledIcon color="var(--orange-9)" />
+                        <Text size="2" weight="bold" color="orange">
+                          {room.name}
+                        </Text>
+                      </Flex>
+                    )}
+                    <Pencil1Icon className="edit-hover-icon" width="11" height="11" color="var(--gray-8)" style={{ opacity: 0.4 }} />
                   </Flex>
 
-                  {/* 🚨 DYNAMIC INLINE SUBSCRIPTION ERROR MESSAGING CONTAINER */}
-                  {hasError && (
-                    <Flex
-                      align="start"
-                      gap="1.5"
-                      p="1.5"
-                      style={{
-                        backgroundColor: 'var(--orange-2)',
-                        borderRadius: 'var(--radius-1)',
-                        borderLeft: '2px solid var(--orange-8)'
-                      }}
+                  {/* LEAVE ROOM */}
+                  <Tooltip content="Disconnect from room stream">
+                    <IconButton
+                      size="1"
+                      variant="ghost"
+                      color="gray"
+                      highContrast
+                      onClick={() => handleLeaveRoom(room.name)}
+                      style={{ cursor: 'pointer', flexShrink: 0 }}
                     >
-                      <InfoCircledIcon color="var(--orange-9)" style={{ marginTop: 2, flexShrink: 0 }} />
-                      <Text size="1" color="orange" style={{ lineHeight: '1.2' }}>
-                        {room.errMsg}
-                      </Text>
-                    </Flex>
-                  )}
+                      <LinkBreak2Icon width="15" height="15" />
+                    </IconButton>
+                  </Tooltip>
                 </Flex>
+
+                {/* 🚨 DYNAMIC LOWER LEVEL ERROR DISCLOSURE PANE */}
+                {hasError && (
+                  <Box
+                    mt="1"
+                    p="1"
+                    style={{
+                      backgroundColor: 'var(--orange-2)',
+                      borderRadius: 'var(--radius-1)',
+                      borderLeft: '2px solid var(--orange-8)'
+                    }}
+                  >
+                    <Text size="1" color="orange">
+                      {room.errMsg}
+                    </Text>
+                  </Box>
+                )}
               </Card>
             );
           })}
         </Flex>
+      )}
+
+      {isRoomJoinOpen && (
+        <RoomJoinModal
+          isOpen={isRoomJoinOpen}
+          onOpenChange={setIsRoomJoinOpen}
+          scope={scope}
+          existingRooms={filteredRooms}
+          onJoin={handleOnJoin}
+        />
       )}
     </Flex>
   );

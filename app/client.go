@@ -117,10 +117,8 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			}
 			if res, err := currentSettings.FetchFiles(ws.ID); err != nil {
 				_ = writeError(wsConn, &msg, err)
-				log.Println("FETCH FILES FAILED...")
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
-				log.Println("FETCH FILES SUCCESS...")
 			}
 		case "FETCH_SCOPES":
 			var ws Workspace
@@ -287,7 +285,28 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, "OK")
 			}
-
+		case "JOIN_ROOM":
+			var data JoinRoom
+			if err := json.Unmarshal(msg.Payload, &data); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.JoinRoom(&data, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
+		case "LEAVE_ROOM":
+			var data LeaveRoom
+			if err := json.Unmarshal(msg.Payload, &data); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if err := currentSettings.LeaveRoom(&data, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, "OK")
+			}
 		default:
 			_ = writeError(wsConn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
 		}

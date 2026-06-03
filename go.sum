@@ -10,6 +10,8 @@ github.com/thingsdb/go-thingsdb v1.0.10 h1:KZhdELUSOf8aQzLv9k0pqSC3QqKsy1bq1dl5Y
 github.com/thingsdb/go-thingsdb v1.0.10/go.mod h1:Egsm5zNcshZtdjLR6Dd02Wjk8UR626XTcaZLc03Hnpw=
 github.com/thingsdb/go-thingsdb v1.1.0 h1:mwaP5UhT2qQQnHklp3rFdXn71YCtaDH8Q8ApMxGBpds=
 github.com/thingsdb/go-thingsdb v1.1.0/go.mod h1:Egsm5zNcshZtdjLR6Dd02Wjk8UR626XTcaZLc03Hnpw=
+github.com/thingsdb/go-thingsdb v1.1.2 h1:ECzB/sUByLP3dzM/7Cfu2yx5SkMIyMBs/zVn/jbYsvI=
+github.com/thingsdb/go-thingsdb v1.1.2/go.mod h1:Egsm5zNcshZtdjLR6Dd02Wjk8UR626XTcaZLc03Hnpw=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=
