@@ -689,7 +689,7 @@ func (s *Settings) JoinRoom(c *JoinRoom, wsConn *websocket.Conn) (*Room, error) 
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.Save()
+	_ = s.Save()
 	return room, nil
 }
 
@@ -722,7 +722,7 @@ func (s *Settings) UpdateRoom(c *JoinRoom, wsConn *websocket.Conn) (*Room, error
 
 			s.mu.Lock()
 			defer s.mu.Unlock()
-			s.Save()
+			_ = s.Save()
 			return room, nil
 		}
 	}
@@ -750,7 +750,7 @@ func (s *Settings) LeaveRoom(c *LeaveRoom, wsConn *websocket.Conn) error {
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.Save()
+	_ = s.Save()
 	return nil
 }
 
