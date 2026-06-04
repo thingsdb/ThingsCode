@@ -32,7 +32,7 @@ export default function StudioRightPanel() {
           {isNode && <NodeContextPanel key={`context-node-${activeScope}`} scope={activeScope} />}
           {isCollection && <CollectionContextPanel key={`context-node-${activeScope}`} scope={activeScope} />}
           {isThingsDB && (
-            <Text size="2" color="gray">ThingsDB cluster actions coming soon...</Text>
+            <Text size="2" color="gray">ThingsDB coming soon...</Text>
           )}
         </Box>
       </ScrollArea>

@@ -72,7 +72,6 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
         id: activeId,
         scope,
       });
-      // Immediately pull fresh zeroed records from the cluster node
       await fetchCounters();
     } catch (err: unknown) {
       console.error("Failed to execute counters reset:", err);

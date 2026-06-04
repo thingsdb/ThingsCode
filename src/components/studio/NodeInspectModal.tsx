@@ -143,10 +143,10 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
                 <DataList.Item><DataList.Label color="gray">Local Stored Change ID</DataList.Label><DataList.Value>{nodeInfo.localStoredChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Local Committed Change ID</DataList.Label><DataList.Value>{nodeInfo.localCommittedChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">DB Stored Change ID</DataList.Label><DataList.Value>{nodeInfo.dbStoredChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Next Transaction ID</DataList.Label><DataList.Value>{nodeInfo.nextChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Next Free Record ID</DataList.Label><DataList.Value>{nodeInfo.nextFreeId?.toLocaleString()}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Changes In Async Queue</DataList.Label><DataList.Value>{nodeInfo.changesInQueue}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Syntax Framework Version</DataList.Label><DataList.Value>{nodeInfo.syntaxVersion}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Next Change ID</DataList.Label><DataList.Value>{nodeInfo.nextChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Next Free ID</DataList.Label><DataList.Value>{nodeInfo.nextFreeId?.toLocaleString()}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Changes In Queue</DataList.Label><DataList.Value>{nodeInfo.changesInQueue}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Syntax Version</DataList.Label><DataList.Value>{nodeInfo.syntaxVersion}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Scheduled Backups</DataList.Label><DataList.Value>{nodeInfo.scheduledBackups}</DataList.Value></DataList.Item>
                 {nodeInfo.commitHistory !== undefined && nodeInfo.commitHistory !== null && <DataList.Item><DataList.Label color="gray">Commit History Status</DataList.Label><DataList.Value>{nodeInfo.commitHistory === 'disabled' ? <Badge variant="outline" color="gray">{nodeInfo.commitHistory}</Badge> : nodeInfo.commitHistory}</DataList.Value></DataList.Item>}
                 <DataList.Item><DataList.Label color="gray">Cached Names count</DataList.Label><DataList.Value>{nodeInfo.cachedNames}</DataList.Value></DataList.Item>

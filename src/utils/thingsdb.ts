@@ -199,6 +199,10 @@ export const registerThingsDBLanguage = (monacoInstance: typeof monaco) => {
   });
 
   monacoInstance.languages.setLanguageConfiguration('thingsdb', {
+    comments: {
+      lineComment: '//',
+      blockComment: ['/*', '*/'],
+    },
     surroundingPairs: [
       { open: '{', close: '}' },
       { open: '[', close: ']' },
