@@ -18,7 +18,6 @@ export default function NotificationToast({ message, onClear }: NotificationToas
         right: 24,
         zIndex: 9999,
         maxWidth: 460,
-        boxShadow: 'var(--shadow-4)',
       }}
     >
       <Callout.Root color="red" size="2" variant="surface">

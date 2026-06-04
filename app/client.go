@@ -62,6 +62,8 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 		}
 
 		// ROUTE BY TYPE
+		log.Printf("MSG TYPE START: %s", msg.Type)
+
 		switch msg.Type {
 		case "FETCH_WORKSPACES":
 			_ = writeResponse(wsConn, &msg, currentSettings.FetchWorkspaces())
@@ -231,7 +233,7 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeResponse(wsConn, &msg, res)
 			}
 		case "GET_NODE_INFO":
-			var scope Scope
+			var scope ForScope
 			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
 				_ = writeError(wsConn, &msg, err)
 				continue
@@ -242,7 +244,7 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeResponse(wsConn, &msg, res)
 			}
 		case "GET_NODE_COUNTERS":
-			var scope Scope
+			var scope ForScope
 			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
 				_ = writeError(wsConn, &msg, err)
 				continue
@@ -253,7 +255,7 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeResponse(wsConn, &msg, res)
 			}
 		case "RESET_NODE_COUNTERS":
-			var scope Scope
+			var scope ForScope
 			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
 				_ = writeError(wsConn, &msg, err)
 				continue
@@ -264,7 +266,7 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeResponse(wsConn, &msg, "OK")
 			}
 		case "SHUTDOWN_NODE":
-			var scope Scope
+			var scope ForScope
 			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
 				_ = writeError(wsConn, &msg, err)
 				continue
@@ -319,7 +321,7 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				_ = writeResponse(wsConn, &msg, "OK")
 			}
 		case "FETCH_TASKS":
-			var scope Scope
+			var scope ForScope
 			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
 				_ = writeError(wsConn, &msg, err)
 				continue
@@ -329,8 +331,21 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "FETCH_PROCEDURES":
+			var scope ForScope
+			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchProcedures(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
 		default:
 			_ = writeError(wsConn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
 		}
+
+		log.Printf("MSG TYPE END: %s", msg.Type)
 	}
 }

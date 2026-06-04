@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Box, Card, Container, Flex, Grid, Heading, Text, TextField, IconButton, Tooltip, Button } from '@radix-ui/themes';
-import { MagnifyingGlassIcon, Pencil2Icon, TrashIcon, Link2Icon, SunIcon, MoonIcon } from '@radix-ui/react-icons';
+import { MagnifyingGlassIcon, Pencil2Icon, TrashIcon, Link2Icon, SunIcon, MoonIcon, Cross2Icon } from '@radix-ui/react-icons';
 import { useWorkspaces, useTheme } from '../hooks';
 import { NewWorkspaceModal, WorkspaceModal, ConfirmDialog } from './';
 import QuickConnectModal from './QuickConnectModal';
@@ -63,6 +63,19 @@ export default function WorkspaceLauncher() {
                 <TextField.Slot>
                   <MagnifyingGlassIcon height="16" width="16" />
                 </TextField.Slot>
+                {searchQuery && (
+                  <TextField.Slot style={{ paddingRight: '9px' }}>
+                    <IconButton
+                      size="3"
+                      variant="ghost"
+                      color="gray"
+                      onClick={() => setSearchQuery('')}
+                      style={{ cursor: 'pointer', height: '22px', width: '22px' }}
+                    >
+                      <Cross2Icon height="16" width="16" />
+                    </IconButton>
+                  </TextField.Slot>
+                )}
               </TextField.Root>
             </Box>
             <Flex width="100%" gap="4">

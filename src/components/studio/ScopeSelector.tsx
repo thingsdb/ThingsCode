@@ -1,32 +1,31 @@
 import { Select, Flex } from '@radix-ui/themes';
-import { useContext } from 'react';
-import { ActiveWorkspaceContext } from '../../context';
+import { useActiveWorkspace } from '../../hooks';
 
 interface ScopeSelectorProps {
     disabled: boolean;
 }
 
 export default function ScopeSelector({disabled} : ScopeSelectorProps) {
-  const context = useContext(ActiveWorkspaceContext);
+  const { loading, activeScope, setActiveScopeState, scopes } = useActiveWorkspace();
 
-  if (!context || context.loading) return null;
+  if (loading) return null;
 
   return (
     <Flex align="center" gap="2">
 
       <Select.Root
         disabled={disabled}
-        value={context.activeScope || ''}
-        onValueChange={context.setActiveScopeState}
+        value={activeScope || ''}
+        onValueChange={setActiveScopeState}
       >
         <Select.Trigger
             style={{ minWidth: '260px' }}
             placeholder="Select Scope..."
         />
         <Select.Content>
-          {context.scopes.map((scope) => (
-            <Select.Item key={scope} value={scope}>
-              {scope}
+          {scopes.map((scope) => (
+            <Select.Item key={scope.name} value={scope.name}>
+              {scope.name}
             </Select.Item>
           ))}
         </Select.Content>

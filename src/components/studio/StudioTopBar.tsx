@@ -1,16 +1,19 @@
-import { Flex, Text, Button, Tooltip, IconButton, Separator } from '@radix-ui/themes';
-import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon } from '@radix-ui/react-icons';
+import { Flex, Text, Button, Tooltip, IconButton, Separator, Box } from '@radix-ui/themes';
+import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspace, useWebSocket } from '../../hooks';
 import { useTheme } from '../../hooks';
 import ScopeSelector from './ScopeSelector';
 import { useState } from 'react';
 import QueryVarsDialog from './QueryVarsDialog';
+import AboutModal from '../AboutModal';
 
 export default function StudioTopBar() {
   const { status, emit } = useWebSocket();
-  const { loading, activeScope, activeFile, updateQueryVars, activeFilename, activeContent, workspace, isExecuting, execCode } = useActiveWorkspace();
+  const { loading, activeScope, activeFile, updateQueryVars, activeFilename, refreshScopes, activeContent, workspace, isExecuting, execCode } = useActiveWorkspace();
   const { appearance, toggleAppearance } = useTheme();
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const isTiCode = activeFilename && activeFilename.endsWith('.ti');
 
@@ -31,6 +34,15 @@ export default function StudioTopBar() {
     execCode(activeFile.filename, activeScope, activeContent, activeFile.queryVars || null);
   };
 
+  const handleRefreshScopes = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshScopes();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <Flex
       px="3"
@@ -46,11 +58,25 @@ export default function StudioTopBar() {
     >
       {/* Left side */}
       <Flex align="center" gap="2">
-        <img
-          src={appearance === 'dark' ? '/images/logo_on_dark.svg' : '/images/logo_on_white.svg'}
-          alt="ThingsDB Logo"
-          style={{ width: 28, height: 28, objectFit: 'contain' }}
-        />
+        <Box
+          onClick={() => setIsAboutOpen(true)}
+          style={{
+            cursor: 'pointer',
+            borderRadius: 'var(--radius-2)',
+            padding: '4px',
+            margin: '-4px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            userSelect: 'none',
+          }}
+          title="About ThingsCode"
+        >
+          <img
+            src={appearance === 'dark' ? '/images/logo_on_dark.svg' : '/images/logo_on_white.svg'}
+            alt="ThingsDB Logo"
+            style={{ width: 28, height: 28, objectFit: 'contain' }}
+          />
+        </Box>
 
         <Text size="1" weight="bold" color="blue">{workspace.name}</Text>
         {activeFilename && (
@@ -80,7 +106,7 @@ export default function StudioTopBar() {
             size="2"
             color="green"
             variant="solid"
-            loading={isExecuting}
+            loading={isExecuting || isRefreshing}
             disabled={!isTiCode}
             onClick={handleExecuteCode}
             style={{ cursor: isTiCode ? 'pointer' : 'not-allowed' }}
@@ -94,7 +120,7 @@ export default function StudioTopBar() {
             variant="ghost"
             color="gray"
             size="2"
-            disabled={!isTiCode}
+            disabled={!isTiCode || isRefreshing}
             onClick={() => setIsConfigOpen(true)}
             title="Edit Execution Arguments (JSON)"
             style={{ cursor: isTiCode ? 'pointer' : 'not-allowed' }}
@@ -102,6 +128,19 @@ export default function StudioTopBar() {
             <GearIcon width="16" height="16" />
           </IconButton>
 
+          <Separator orientation="vertical" size="1" />
+
+          <IconButton
+            variant="ghost"
+            color="gray"
+            size="2"
+            disabled={!isTiCode || isRefreshing || loading}
+            onClick={() => handleRefreshScopes()}
+            title="Refresh Scopes"
+            style={{ cursor: isTiCode ? 'pointer' : 'not-allowed' }}
+          >
+            <UpdateIcon width="16" height="16" />
+          </IconButton>
         </Flex>
 
         {isConfigOpen && (
@@ -115,6 +154,45 @@ export default function StudioTopBar() {
 
       {/* Right side */}
       <Flex align="center" gap="2">
+        <Tooltip content="Open ThingsDB GitHub organization">
+          <IconButton
+            variant="ghost"
+            size="2"
+            color="gray"
+            style={{ cursor: 'pointer' }}
+            asChild
+          >
+            <a
+              href="https://github.com/thingsdb"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <GitHubLogoIcon width="16" height="16" />
+            </a>
+          </IconButton>
+        </Tooltip>
+
+        {/* DOCUMENTATION LINK */}
+        <Tooltip content="Open ThingsDB documentation page">
+          <IconButton
+            variant="ghost"
+            size="2"
+            color="gray"
+            style={{ cursor: 'pointer' }}
+            asChild
+          >
+            <a
+              href="https://docs.thingsdb.io/v1/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ReaderIcon width="16" height="16" />
+            </a>
+          </IconButton>
+        </Tooltip>
+
+        <Separator orientation="vertical" size="1" />
+
         <Tooltip content={appearance === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
           <Button
             variant="ghost"
@@ -126,6 +204,9 @@ export default function StudioTopBar() {
             {appearance === 'dark' ? <SunIcon width="16" height="16" /> : <MoonIcon width="16" height="16" />}
           </Button>
         </Tooltip>
+
+        <Separator orientation="vertical" size="1" />
+
         <Tooltip content="Logout session">
           <Button
             size="1"
@@ -138,6 +219,7 @@ export default function StudioTopBar() {
           </Button>
         </Tooltip>
       </Flex>
+      <AboutModal isOpen={isAboutOpen} onOpenChange={setIsAboutOpen} />
     </Flex>
   );
 }

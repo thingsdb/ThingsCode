@@ -90,7 +90,7 @@ export default function EventArgsModal({
                   pointerEvents: 'auto'
                 }}
               >
-                {copied ? <CheckIcon width="14" height="14" /> : <CopyIcon width="13" height="13" />}
+                {copied ? <CheckIcon width="14" height="14" /> : <CopyIcon width="14" height="14" />}
               </IconButton>
             </Tooltip>
           </Flex>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
 import { useActiveWorkspaceId, useWebSocket, useEvent, useError } from '../hooks';
 import WorkspaceNotFound from '../components/WorkspaceNotFound';
 import { ActiveWorkspaceContext, WorkspaceContext } from '../context';
-import type { ProjectFile, Result, Room } from '../types';
+import type { ProjectFile, Result, Room, Scope } from '../types';
 import { errStr } from '../utils';
 
 interface ActiveWorkspaceProviderProps {
@@ -27,9 +27,10 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
   const [rooms, setRooms] = useState<Room[]>([]);
   const [activeFilename, setActiveFilename] = useState<string | null>(null);
   const [activeContent, setActiveContent] = useState<string | null>(null);
-  const [scopes, setScopes] = useState<string[]>([]);
+  const [scopes, setScopes] = useState<Scope[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeScope, setActiveScope] = useState<string | null>(null);
+  const [requireCommit, setRequireCommit] = useState(false);
   const [fileScopes, setFileScopes] = useState<Record<string, string>>({});
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
 
@@ -60,7 +61,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
       try {
         const [_files, _scopes, _fileScopes, _rooms] = await Promise.all([
           emit<ProjectFile[]>('FETCH_FILES', currentWorkspace),
-          emit<string[]>('FETCH_SCOPES', currentWorkspace),
+          emit<Scope[]>('FETCH_SCOPES', currentWorkspace),
           emit<Record<string, string>>('FETCH_FILE_SCOPES', currentWorkspace),
           emit<Room[]>('FETCH_ROOMS', currentWorkspace),
         ]);
@@ -80,12 +81,18 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
           // Here we do take it from the current Workspace
           const lastSelectedScope = _fileScopes[fileToSet];
           if (lastSelectedScope) {
-            setActiveScope(lastSelectedScope);
+            const scope = _scopes.find(s => s.name === lastSelectedScope);
+            if (scope) {
+              setActiveScope(scope.name);
+              setRequireCommit(scope.requireCommit);
+            }
           } else if (_scopes.length > 0) {
-            setActiveScope(_scopes[0]);
+            setActiveScope(_scopes[0].name);
+            setRequireCommit(_scopes[0].requireCommit);
           }
         } else if (_scopes.length > 0) {
-          setActiveScope(_scopes[0]);
+          setActiveScope(_scopes[0].name);
+          setRequireCommit(_scopes[0].requireCommit);
         }
       } catch (err: unknown) {
         console.error("Workspace initialization aborted:", err);
@@ -129,6 +136,9 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
   };
 
   const storeFileContent = async (filename: string, newContent: string) => {
+    if (files.find(f => f.filename === filename) === undefined) {
+      return;
+    }
     setFiles(prev => prev.map(f =>
       f.filename === filename ? { ...f, content: newContent } : f
     ));
@@ -293,6 +303,17 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     }
   };
 
+  const refreshScopes = async () => {
+    try {
+      const _scopes = await emit<Scope[]>('FETCH_SCOPES', currentWorkspace);
+      setScopes(_scopes);
+    } catch (err: unknown) {
+      console.error("Refresh scopes failed:", err);
+      const message = errStr(err, "Refresh scopes failed.");
+      setErrorMessage(message);
+    }
+  };
+
   const refreshRooms = async () => {
     try {
       const _rooms = await emit<Room[]>('FETCH_ROOMS', currentWorkspace);
@@ -361,6 +382,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
       activeFile,
       scopes,
       activeScope,
+      requireCommit,
       loading,
       isExecuting,
 
@@ -374,6 +396,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
       updateQueryVars,
       execCode,
       refreshFiles,
+      refreshScopes,
       refreshRooms,
       joinRoom,
       updateRoom,

@@ -149,7 +149,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
                 <DataList.Item><DataList.Label color="gray">Changes In Async Queue</DataList.Label><DataList.Value>{nodeInfo.changesInQueue}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Syntax Framework Version</DataList.Label><DataList.Value>{nodeInfo.syntaxVersion}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Scheduled Backups</DataList.Label><DataList.Value>{nodeInfo.scheduledBackups}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Commit History Status</DataList.Label><DataList.Value>{nodeInfo.commitHistory === 'disabled' ? <Badge variant="outline" color="gray">{nodeInfo.commitHistory}</Badge> : nodeInfo.commitHistory}</DataList.Value></DataList.Item>
+                {nodeInfo.commitHistory !== undefined && nodeInfo.commitHistory !== null && <DataList.Item><DataList.Label color="gray">Commit History Status</DataList.Label><DataList.Value>{nodeInfo.commitHistory === 'disabled' ? <Badge variant="outline" color="gray">{nodeInfo.commitHistory}</Badge> : nodeInfo.commitHistory}</DataList.Value></DataList.Item>}
                 <DataList.Item><DataList.Label color="gray">Cached Names count</DataList.Label><DataList.Value>{nodeInfo.cachedNames}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Cached Queries count</DataList.Label><DataList.Value>{nodeInfo.cachedQueries}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Query Cache Threshold</DataList.Label><DataList.Value>{nodeInfo.thresholdQueryCache}</DataList.Value></DataList.Item>

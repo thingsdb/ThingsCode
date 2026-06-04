@@ -67,3 +67,15 @@ func FetchTasks(conn *thingsdb.Conn, scope string) ([]Task, error) {
 	}
 	return tasks, nil
 }
+
+func FetchProcedures(conn *thingsdb.Conn, scope string) ([]Procedure, error) {
+	var procedures []Procedure
+	res, err := conn.QueryRaw(scope, "procedures_info();", nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &procedures); err != nil {
+		return nil, err
+	}
+	return procedures, nil
+}

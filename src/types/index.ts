@@ -61,7 +61,7 @@ export interface NodeInfo {
   cachedQueries: number;
   changesInQueue: number;
   clientPort: number;
-  commitHistory: string | number;
+  commitHistory?: string | number | null;
   connectedClients: number;
   dbStoredChangeId: number;
   globalCommittedChangeId: number;
@@ -107,6 +107,20 @@ export interface Task {
   at: string | null;
   owner: string;
   error: string | null;
+}
+
+export interface Procedure {
+  name: string;
+  withSideEffects: boolean;
+  createdAt: number;
+  definition?: string;  // only when having CHANGE permissions on scope
+  doc?: string;  // only when docstring is available
+  arguments: string[];
+}
+
+export interface Scope {
+	name: string;
+	requireCommit: boolean;
 }
 
 export type StudioTab = 'result' | 'events' | 'log';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Flex, Box, Text, Button, ScrollArea, IconButton, TextField, Tooltip } from '@radix-ui/themes';
-import { PlusIcon, FileIcon, Pencil2Icon, TrashIcon, MagnifyingGlassIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { PlusIcon, FileIcon, Pencil2Icon, TrashIcon, MagnifyingGlassIcon, UpdateIcon, Cross2Icon } from '@radix-ui/react-icons';
 import { useActiveWorkspace } from '../../hooks';
 import RenameFileDialog from './RenameFileDialog';
 import { ConfirmDialog } from '..';
@@ -127,13 +127,26 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
         <Box px="2" py="2" style={{ borderBottom: '1px solid var(--gray-3)' }}>
           <TextField.Root
             placeholder="Search name or content..."
-            size="1"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            size="1"
           >
             <TextField.Slot>
-              <MagnifyingGlassIcon height="12" width="12" />
+              <MagnifyingGlassIcon height="14" width="14" />
             </TextField.Slot>
+            {searchQuery && (
+              <TextField.Slot style={{ paddingRight: '4px' }}>
+                <IconButton
+                  size="1"
+                  variant="ghost"
+                  color="gray"
+                  onClick={() => setSearchQuery('')}
+                  style={{ cursor: 'pointer', height: '16px', width: '16px' }}
+                >
+                  <Cross2Icon height="12" width="12" />
+                </IconButton>
+              </TextField.Slot>
+            )}
           </TextField.Root>
         </Box>
 

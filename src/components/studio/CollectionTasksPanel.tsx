@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Flex, Text, Card, Box, Badge, IconButton, Tooltip } from '@radix-ui/themes';
-import { InfoCircledIcon, ExclamationTriangleIcon, CopyIcon, CheckIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { ExclamationTriangleIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
 import type { Task } from '../../types';
 import { errStr } from '../../utils';
-
-
 
 interface CollectionTasksPanelProps {
   scope: string;
@@ -17,7 +15,6 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [copiedTaskId, setCopiedTaskId] = useState<number | null>(null);
 
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
@@ -37,20 +34,9 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
     queueMicrotask(fetchTasks);
   }, [fetchTasks]);
 
-  const handleCopyDebugCode = async (taskId: number) => {
-    const debugSnippet = `{\n  error: task(${taskId}).err(),\n  closure: task(${taskId}).closure(),\n  args: task(${taskId}).args(),\n};`;
-    try {
-      await navigator.clipboard.writeText(debugSnippet);
-      setCopiedTaskId(taskId);
-      setTimeout(() => setCopiedTaskId(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy task debug snippet:', err);
-    }
-  };
-
   return (
     <Flex direction="column" gap="3">
-      <Flex justify="between" align="center">
+      <Flex justify="between" align="center" mt="2">
         <Text size="1" color="gray" weight="bold" mt="2">
           TASKS ({tasks.length})
         </Text>
@@ -110,8 +96,14 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
           let displayTime = 'Not scheduled';
           if (task.at) {
             try {
-              displayTime = new Date(task.at).toLocaleTimeString(undefined, {
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+              displayTime = new Date(task.at).toLocaleString(undefined, {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
               });
             } catch {
               displayTime = 'Invalid Date';
@@ -129,24 +121,27 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
               }}
             >
               <Flex direction="column" gap="2">
-                <Flex align="center" justify="between">
-                  <Flex align="center" gap="2">
-                    <Badge size="1" color={hasError ? 'orange' : 'iris'} variant="outline" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <Flex align="center" justify="between" gap="2">
+
+                  {/* Flex-shrink allowed to give timestamps maximum priority */}
+                  <Flex align="center" gap="2" style={{ minWidth: 0, flexShrink: 1 }}>
+                    <Badge size="1" color={hasError ? 'orange' : 'iris'} variant="outline" style={{ fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
                       #{task.id}
                     </Badge>
-                    <Text size="1" color="gray" weight="medium">
+                    <Text size="1" color="gray" weight="medium" truncate>
                       Owner: <Text color="gray" highContrast>{task.owner}</Text>
                     </Text>
                   </Flex>
 
-                  <Text size="1" color="gray" style={{ fontFamily: 'monospace' }}>
+                  {/* Timestamp, solid to prevent time-strings from wrapping or breaking */}
+                  <Text size="1" color="gray" style={{ fontFamily: 'monospace', flexShrink: 0, whiteSpace: 'nowrap' }}>
                     {displayTime}
                   </Text>
                 </Flex>
 
                 {hasError && (
                   <Flex direction="column" gap="2">
-                    {/* Error message card snippet */}
+                    {/* Error message */}
                     <Flex
                       align="start"
                       gap="2"
@@ -162,37 +157,6 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
                         {task.error}
                       </Text>
                     </Flex>
-
-                    {/* Quick-copy code instruction callout helper */}
-                    <Box
-                      p="2"
-                      style={{
-                        backgroundColor: 'var(--gray-3)',
-                        border: '1px solid var(--gray-5)',
-                        borderRadius: 'var(--radius-2)'
-                      }}
-                    >
-                      <Flex align="center" justify="between" gap="2">
-                        <Flex align="center" gap="2" style={{ minWidth: 0 }}>
-                          <InfoCircledIcon color="var(--gray-9)" style={{ flexShrink: 0 }} />
-                          <Text size="1" color="gray" truncate>
-                            Copy debug snippet
-                          </Text>
-                        </Flex>
-
-                        <Tooltip content={copiedTaskId === task.id ? "Copied!" : "Copy debug snippet to clipboard"}>
-                          <IconButton
-                            size="1"
-                            variant="ghost"
-                            color={copiedTaskId === task.id ? "green" : "gray"}
-                            onClick={() => handleCopyDebugCode(task.id)}
-                            style={{ cursor: 'pointer', height: 18, width: 18 }}
-                          >
-                            {copiedTaskId === task.id ? <CheckIcon width="12" height="12" /> : <CopyIcon width="12" height="12" />}
-                          </IconButton>
-                        </Tooltip>
-                      </Flex>
-                    </Box>
                   </Flex>
                 )}
               </Flex>

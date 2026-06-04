@@ -89,8 +89,9 @@ type NodeCounters struct {
 }
 
 type UserInfoAndNodesInfo struct {
-	NodesInfo []NodeInfo `msgpack:"nodes_info"`
-	UserInfo  UserInfo   `msgpack:"user_info"`
+	NodesInfo     []NodeInfo `msgpack:"nodes_info"`
+	UserInfo      UserInfo   `msgpack:"user_info"`
+	RequireCommit bool       `msgpack:"require_commit"`
 }
 
 // ProjectFile for returning fetched files
@@ -225,7 +226,7 @@ type Result struct {
 	Ts      time.Time `json:"ts"`
 }
 
-type Scope struct {
+type ForScope struct {
 	ID    string `json:"id"`
 	Scope string `json:"scope"`
 }
@@ -254,4 +255,18 @@ type Task struct {
 	Owner string `msgpack:"owner" json:"owner"`
 	At    string `msgpack:"at" json:"at,omitempty"`
 	Error string `msgpack:"error" json:"error,omitempty"`
+}
+
+type Procedure struct {
+	Name            string   `msgpack:"name" json:"name"`
+	WithSideEffects bool     `msgpack:"with_side_effects" json:"withSideEffects"`
+	CreatedAt       int64    `msgpack:"created_at" json:"createdAt"`
+	Definition      string   `msgpack:"definition" json:"definition,omitempty"`
+	Doc             string   `msgpack:"doc" json:"doc,omitempty"`
+	Arguments       []string `msgpack:"arguments" json:"arguments"`
+}
+
+type Scope struct {
+	Name          string `json:"name"`
+	RequireCommit bool   `json:"requireCommit"`
 }

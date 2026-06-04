@@ -153,7 +153,7 @@ export default function StudioResultView() {
             }}
           >
             {localTime && (
-              <Tooltip content={`Time: ${result.ts}`}>
+              <Tooltip content={`Received at: ${result.ts}`}>
                 <Flex
                   align="center"
                   gap="1"

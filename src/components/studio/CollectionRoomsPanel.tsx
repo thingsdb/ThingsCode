@@ -58,7 +58,7 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
 
   return (
     <Flex direction="column" gap="3">
-      <Flex justify="between" align="center">
+      <Flex justify="between" align="center" mt="2">
         <Text size="1" color="gray" weight="bold" mt="2">
           WATCHING ({filteredRooms.length})
         </Text>

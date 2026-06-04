@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Card, Flex, Text, Button, ScrollArea, Heading, TextField, Badge, Tooltip, IconButton } from '@radix-ui/themes';
-import { ArrowDownIcon, ArrowUpIcon, EraserIcon, LightningBoltIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { ArrowDownIcon, ArrowUpIcon, Cross2Icon, EraserIcon, LightningBoltIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { useEvent } from '../../hooks';
 import type { EmitEvent } from '../../types';
 import EventArgsModal from './EventArgsModal';
@@ -114,14 +114,27 @@ export default function StudioEventView() {
         </Flex>
 
         <TextField.Root
-          size="1"
           placeholder="Filter by event name, room ID, or raw arguments..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          size="1"
         >
           <TextField.Slot>
             <MagnifyingGlassIcon height="14" width="14" />
           </TextField.Slot>
+            {searchQuery && (
+              <TextField.Slot style={{ paddingRight: '4px' }}>
+                <IconButton
+                  size="1"
+                  variant="ghost"
+                  color="gray"
+                  onClick={() => setSearchQuery('')}
+                  style={{ cursor: 'pointer', height: '16px', width: '16px' }}
+                >
+                  <Cross2Icon height="12" width="12" />
+                </IconButton>
+              </TextField.Slot>
+            )}
         </TextField.Root>
       </Flex>
 

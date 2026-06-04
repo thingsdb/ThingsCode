@@ -56,3 +56,18 @@ body {
   --iris-6: var(--thingscode-blue) !important;
   --iris-a6: var(--thingscode-blue-alpha) !important;
 }
+
+.hover-lift-effect {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+}
+
+.hover-lift-effect:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--gray-6) !important;
+}
+
+.hover-lift-effect:active {
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}

@@ -3,6 +3,7 @@ import { Card, Flex, Text } from '@radix-ui/themes';
 import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import CollectionRoomsPanel from './CollectionRoomsPanel';
 import CollectionTasksPanel from './CollectionTasksPanel';
+import CollectionProceduresPanel from './CollectionProceduresPanel';
 
 interface CollectionContextPanelProps {
   scope: string;
@@ -69,6 +70,20 @@ export default function CollectionContextPanel({ scope }: CollectionContextPanel
         {openSection === 'tasks' && <CollectionTasksPanel scope={scope} />}
       </Card>
 
+      {/* PROCEDURES */}
+      <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+        <Flex
+          align="center"
+          justify="between"
+          py="1"
+          style={{ cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => toggleSection('procedures')}
+        >
+          <Text size="2" weight="bold">Procedures</Text>
+          {openSection === 'procedures' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+        </Flex>
+        {openSection === 'procedures' && <CollectionProceduresPanel scope={scope} />}
+      </Card>
     </Flex>
   );
 }

@@ -93,6 +93,32 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
         execCode(freshFilename, freshScope, currentCode, freshVars || null);
       }
     });
+
+    editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+      const currentCode = editorInstance.getValue();
+      const { filename } = executionContextRef.current;
+
+      const exportName = filename || 'query-export.ti';
+
+      try {
+        const blob = new Blob([currentCode], { type: 'text/plain;charset=utf-8' });
+        const downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = downloadUrl;
+        link.download = exportName;
+
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
+
+        console.log(`[Export Complete] downloaded file: "${exportName}"`);
+      } catch (err) {
+        console.error('Failed to download:', err);
+      }
+    });
   };
 
   return (

@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { type ProjectFile, type Room, type Workspace } from '../types';
+import { type ProjectFile, type Room, type Scope, type Workspace } from '../types';
 
 
 interface ActiveWorkspaceContextType {
@@ -9,8 +9,9 @@ interface ActiveWorkspaceContextType {
   activeFilename: string | null;
   activeContent: string | null;
   activeFile: ProjectFile | null;  // derived from activeFilename
-  scopes: string[];
+  scopes: Scope[];
   activeScope: string | null;
+  requireCommit: boolean;
   loading: boolean;
   isExecuting: boolean;
 
@@ -24,6 +25,7 @@ interface ActiveWorkspaceContextType {
   updateQueryVars: (filename: string, newQueryVars: string) => Promise<void>;
   execCode: (filename: string, scope: string, code: string, queryVars: string | null) => Promise<void>;
   refreshFiles: () => Promise<void>;
+  refreshScopes: () => Promise<void>;
   refreshRooms: () => Promise<void>;
   joinRoom: (scope: string, name: string, code: string) => Promise<void>;
   updateRoom: (scope: string, name: string, code: string) => Promise<void>;

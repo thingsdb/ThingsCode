@@ -252,7 +252,7 @@ func (s *Settings) FetchFiles(id string) ([]ProjectFile, error) {
 	return ScanWorkspaceFiles(workPath)
 }
 
-func (s *Settings) FetchScopes(id string, wsConn *websocket.Conn) ([]string, error) {
+func (s *Settings) FetchScopes(id string, wsConn *websocket.Conn) ([]Scope, error) {
 	w, err := s.getWorkspace(id)
 	if err != nil {
 		return nil, err
@@ -268,6 +268,7 @@ func (s *Settings) FetchScopes(id string, wsConn *websocket.Conn) ([]string, err
 	res, err := conn.QueryRaw("/n", `{
 		nodes_info: nodes_info(),
 		user_info: user_info(),
+		require_commit: is_int(node_info().load().get('commit_history')),
 	};`, nil)
 	if err != nil {
 		return nil, err
@@ -282,21 +283,48 @@ func (s *Settings) FetchScopes(id string, wsConn *websocket.Conn) ([]string, err
 		return cmp.Compare(a.Scope, b.Scope)
 	})
 
+	hasTiScope := 0
+
 	// Node:0..X + other scopes
-	scopes := make([]string, 0, len(data.NodesInfo)+len(data.UserInfo.Access)-1)
+	scopes := make([]Scope, 0, len(data.NodesInfo)+len(data.UserInfo.Access)-1)
 	for _, item := range data.UserInfo.Access {
 		if strings.HasPrefix(item.Scope, "@thingsdb") {
-			scopes = append(scopes, item.Scope)
+			scopes = append(scopes, Scope{
+				Name:          item.Scope,
+				RequireCommit: data.RequireCommit,
+			})
+			hasTiScope = 1
 		}
 	}
 	for _, item := range data.NodesInfo {
-		scopes = append(scopes, fmt.Sprintf("@node:%d", item.NodeID))
+		scopes = append(scopes, Scope{
+			Name: fmt.Sprintf("@node:%d", item.NodeID),
+		})
 	}
+
+	collections := make([]string, 0, len(data.UserInfo.Access)-1-hasTiScope)
 	for _, item := range data.UserInfo.Access {
 		if strings.HasPrefix(item.Scope, "@collection") {
-			scopes = append(scopes, item.Scope)
+			collections = append(collections, item.Scope)
 		}
 	}
+
+	requireCommits := make([]bool, len(collections))
+	if hasTiScope == 1 {
+		vars := map[string]any{"collections": collections}
+		res, err := conn.QueryRaw("/t", "collections.map(|scope| !is_err(try(history({first: 0, scope:,}))));", vars)
+		if err == nil {
+			_ = msgpack.Unmarshal(res, &requireCommits)
+		}
+	}
+
+	for idx, scope := range collections {
+		scopes = append(scopes, Scope{
+			Name:          scope,
+			RequireCommit: requireCommits[idx],
+		})
+	}
+
 	return scopes, nil
 }
 
@@ -477,7 +505,7 @@ func (s *Settings) DeleteFile(u *DeleteFile) error {
 			_ = os.Remove(resultPath)
 		}
 		filePath := filepath.Join(workPath, filename)
-		_ = os.Remove(filePath)
+		err = os.Remove(filePath)
 	}(workPath, u.Filename)
 	return s.Save()
 }
@@ -552,7 +580,7 @@ func (s *Settings) ExecCode(c *ExecCode, wsConn *websocket.Conn) (*Result, error
 	return &result, nil
 }
 
-func (s *Settings) GetNodeInfo(c *Scope, wsConn *websocket.Conn) (*NodeInfo, error) {
+func (s *Settings) GetNodeInfo(c *ForScope, wsConn *websocket.Conn) (*NodeInfo, error) {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {
 		return nil, err
@@ -569,7 +597,7 @@ func (s *Settings) GetNodeInfo(c *Scope, wsConn *websocket.Conn) (*NodeInfo, err
 	return GetNodeInfo(conn, c.Scope)
 }
 
-func (s *Settings) GetNodeCounters(c *Scope, wsConn *websocket.Conn) (*NodeCounters, error) {
+func (s *Settings) GetNodeCounters(c *ForScope, wsConn *websocket.Conn) (*NodeCounters, error) {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {
 		return nil, err
@@ -586,7 +614,7 @@ func (s *Settings) GetNodeCounters(c *Scope, wsConn *websocket.Conn) (*NodeCount
 	return GetNodeCounters(conn, c.Scope)
 }
 
-func (s *Settings) ResetNodeCounters(c *Scope, wsConn *websocket.Conn) error {
+func (s *Settings) ResetNodeCounters(c *ForScope, wsConn *websocket.Conn) error {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {
 		return err
@@ -603,7 +631,7 @@ func (s *Settings) ResetNodeCounters(c *Scope, wsConn *websocket.Conn) error {
 	return ResetNodeCounters(conn, c.Scope)
 }
 
-func (s *Settings) ShutdownNode(c *Scope, wsConn *websocket.Conn) error {
+func (s *Settings) ShutdownNode(c *ForScope, wsConn *websocket.Conn) error {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {
 		return err
@@ -723,7 +751,7 @@ func (s *Settings) LeaveRoom(c *LeaveRoom, wsConn *websocket.Conn) error {
 	return nil
 }
 
-func (s *Settings) FetchTasks(c *Scope, wsConn *websocket.Conn) ([]Task, error) {
+func (s *Settings) FetchTasks(c *ForScope, wsConn *websocket.Conn) ([]Task, error) {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {
 		return nil, err
@@ -735,6 +763,20 @@ func (s *Settings) FetchTasks(c *Scope, wsConn *websocket.Conn) ([]Task, error) 
 		return nil, err
 	}
 	return FetchTasks(conn, c.Scope)
+}
+
+func (s *Settings) FetchProcedures(c *ForScope, wsConn *websocket.Conn) ([]Procedure, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchProcedures(conn, c.Scope)
 }
 
 func (s *Settings) StartCleanTask() {
@@ -778,8 +820,11 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 	if ws.SSL {
 		config = &tls.Config{InsecureSkipVerify: false}
 	}
+
 	conn := thingsdb.NewConn(ws.Host, uint16(ws.Port), config)
-	conn.ReconnectionAttempts = 2
+	conn.ReconnectionAttempts = 1
+	conn.AutoReconnect = false
+
 	if err := conn.Connect(); err != nil {
 		return nil, err
 	}
@@ -806,6 +851,14 @@ func (s *Settings) getConn(ws *Workspace, wsConn *websocket.Conn) (*thingsdb.Con
 
 	s.registerNodeHandlers(ws.ID, conn)
 	s.WM.Register(ws.ID, wsConn)
+
+	// Re-join rooms
+	for _, room := range ws.Rooms {
+		if room.Room != nil {
+			room.Join(ws.ID, conn)
+
+		}
+	}
 
 	if nodeInfo, err := GetNodeInfo(conn, "/n"); err == nil {
 		ns := thingsdb.NodeStatus{
