@@ -1,14 +1,19 @@
 package main
 
 import (
+	"context"
 	"embed"
+	"errors"
 	"flag"
 	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
+	"time"
 
 	"github.com/thingsdb/ThingsCode/app"
 )
@@ -31,10 +36,9 @@ func main() {
 
 	settingsFile := *settingsFilePtr
 
-	app.InitSettings(settingsFile)
+	settings := app.InitSettings(settingsFile)
 
 	// This strips the "dist" prefix so files are served from root.
-	// Without this, you'd access /dist/index.html instead of /index.html
 	webFS, err := fs.Sub(webContent, "dist")
 	if err != nil {
 		log.Fatal(err)
@@ -46,11 +50,39 @@ func main() {
 	// Serve static files at the root path
 	http.Handle("/", fileServer)
 
-	// Serve websockets
+	// Serve WebSockets
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		app.ServeWs(w, r)
 	})
 
-	log.Printf("Server starting on :%d\n", *httpPortPtr)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *httpPortPtr), nil))
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", *httpPortPtr),
+		Handler: nil,
+	}
+	shutdownChan := make(chan os.Signal, 1)
+	signal.Notify(shutdownChan, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		log.Printf("Server starting on :%d\n", *httpPortPtr)
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("Critical webserver listener crash: %v", err)
+		}
+	}()
+
+	sig := <-shutdownChan
+	log.Printf("Captured signal (%v). Shutdown...\n", sig)
+
+	// Max 5 seconds to shutdown...
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("Server forced termination timeout error: %v\n", err)
+	} else {
+		log.Println("HTTP network listeners closed cleanly.")
+	}
+
+	settings.CleanTask(0)
+
+	log.Println("ThingsCode successfully halted.")
 }

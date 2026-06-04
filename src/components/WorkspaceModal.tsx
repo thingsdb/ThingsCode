@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Dialog, Flex, Text, TextField, IconButton, Button, Switch, RadioGroup, Box } from '@radix-ui/themes';
-import { type Workspace } from '../types';
+import { Dialog, Flex, Text, TextField, IconButton, Button, Switch, RadioGroup, Box, Select } from '@radix-ui/themes';
+import { type Workspace, type WorkspaceType } from '../types';
 import { useWorkspaces } from '../hooks';
 import { EyeNoneIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 
@@ -64,6 +64,38 @@ export default function WorkspaceModal() {
                 value={form.workfolder || ''}
                 onChange={e => setForm({ ...form, workfolder: e.target.value })}
               />
+            </label>
+
+            {/* Workspace Type Selection */}
+            <label>
+              <Text as="div" size="2" weight="bold" mb="-1">Type</Text>
+              <Text size="1" color="gray">Controls a visual badge to warn you of the current context</Text>
+              <Select.Root
+                value={form.type}
+                onValueChange={(val) => setForm({ ...form, type: val as WorkspaceType })}
+              >
+                <Select.Trigger style={{ width: '100%', cursor: 'pointer' }} />
+                <Select.Content>
+                  <Select.Item value="development">
+                    <Flex align="center" gap="2">
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--iris-9)' }} />
+                      Development
+                    </Flex>
+                  </Select.Item>
+                  <Select.Item value="staging">
+                    <Flex align="center" gap="2">
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--amber-9)' }} />
+                      Staging
+                    </Flex>
+                  </Select.Item>
+                  <Select.Item value="production">
+                    <Flex align="center" gap="2">
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--red-9)' }} />
+                      Production
+                    </Flex>
+                  </Select.Item>
+                </Select.Content>
+              </Select.Root>
             </label>
 
             <hr style={{ border: '0', borderTop: '1px solid var(--gray-5)' }} />

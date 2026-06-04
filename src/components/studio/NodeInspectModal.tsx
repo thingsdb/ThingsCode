@@ -16,7 +16,6 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
 
   if (!nodeInfo) return null;
 
-  // Formatting helpers for raw metrics
   const formatBytes = (bytes: number) => {
     if (!bytes) return '0 B';
     const mb = bytes / (1024 * 1024);
@@ -31,7 +30,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
     return `${d}d ${h}h ${m}m (approx. ${Math.floor(seconds).toLocaleString()}s)`;
   };
 
-  // Raw JSON Copy Engine
+  // Raw JSON Copy
   const handleCopyRawJson = async () => {
     try {
       await navigator.clipboard.writeText(JSON.stringify(nodeInfo, null, 2));
@@ -135,7 +134,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
               </DataList.Root>
             </Tabs.Content>
 
-            {/* DATABASE ENGINE */}
+            {/* ENGINE */}
             <Tabs.Content value="database">
               <DataList.Root size="2" style={{ '--data-list-label-width': '220px' } as React.CSSProperties}>
                 <DataList.Item><DataList.Label color="gray">Result Size Limit</DataList.Label><DataList.Value>{formatBytes(nodeInfo.resultSizeLimit)}</DataList.Value></DataList.Item>
@@ -173,11 +172,10 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
           </Box>
         </Tabs.Root>
 
-        {/* COMPONENT DRAWER CLOSING CONTROL PANEL */}
         <Flex justify="end" px="4" py="3" style={{ borderTop: '1px solid var(--gray-4)', backgroundColor: 'var(--gray-2)' }}>
           <Dialog.Close>
             <Button size="2" variant="ghost" color="gray" style={{ cursor: 'pointer' }}>
-              Close Panel
+              Close
             </Button>
           </Dialog.Close>
         </Flex>

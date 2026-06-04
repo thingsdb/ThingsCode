@@ -1,3 +1,5 @@
+export type WorkspaceType = 'development' | 'staging' | 'production';
+
 export interface Workspace {
   id: string;
   name: string;
@@ -11,6 +13,7 @@ export interface Workspace {
   workfolder: string;
   isTmp: boolean;
   isQuickConnect: boolean;
+  type?: WorkspaceType;
 }
 
 export interface Result {

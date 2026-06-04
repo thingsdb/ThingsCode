@@ -1,5 +1,5 @@
-import { Flex, Text, Button, Tooltip, IconButton, Separator, Box } from '@radix-ui/themes';
-import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon } from '@radix-ui/react-icons';
+import { Flex, Text, Button, Tooltip, IconButton, Separator, Box, Badge } from '@radix-ui/themes';
+import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspace, useWebSocket } from '../../hooks';
 import { useTheme } from '../../hooks';
 import ScopeSelector from './ScopeSelector';
@@ -100,8 +100,8 @@ export default function StudioTopBar() {
         }}
       >
         <ScopeSelector disabled={loading} />
-        <Flex align="center" gap="2">
 
+        <Flex align="center" gap="2">
           <Button
             size="2"
             color="green"
@@ -141,6 +141,28 @@ export default function StudioTopBar() {
           >
             <UpdateIcon width="16" height="16" />
           </IconButton>
+
+          {workspace.type && <Separator orientation="vertical" size="1" /> }
+
+          {workspace.type === 'production' && (
+            <Badge color="red" variant="surface" size="2" style={{ letterSpacing: '0.05em' }}>
+              <ExclamationTriangleIcon width="14" height="14" />
+              <Text size="1" weight="bold">PRODUCTION</Text>
+            </Badge>
+          )}
+
+          {workspace.type === 'staging' && (
+            <Badge color="amber" variant="surface" size="2" style={{ letterSpacing: '0.05em' }}>
+              <Text size="1" weight="bold">STAGING</Text>
+            </Badge>
+          )}
+
+          {workspace.type === 'development' && (
+            <Badge color="iris" variant="outline" size="2" style={{ letterSpacing: '0.05em', borderColor: 'var(--blue-5)' }}>
+              <Text size="1" weight="medium">DEVELOPMENT</Text>
+            </Badge>
+          )}
+
         </Flex>
 
         {isConfigOpen && (

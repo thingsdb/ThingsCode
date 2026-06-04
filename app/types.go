@@ -132,6 +132,7 @@ type Workspace struct {
 	LastAccess     time.Time `json:"lastAcces"`
 	IsTmp          bool      `json:"isTmp"`
 	IsQuickConnect bool      `json:"isQuickConnect"`
+	Type           string    `json:"type,omitempty"`
 
 	// Room & FileScopes only for local JSON, webserver by own request
 	FileScopes map[string]string `json:"fileScopes"`

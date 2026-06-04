@@ -21,7 +21,7 @@ import (
 // Settings
 var currentSettings *Settings
 
-func InitSettings(settingsFile string) {
+func InitSettings(settingsFile string) *Settings {
 	settings, err := loadOrCreateSettings(settingsFile)
 	if err != nil {
 		log.Fatal(err)
@@ -30,6 +30,8 @@ func InitSettings(settingsFile string) {
 	currentSettings = settings
 
 	currentSettings.StartCleanTask()
+
+	return currentSettings
 }
 
 func (s *Settings) Save() error {
@@ -77,7 +79,7 @@ func (s *Settings) FetchWorkspaces() []*Workspace {
 			Workfolder:     ws.Workfolder,
 			IsTmp:          ws.IsTmp,
 			IsQuickConnect: ws.IsQuickConnect,
-			FileScopes:     ws.FileScopes,
+			Type:           ws.Type,
 		}
 		decryptedList[i] = &decryptedWs
 	}
@@ -201,6 +203,7 @@ func (s *Settings) UpdateWorkspace(ws *Workspace) (*WorkspaceRes, error) {
 	w.SSL = ws.SSL
 	w.Workfolder = ws.Workfolder
 	w.AuthType = ws.AuthType
+	w.Type = ws.Type
 	w.LastAccess = time.Now()
 
 	switch ws.AuthType {
@@ -781,10 +784,11 @@ func (s *Settings) FetchProcedures(c *ForScope, wsConn *websocket.Conn) ([]Proce
 
 func (s *Settings) StartCleanTask() {
 	ticker := time.NewTicker(1 * time.Minute)
+	threshold := 4 * time.Hour
 	go func() {
 		log.Println("ThingsCode clean up engine daemon started successfully.")
 		for range ticker.C {
-			s.cleanTask()
+			s.CleanTask(threshold)
 		}
 	}()
 }
@@ -913,6 +917,7 @@ func loadOrCreateSettings(filename string) (*Settings, error) {
 				SSL:        false,
 				AuthType:   AuthTypeCredentials,
 				LastAccess: time.Now(),
+				Type:       "development",
 			}
 			workspace.GenerateID()
 
@@ -938,12 +943,11 @@ func loadOrCreateSettings(filename string) (*Settings, error) {
 	return cfg, nil
 }
 
-func (s *Settings) cleanTask() {
+func (s *Settings) CleanTask(threshold time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	now := time.Now()
-	threshold := 5 * time.Minute
 
 	var activeWorkspaces []*Workspace
 	var directoriesToWipe []string

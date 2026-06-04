@@ -85,7 +85,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           <Text size="2" weight="bold">Backups</Text>
           {openSection === 'backups' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
-        {openSection === 'backups' && <Box pb="3"><Text size="1" color="gray"><Em>Backup management coming soon...</Em></Text></Box>}
+        {openSection === 'backups' && <Box pb="3"><Text size="1" color="gray"><Em>Backups coming soon...</Em></Text></Box>}
       </Card>
 
       {/* MODULES */}
@@ -100,7 +100,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           <Text size="2" weight="bold">Modules</Text>
           {openSection === 'modules' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
-        {openSection === 'modules' && <Box pb="3"><Text size="1" color="gray"><Em>Cluster engine modules coming soon...</Em></Text></Box>}
+        {openSection === 'modules' && <Box pb="3"><Text size="1" color="gray"><Em>Modules coming soon...</Em></Text></Box>}
       </Card>
     </Flex>
   );

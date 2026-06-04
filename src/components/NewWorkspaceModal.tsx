@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Dialog, Flex, Text, TextField, IconButton, Button, Switch, RadioGroup, Box } from '@radix-ui/themes';
+import { Dialog, Flex, Text, TextField, IconButton, Button, Switch, RadioGroup, Box, Select } from '@radix-ui/themes';
 import { PlusIcon, EyeOpenIcon, EyeNoneIcon  } from '@radix-ui/react-icons';
 import { useWorkspaces } from '../hooks';
+import type { WorkspaceType } from '../types';
 
 export default function NewWorkspaceModal() {
   const { addWorkspace } = useWorkspaces();
@@ -16,6 +17,7 @@ export default function NewWorkspaceModal() {
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
   const [ssl, setSsl] = useState(false);
+  const [workspaceType, setWorkspaceType] = useState<WorkspaceType>('development');
 
   // Folder tracking state
   const [customWorkfolder, setCustomWorkfolder] = useState<string | null>(null);
@@ -39,6 +41,7 @@ export default function NewWorkspaceModal() {
     setUsername('');
     setPassword('');
     setToken('');
+    setWorkspaceType('development');
   };
 
   const handleSubmit = (e: React.ChangeEvent) => {
@@ -56,6 +59,7 @@ export default function NewWorkspaceModal() {
       workfolder,
       isTmp: workfolder === "",
       isQuickConnect: false,
+      type: workspaceType,
     });
 
     resetForm();
@@ -94,7 +98,7 @@ export default function NewWorkspaceModal() {
             <label>
               <Text as="div" size="2" weight="bold" mb="1">Workspace Name</Text>
               <TextField.Root
-                placeholder="e.g. Production Cluster"
+                placeholder="e.g. Production Node"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -112,6 +116,38 @@ export default function NewWorkspaceModal() {
                 }}
                 required
               />
+            </label>
+
+            {/* Workspace Type Selection */}
+            <label>
+              <Text as="div" size="2" weight="bold" mb="-1">Type</Text>
+              <Text size="1" color="gray">Controls a visual badge to warn you of the current context</Text>
+              <Select.Root
+                value={workspaceType}
+                onValueChange={(val) => setWorkspaceType(val as WorkspaceType)}
+              >
+                <Select.Trigger style={{ width: '100%', cursor: 'pointer' }} />
+                <Select.Content>
+                  <Select.Item value="development">
+                    <Flex align="center" gap="2">
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--iris-9)' }} />
+                      Development
+                    </Flex>
+                  </Select.Item>
+                  <Select.Item value="staging">
+                    <Flex align="center" gap="2">
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--amber-9)' }} />
+                      Staging
+                    </Flex>
+                  </Select.Item>
+                  <Select.Item value="production">
+                    <Flex align="center" gap="2">
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--red-9)' }} />
+                      Production
+                    </Flex>
+                  </Select.Item>
+                </Select.Content>
+              </Select.Root>
             </label>
 
             <hr style={{ border: '0', borderTop: '1px solid var(--gray-5)' }} />
