@@ -1,14 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, Flex, Button, Box, Text, TextField, Callout, Badge } from '@radix-ui/themes';
+import { useState, useEffect } from 'react';
+import { Dialog, Flex, Button, Box, Text, Callout, Badge, Tabs } from '@radix-ui/themes';
 import Editor from '@monaco-editor/react';
-import { InfoCircledIcon, ExclamationTriangleIcon, CodeIcon, LightningBoltIcon, EyeOpenIcon } from '@radix-ui/react-icons';
-import { useTheme } from '../../hooks';
-import type { Procedure, Room } from '../../types';
+import { InfoCircledIcon, ExclamationTriangleIcon, LightningBoltIcon, EyeOpenIcon, PlayIcon } from '@radix-ui/react-icons';
+import { useTheme, useWebSocket, useActiveWorkspaceId } from '../../hooks';
+import type { Procedure } from '../../types';
+import { parse } from 'lossless-json';
+import { errStr } from '../../utils';
 
 interface ProcedureModalProps {
   onClose: (open: boolean) => void;
   scope: string;
   procedure: Procedure;
+}
+
+interface Result {
+  data?: unknown;
+  error?: string;
+  warning?: string;
 }
 
 export default function ProcedureModal({
@@ -17,96 +25,318 @@ export default function ProcedureModal({
   procedure,
 }: ProcedureModalProps) {
   const { appearance } = useTheme();
-  if (procedure === null) {
-    return null;
-  }
+  const { emit } = useWebSocket();
+  const activeId = useActiveWorkspaceId();
+
+  const [activeTab, setActiveTab] = useState<string>('definition');
+  const [jsonArgs, setJsonArgs] = useState<string>('{}');
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [executionResult, setExecutionResult] = useState<Result | null>(null);
+
+  useEffect(() => {
+    if (procedure && Array.isArray(procedure.arguments)) {
+      const initialArgs: Record<string, null> = {};
+      procedure.arguments.forEach((argName) => {
+        initialArgs[argName] = null;
+      });
+      queueMicrotask(() => {
+        setJsonArgs(JSON.stringify(initialArgs, null, 2));
+        setJsonError(null);
+        setExecutionResult(null);
+        setActiveTab('definition');
+      });
+    }
+  }, [procedure]);
+
+  if (procedure === null) return null;
+
+  const handleJsonChange = (val: string | undefined) => {
+    if (val === undefined) {
+      return;
+    }
+    setJsonArgs(val);
+    if (!val.trim()) {
+      setJsonError(null);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(val);
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        setJsonError('Root element must be a valid JSON Object { ... }');
+      } else {
+        setJsonError(null);
+      }
+    } catch (err: unknown) {
+      setJsonError(errStr(err, "Failed to parse as JSON."));
+    }
+  };
+
+  const handleExecuteProcedure = async () => {
+    let parsedArgs: unknown;
+    try {
+      parsedArgs = parse(jsonArgs);
+    } catch {
+      setJsonError('Cannot execute: Invalid JSON syntax.');
+      return;
+    }
+
+    setIsRunning(true);
+    setExecutionResult(null);
+
+    try {
+      const response = await emit('RUN_PROCEDURE', {
+        id: activeId,
+        scope,
+        name: procedure.name,
+        args: parsedArgs
+      }, true) as Result;
+
+      setExecutionResult(response);
+    } catch (err: unknown) {
+      setExecutionResult({
+        error: errStr(err, "An unknown network error occurred during procedure execution.")
+      });
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
       <Dialog.Content aria-describedby={undefined} style={{
           width: '60vw',
           maxWidth: '1024px',
-          padding: '16px'
+          padding: '16px',
       }}>
-        <Dialog.Title size="3" mb="1">
-          <Flex align="center" justify="between">
-            <Flex align="center" gap="2">
-              <Badge size="2" color="iris" variant="surface" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {procedure.name}
-              </Badge>
-              <Text size="3" weight="bold">Details</Text>
+        <Box flexShrink="0" mb="2">
+          <Dialog.Title size="3" style={{ margin: 0 }}>
+            <Flex align="center" justify="between">
+              <Flex align="center" gap="2">
+                <Badge size="2" color="iris" variant="surface" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 'bold' }}>
+                  {procedure.name}
+                </Badge>
+                <Text size="3" weight="bold" color="gray">Procedure Details</Text>
+              </Flex>
+              {procedure.withSideEffects ? (
+                <Badge color="orange" variant="surface" size="2" style={{ gap: '4px', padding: '0 5px', flexShrink: 0 }}>
+                  <LightningBoltIcon width="12" height="12" />
+                  <Text size="2" weight="medium" style={{ fontSize: '10px', letterSpacing: '0.03em' }}>WSE</Text>
+                </Badge>
+              ) : (
+                <Badge color="gray" variant="outline" size="2" style={{ gap: '4px', padding: '0 5px', flexShrink: 0, borderColor: 'var(--gray-5)' }}>
+                  <EyeOpenIcon width="12" height="12" color="var(--gray-8)" />
+                  <Text size="2" weight="medium" style={{ fontSize: '10px', color: 'var(--gray-10)' }}>NSE</Text>
+                </Badge>
+              )}
             </Flex>
-            {procedure.withSideEffects ? (
-              <Badge color="orange" variant="surface" size="1" style={{ gap: '2px', padding: '0 5px', flexShrink: 0 }}>
-                <LightningBoltIcon width="11" height="11" />
-                <Text size="1" weight="medium" style={{ fontSize: '10px', letterSpacing: '0.03em' }}>WSE</Text>
-              </Badge>
-            ) : (
-              <Badge color="gray" variant="outline" size="1" style={{ gap: '2px', padding: '0 5px', flexShrink: 0, borderColor: 'var(--gray-5)' }}>
-                <EyeOpenIcon width="11" height="11" color="var(--gray-8)" />
-                <Text size="1" weight="medium" style={{ fontSize: '10px', color: 'var(--gray-10)' }}>NSE</Text>
-              </Badge>
-            )}
-          </Flex>
-        </Dialog.Title>
+          </Dialog.Title>
 
-        <Flex direction="column" gap="4" mb="4">
           {procedure.doc && (
-            <Flex align="start" gap="2" mt="4">
+            <Flex align="start" gap="2" mt="2">
               <InfoCircledIcon width="14" height="14" color="var(--iris-8)" style={{ marginTop: '2px', flexShrink: 0 }} />
-              <Text
-                size="2"
-                color="gray"
-                truncate
-                style={{ color: 'var(--gray-10)', fontStyle: 'italic'}}
-              >
+              <Text size="2" color="gray" style={{ color: 'var(--gray-10)', fontStyle: 'italic' }}>
                 {procedure.doc}
               </Text>
             </Flex>
           )}
+        </Box>
 
-          {procedure.definition ? (
-            <Box>
-              <Text as="label" size="1" weight="bold" color="gray">
-                Code Expression (Read-Only)
-              </Text>
-              <Box
-                style={{
-                  height: '50vh',
-                  border: '1px solid var(--gray-5)',
-                  borderRadius: 'var(--radius-2)',
-                  overflow: 'hidden',
-                  opacity: 0.75
-                }}
-              >
-                <Editor
-                  theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
-                  language="thingsdb"
-                  path=".ticode-procedure.ti"
-                  value={procedure.definition}
-                  options={{
-                    readOnly: true,
-                    domReadOnly: true,
-                    fontSize: 12,
-                    fontFamily: 'monospace',
-                    minimap: { enabled: false },
-                    automaticLayout: true,
-                    lineNumbers: 'off',
-                    scrollbar: { vertical: 'visible', horizontal: 'visible' },
-                    tabSize: 4,
+        <Tabs.Root value={activeTab} onValueChange={setActiveTab} style={{
+          height: '50vh',
+          display: 'flex',
+          flexDirection: 'column',
+          flexGrow: 1,
+          minHeight: 0
+        }}>
+          <Tabs.List size="2">
+            <Tabs.Trigger value="definition" style={{ cursor: 'pointer' }}>
+              Definition
+            </Tabs.Trigger>
+            <Tabs.Trigger value="execute" style={{ cursor: 'pointer' }}>
+              Execute
+            </Tabs.Trigger>
+          </Tabs.List>
+
+          <Box pt="2" style={{ flexGrow: 1, minHeight: 0 }}>
+
+            {/* TAB PANELS 1: CODE MONITOR VIEW */}
+            <Tabs.Content value="definition" style={{ height: '100%' }}>
+              {procedure.definition ? (
+                <Box
+                  style={{
+                    height: '100%',
+                    border: '1px solid var(--gray-5)',
+                    borderRadius: 'var(--radius-2)',
+                    overflow: 'hidden',
                   }}
-                />
-              </Box>
-            </Box>
-          ): (
-            <Callout.Root color="orange" size="1">
-              <Callout.Icon><ExclamationTriangleIcon /></Callout.Icon>
-              <Callout.Text>You cannot view this procedure because you lack "CHANGE" permissions on scope {scope}.</Callout.Text>
-            </Callout.Root>
-          )}
+                >
+                  <Editor
+                    theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
+                    language="thingsdb"
+                    path=".ticode-procedure-code.ti"
+                    value={procedure.definition}
+                    options={{
+                      readOnly: true,
+                      domReadOnly: true,
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                      minimap: { enabled: false },
+                      automaticLayout: true,
+                      lineNumbers: 'off',
+                      scrollbar: { vertical: 'visible', horizontal: 'visible' },
+                      tabSize: 4,
+                    }}
+                  />
+                </Box>
+              ) : (
+                <Callout.Root color="orange" size="1">
+                  <Callout.Icon><ExclamationTriangleIcon /></Callout.Icon>
+                  <Callout.Text>You cannot view this procedure because you lack "CHANGE" permissions on scope {scope}.</Callout.Text>
+                </Callout.Root>
+              )}
+            </Tabs.Content>
 
-        </Flex>
-        {/* FOOTER */}
-        <Flex gap="3" justify="end">
+            <Tabs.Content value="execute" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* SECTION 1: ARGUMENTS HEADER & EDITOR BLOCK */}
+              <Flex direction="column" gap="1" flexShrink="0">
+                <Flex justify="between" align="center">
+                  <Text size="1" weight="bold" color="gray">Arguments parameters (JSON Object)</Text>
+                  {jsonError ? (
+                    <Badge color="red" variant="soft" size="1">Syntax Error</Badge>
+                  ) : (
+                    <Badge color="green" variant="outline" size="1">Valid JSON</Badge>
+                  )}
+                </Flex>
+
+                <Box style={{ height: '140px', border: '1px solid var(--gray-5)', borderRadius: 'var(--radius-3)', overflow: 'hidden' }}>
+                  <Editor
+                    theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
+                    language="json"
+                    path=".ticode-procedure-args.json"
+                    value={jsonArgs}
+                    onChange={handleJsonChange}
+                    options={{
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                      minimap: { enabled: false },
+                      automaticLayout: true,
+                      lineNumbers: 'off',
+                      scrollbar: { vertical: 'visible', horizontal: 'visible' },
+                      tabSize: 2,
+                    }}
+                  />
+                </Box>
+
+                {jsonError && (
+                  <Text size="1" color="red" style={{ fontStyle: 'italic', wordBreak: 'break-all' }}>
+                    {jsonError}
+                  </Text>
+                )}
+              </Flex>
+
+              {/* SECTION 2: COMPACT TRIGGER ACTION ROW */}
+              <Flex justify="start" flexShrink="0">
+                <Button
+                  size="1"
+                  color={procedure.withSideEffects ? "orange" : "green"}
+                  variant="surface"
+                  loading={isRunning}
+                  disabled={jsonError !== null}
+                  onClick={handleExecuteProcedure}
+                  style={{ cursor: jsonError ? 'not-allowed' : 'pointer' }}
+                >
+                  <PlayIcon width="14" height="14" />
+                  Run
+                </Button>
+              </Flex>
+
+              {/* SECTION 3: CONDITIONAL STREAMING OUTPUT TERMINAL */}
+              <Flex direction="column" style={{ flexGrow: 1, minHeight: 0 }}>
+                <Text size="1" weight="bold" color="gray" mb="1">Response</Text>
+
+                <Box
+                  style={{
+                    flexGrow: 1,
+                    minHeight: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    border: '1px solid var(--gray-5)',
+                    borderRadius: 'var(--radius-3)',
+                    padding: '2px'
+                  }}
+                >
+                  {/* 1. STATE: AWAITING QUERY */}
+                  {!executionResult && !isRunning && (
+                    <Flex justify="center" align="center" style={{ height: '100%' }}>
+                      <Text size="1" style={{ fontFamily: 'monospace', color: 'var(--gray-8)' }}>
+                        No procedure execution result available.
+                      </Text>
+                    </Flex>
+                  )}
+
+                  {isRunning && (
+                    <Flex justify="center" align="center" style={{ height: '100%' }}>
+                      <Text size="1" color="iris" className="animate-pulse">
+                        Waiting for response...
+                      </Text>
+                    </Flex>
+                  )}
+
+                  {executionResult && (
+                    <Flex direction="column" gap="2" style={{ height: '100%', minHeight: 0 }}>
+
+                      {executionResult.error && (
+                        <Callout.Root color="red" size="1" style={{ flexShrink: 0 }}>
+                          <Callout.Icon><ExclamationTriangleIcon /></Callout.Icon>
+                          <Callout.Text style={{ wordBreak: 'break-word' }}>{executionResult.error}</Callout.Text>
+                        </Callout.Root>
+                      )}
+
+                      {executionResult.warning && (
+                        <Callout.Root color="amber" size="1" style={{ flexShrink: 0 }}>
+                          <Callout.Icon><InfoCircledIcon /></Callout.Icon>
+                          <Callout.Text style={{ wordBreak: 'break-word' }}>{executionResult.warning}</Callout.Text>
+                        </Callout.Root>
+                      )}
+
+                      {executionResult.data !== undefined && !executionResult.error && (
+                        <Box style={{
+                          flexGrow: 1,
+                          minHeight: 0,
+                          overflow: 'hidden'
+                        }}>
+                          <Editor
+                            theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
+                            language="json"
+                            path=".ticode-procedure-result.json"
+                            value={JSON.stringify(executionResult.data, null, 2)}
+                            options={{
+                              readOnly: true,
+                              domReadOnly: true,
+                              fontSize: 12,
+                              fontFamily: 'monospace',
+                              minimap: { enabled: false },
+                              automaticLayout: true,
+                              lineNumbers: 'off',
+                              glyphMargin: false,
+                              folding: true,
+                              lineDecorationsWidth: 0,
+                              lineNumbersMinChars: 0,
+                              scrollbar: { vertical: 'visible', horizontal: 'visible' },
+                            }}
+                          />
+                        </Box>
+                      )}
+                    </Flex>
+                  )}
+                </Box>
+              </Flex>
+            </Tabs.Content>
+          </Box>
+        </Tabs.Root>
+
+        <Flex gap="3" justify="end" flexShrink="0" style={{ paddingTop: '12px', marginTop: '12px' }}>
           <Dialog.Close>
             <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
               Close

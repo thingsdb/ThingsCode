@@ -220,6 +220,13 @@ type ExecCode struct {
 	Vars     map[string]any `json:"vars"`
 }
 
+type RunProcedure struct {
+	ID    string         `json:"id"`
+	Scope string         `json:"scope"`
+	Name  string         `json:"name"`
+	Args  map[string]any `json:"args"`
+}
+
 type Result struct {
 	Data    any       `json:"data"`
 	Warning string    `json:"warning,omitempty"`

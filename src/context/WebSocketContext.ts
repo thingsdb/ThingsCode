@@ -4,7 +4,8 @@ interface WebSocketContextType {
   status: string;
   emit: <TResponse = unknown, TPayload = unknown>(
     type: string,
-    payload?: TPayload
+    payload?: TPayload,
+    useLossless?: boolean,
   ) => Promise<TResponse>;
 }
 

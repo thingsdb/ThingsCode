@@ -223,11 +223,22 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			}
 		case "EXEC_CODE":
 			var execCode ExecCode
-			if err := json.Unmarshal(msg.Payload, &execCode); err != nil {
+			if err := UnmarshalSafeNumbers(msg.Payload, &execCode); err != nil {
 				_ = writeError(wsConn, &msg, err)
 				continue
 			}
 			if res, err := currentSettings.ExecCode(&execCode, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
+		case "RUN_PROCEDURE":
+			var runProcedure RunProcedure
+			if err := UnmarshalSafeNumbers(msg.Payload, &runProcedure); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.RunProcedure(&runProcedure, wsConn); err != nil {
 				_ = writeError(wsConn, &msg, err)
 			} else {
 				_ = writeResponse(wsConn, &msg, res)

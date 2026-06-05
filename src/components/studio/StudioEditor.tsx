@@ -85,38 +85,50 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     editorInstance: editor.IStandaloneCodeEditor,
     monaco: Monaco
   ) => {
-    editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-      const currentCode = editorInstance.getValue();
-      const { filename: freshFilename, activeScope: freshScope, queryVars: freshVars } = executionContextRef.current;
+    editorInstance.addAction({
+      id: 'thingsdb-execute-query',
+      label: 'Execute ThingsDB Query',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      precondition: 'editorTextFocus', // 🌟 CRITICAL: Only triggers if the cursor is active inside THIS editor
+      run: () => {
+        const currentCode = editorInstance.getValue();
+        const { filename: freshFilename, activeScope: freshScope, queryVars: freshVars } = executionContextRef.current;
 
-      if (freshFilename && freshFilename.endsWith('.ti') && freshScope !== null) {
-        execCode(freshFilename, freshScope, currentCode, freshVars || null);
+        if (freshFilename && freshFilename.endsWith('.ti') && freshScope !== null) {
+          execCode(freshFilename, freshScope, currentCode, freshVars || null);
+        }
       }
     });
 
-    editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-      const currentCode = editorInstance.getValue();
-      const { filename } = executionContextRef.current;
+    editorInstance.addAction({
+      id: 'thingsdb-export-file',
+      label: 'Export Query File',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      precondition: 'editorTextFocus', // 🌟 CRITICAL: Stops background instances from stealing this modal's hotkey
+      run: () => {
+        const currentCode = editorInstance.getValue();
+        const { filename } = executionContextRef.current;
 
-      const exportName = filename || 'query-export.ti';
+        const exportName = filename || 'query-export.ti';
 
-      try {
-        const blob = new Blob([currentCode], { type: 'text/plain;charset=utf-8' });
-        const downloadUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        try {
+          const blob = new Blob([currentCode], { type: 'text/plain;charset=utf-8' });
+          const downloadUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
 
-        link.href = downloadUrl;
-        link.download = exportName;
+          link.href = downloadUrl;
+          link.download = exportName;
 
-        document.body.appendChild(link);
-        link.click();
+          document.body.appendChild(link);
+          link.click();
 
-        document.body.removeChild(link);
-        URL.revokeObjectURL(downloadUrl);
+          document.body.removeChild(link);
+          URL.revokeObjectURL(downloadUrl);
 
-        console.log(`[Export Complete] downloaded file: "${exportName}"`);
-      } catch (err) {
-        console.error('Failed to download:', err);
+          console.log(`[Export Complete] downloaded file: "${exportName}"`);
+        } catch (err) {
+          console.error('Failed to download:', err);
+        }
       }
     });
   };

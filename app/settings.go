@@ -138,7 +138,7 @@ func (s *Settings) RemoveWorkspace(id string) error {
 	}
 
 	s.Workspaces = slices.Delete(s.Workspaces, idx, idx+1)
-	s.Save()
+	_ = s.Save()
 	return nil
 }
 
@@ -581,6 +581,35 @@ func (s *Settings) ExecCode(c *ExecCode, wsConn *websocket.Conn) (*Result, error
 		log.Printf("[E] Failed saving result [No workPath]: %v", err)
 	}
 
+	return &result, nil
+}
+
+func (s *Settings) RunProcedure(c *RunProcedure, wsConn *websocket.Conn) (*Result, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	res, err := conn.Run(c.Scope, c.Name, c.Args)
+	result := Result{
+		Ts: time.Now(),
+	}
+	if err != nil {
+		result.Error = err.Error()
+	} else {
+		sanitized, found := convertBinary(res)
+		if found {
+			result.Warning = "Warning: binary data was converted to base64"
+		}
+		result.Data = sanitized
+	}
 	return &result, nil
 }
 

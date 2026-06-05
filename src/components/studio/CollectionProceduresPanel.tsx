@@ -17,7 +17,7 @@ export default function CollectionProceduresPanel({ scope }: CollectionProcedure
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewProcedure, setViewProcedure] = useState<Procedure | null>(null)
+  const [viewProcedure, setViewProcedure] = useState<Procedure | null>(null);
 
   const fetchProcedures = useCallback(async () => {
     setIsLoading(true);

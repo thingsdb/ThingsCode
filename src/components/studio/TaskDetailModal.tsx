@@ -30,7 +30,7 @@ export default function TaskDetailModal({ taskId, scope, onClose }: TaskDetailMo
 
   useEffect(() => {
     if (taskId === null) {
-      setTask(null);
+      queueMicrotask(() => setTask(null));
       return;
     }
 
@@ -98,7 +98,6 @@ export default function TaskDetailModal({ taskId, scope, onClose }: TaskDetailMo
 
         {task && !isLoading && (
           <Flex direction="column" gap="4" mt="2">
-
             {task.error ? (
               <Flex
                 align="start"

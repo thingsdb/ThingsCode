@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { WebSocketContext } from '../context';
 import type { EmitEvent, NodeStatus, Warning, WebsocketStatus } from '../types';
 import { useEvent } from '../hooks';
+import { stringify } from 'lossless-json';
 
 
 interface WSResponsePayload<T = unknown> {
@@ -92,7 +93,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     };
   }, [appendWarning, setNodeStatus, appendEmitEvent]);
 
-  const emit = useCallback(<TResponse = unknown, TPayload = unknown>(type: string, payload?: TPayload): Promise<TResponse> => {
+  const emit = useCallback(<TResponse = unknown, TPayload = unknown>(type: string, payload?: TPayload, useLossless?: boolean): Promise<TResponse> => {
     return new Promise((resolve, reject) => {
       if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
         return reject(new Error('WebSocket is not connected'));
@@ -107,7 +108,11 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
       pendingRequestsRef.current.set(msgId, { resolve: resolve as (val: unknown) => void, reject });
 
-      socketRef.current.send(JSON.stringify(message));
+      if (useLossless) {
+        socketRef.current.send(stringify(message) || '');
+      } else {
+        socketRef.current.send(JSON.stringify(message));
+      }
 
       // 20-second timeout so promises don't hang forever if server dies
       setTimeout(() => {

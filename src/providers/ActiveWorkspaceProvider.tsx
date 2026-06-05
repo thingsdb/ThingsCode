@@ -4,6 +4,7 @@ import WorkspaceNotFound from '../components/WorkspaceNotFound';
 import { ActiveWorkspaceContext, WorkspaceContext } from '../context';
 import type { ProjectFile, Result, Room, Scope } from '../types';
 import { errStr } from '../utils';
+import { parse } from 'lossless-json';
 
 interface ActiveWorkspaceProviderProps {
   children: React.ReactNode;
@@ -270,14 +271,15 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
       f.filename === filename ? { ...f, result: undefined } : f
     ));
     try {
-      const vars = queryVars ? JSON.parse(queryVars) : null;
+      const vars = queryVars ? parse(queryVars) : null;
+      console.log(vars);
       const result = await emit('EXEC_CODE', {
         id: currentWorkspace.id,
         filename,
         scope,
         code,
         vars,
-      }) as Result;
+      }, true) as Result;
       setFiles(prev => prev.map(f =>
         f.filename === filename ? { ...f, result: result } : f
       ));

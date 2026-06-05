@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"reflect"
 	"slices"
 	"strings"
 )
@@ -169,4 +171,67 @@ func ScanWorkspaceFiles(rootFolder string) ([]ProjectFile, error) {
 	}
 
 	return projectFiles, nil
+}
+
+// UnmarshalSafeNumbers differ int and float for unpacking any
+func UnmarshalSafeNumbers(data []byte, v any) error {
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.UseNumber()
+
+	if err := decoder.Decode(v); err != nil {
+		return fmt.Errorf("json decode failed: %w", err)
+	}
+
+	fixNumericTypes(reflect.ValueOf(v))
+	return nil
+}
+
+func parseLosslessNumber(jn json.Number) any {
+	s := jn.String()
+	if strings.ContainsAny(s, ".eE") {
+		if f, err := jn.Float64(); err == nil {
+			return f
+		}
+	} else if i, err := jn.Int64(); err == nil {
+		return i
+	}
+	return s
+}
+
+func fixNumericTypes(v reflect.Value) {
+	if !v.IsValid() {
+		return
+	}
+	switch v.Kind() {
+	case reflect.Pointer, reflect.Interface:
+		if v.IsNil() {
+			return
+		}
+		elem := v.Elem()
+		if jn, ok := elem.Interface().(json.Number); ok {
+			v.Set(reflect.ValueOf(parseLosslessNumber(jn)))
+			return
+		}
+		fixNumericTypes(elem)
+	case reflect.Struct:
+		for i := 0; i < v.NumField(); i++ {
+			fixNumericTypes(v.Field(i))
+		}
+	case reflect.Map:
+		iter := v.MapRange()
+		for iter.Next() {
+			val := iter.Value()
+			if val.Kind() == reflect.Interface && !val.IsNil() {
+				if jn, ok := val.Elem().Interface().(json.Number); ok {
+					v.SetMapIndex(iter.Key(), reflect.ValueOf(parseLosslessNumber(jn)))
+					continue
+				}
+			}
+			fixNumericTypes(val)
+		}
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < v.Len(); i++ {
+			fixNumericTypes(v.Index(i))
+		}
+	}
 }
