@@ -342,6 +342,18 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "FETCH_TASK":
+			var req TaskReq
+			if err := json.Unmarshal(msg.Payload, &req); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchTask(&req, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
+
 		default:
 			_ = writeError(wsConn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
 		}

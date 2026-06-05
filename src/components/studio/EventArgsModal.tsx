@@ -43,7 +43,7 @@ export default function EventArgsModal({
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Content
-        style={{ maxWidth: 640, padding: '16px' }}
+        style={{ maxWidth: 700, padding: '16px' }}
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <Flex justify="between" align="start" mb="1">
@@ -96,23 +96,20 @@ export default function EventArgsModal({
           </Flex>
 
           <Editor
-            height="100%"
             theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
             language="json"
-            path={`ticode-eventargs-${eventItem.roomId}-${eventItem.event}.json`}
             value={formattedJson}
+            path=".ticode-eventargs.json"
             options={{
               readOnly: true,
               domReadOnly: true,
-              minimap: { enabled: false },
               fontSize: 12,
-              lineNumbers: 'on',
-              tabSize: 2,
+              fontFamily: 'monospace',
+              minimap: { enabled: false },
               automaticLayout: true,
-              folding: true,
-              wordWrap: 'on',
-              scrollbar: { vertical: 'visible', horizontal: 'hidden' },
-              contextmenu: true,
+              lineNumbers: 'off',
+              scrollbar: { vertical: 'visible', horizontal: 'visible' },
+              tabSize: 2,
             }}
           />
         </Box>

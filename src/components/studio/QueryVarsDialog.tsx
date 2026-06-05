@@ -47,28 +47,28 @@ export default function QueryVarsDialog({
         </Dialog.Description>
 
         <Box
+          mb="4"
           style={{
             height: '320px',
             border: '1px solid var(--gray-5)',
             borderRadius: 'var(--radius-2)',
             overflow: 'hidden',
           }}
-          mb="4"
         >
           <Editor
-            height="100%"
-            theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
             language="json"
-            path="ticode-execution-arguments.json"
+            path=".ticode-execution-arguments.json"
             value={localJson}
             onChange={handleEditorChange}
+            theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
             options={{
-              minimap: { enabled: false },
               fontSize: 12,
-              lineNumbers: 'on',
+              fontFamily: 'monospace',
+              minimap: { enabled: false },
+              automaticLayout: true,
+              lineNumbers: 'off',
+              scrollbar: { vertical: 'visible', horizontal: 'visible' },
               tabSize: 2,
-              automaticLayout: true, // For rendering inside modals that animate open
-              scrollbar: { vertical: 'visible', horizontal: 'hidden' },
             }}
           />
         </Box>

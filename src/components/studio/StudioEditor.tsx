@@ -145,10 +145,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
           fontFamily: 'monospace',
           minimap: { enabled: true },
           automaticLayout: true,
-          scrollbar: {
-            vertical: 'visible',
-            horizontal: 'visible'
-          },
+          scrollbar: { vertical: 'visible', horizontal: 'visible' },
           padding: { top: 12 },
           lineNumbers: 'on',
           tabSize: 4,

@@ -232,6 +232,20 @@ type ForScope struct {
 	Scope string `json:"scope"`
 }
 
+type TaskReq struct {
+	ID     string `json:"id"`
+	Scope  string `json:"scope"`
+	TaskId uint64 `json:"taskId"`
+}
+
+type TaskDetail struct {
+	Id      uint64 `msgpack:"id" json:"id"`
+	Owner   string `msgpack:"owner" json:"owner"`
+	Closure string `msgpack:"closure" json:"closure"`
+	At      string `msgpack:"at" json:"at,omitempty"`
+	Error   string `msgpack:"error" json:"error,omitempty"`
+}
+
 type SetNodeLogLevel struct {
 	ID       string `json:"id"`
 	Scope    string `json:"scope"`

@@ -4,6 +4,7 @@ import { InfoCircledIcon, LightningBoltIcon, UpdateIcon, EyeOpenIcon, Magnifying
 import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
 import type { Procedure } from '../../types';
 import { errStr } from '../../utils';
+import ProcedureModal from './ProcedureModal';
 
 interface CollectionProceduresPanelProps {
   scope: string;
@@ -16,6 +17,7 @@ export default function CollectionProceduresPanel({ scope }: CollectionProcedure
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewProcedure, setViewProcedure] = useState<Procedure | null>(null)
 
   const fetchProcedures = useCallback(async () => {
     setIsLoading(true);
@@ -45,9 +47,8 @@ export default function CollectionProceduresPanel({ scope }: CollectionProcedure
       const nameMatch = proc.name?.toLowerCase().includes(cleanedQuery);
       const docString = proc.doc || '';
       const docMatch = docString.toLowerCase().includes(cleanedQuery);
-      const definitionMatch = proc.definition?.includes(cleanedQuery);
 
-      return nameMatch || docMatch || definitionMatch;
+      return nameMatch || docMatch;
     });
   }, [procedures, searchQuery]);
 
@@ -73,7 +74,7 @@ export default function CollectionProceduresPanel({ scope }: CollectionProcedure
 
       {(procedures.length > 0 || searchQuery) && (
         <TextField.Root
-          placeholder="Search name, doc or definition..."
+          placeholder="Search name or doc..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           size="1"
@@ -159,6 +160,7 @@ export default function CollectionProceduresPanel({ scope }: CollectionProcedure
                 borderColor: 'var(--gray-4)',
                 cursor: 'pointer',
               }}
+              onClick={() => setViewProcedure(procedure)}
             >
               <Flex direction="column" gap="2">
                 <Flex align="center" justify="between" gap="2">
@@ -223,6 +225,13 @@ export default function CollectionProceduresPanel({ scope }: CollectionProcedure
           );
         })}
       </Flex>
+      {viewProcedure && (
+        <ProcedureModal
+          onClose={() => setViewProcedure(null)}
+          scope={scope}
+          procedure={viewProcedure}
+        />
+      )}
     </Flex>
   );
 }

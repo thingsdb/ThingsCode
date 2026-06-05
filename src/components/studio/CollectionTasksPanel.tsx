@@ -4,6 +4,7 @@ import { ExclamationTriangleIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
 import type { Task } from '../../types';
 import { errStr } from '../../utils';
+import TaskDetailModal from './TaskDetailModal';
 
 interface CollectionTasksPanelProps {
   scope: string;
@@ -15,6 +16,7 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [viewTaskId, setViewTaskId] = useState<number | null>(null);
 
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
@@ -22,6 +24,7 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
     try {
       const response = await emit('FETCH_TASKS', { id: activeId, scope }) as Task[];
       setTasks(response || []);
+      console.log('TASKS: ', response);
     } catch (err: unknown) {
       console.error("Failed to fetch tasks:", err);
       setFetchError(errStr(err, "Failed to fetch tasks."));
@@ -117,8 +120,10 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
               style={{
                 padding: '6px 8px',
                 backgroundColor: 'var(--gray-2)',
-                borderColor: hasError ? 'var(--orange-6)' : 'var(--gray-4)'
+                borderColor: hasError ? 'var(--orange-6)' : 'var(--gray-4)',
+                cursor: 'pointer',
               }}
+              onClick={() => setViewTaskId(task.id)}
             >
               <Flex direction="column" gap="2">
                 <Flex align="center" justify="between" gap="2">
@@ -164,6 +169,13 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
           );
         })}
       </Flex>
+      {viewTaskId && (
+        <TaskDetailModal
+          taskId={viewTaskId}
+          scope={scope}
+          onClose={() => setViewTaskId(null)}
+        />
+      )}
     </Flex>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, Flex, Button, Box, Text, TextField, Callout } from '@radix-ui/themes';
+import { Dialog, Flex, Button, Box, Text, TextField, Callout, Badge } from '@radix-ui/themes';
 import Editor from '@monaco-editor/react';
 import { InfoCircledIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useTheme } from '../../hooks';
@@ -10,7 +10,7 @@ interface RoomJoinModalProps {
   onOpenChange: (open: boolean) => void;
   scope: string;
   existingRooms: Room[];
-  selectedRoom: Room | null;
+  room: Room | null;
   onJoin: (name: string, code: string) => void;
 }
 
@@ -19,7 +19,7 @@ export default function RoomJoinModal({
   onOpenChange,
   scope,
   existingRooms,
-  selectedRoom,
+  room,
   onJoin,
 }: RoomJoinModalProps) {
   const { appearance } = useTheme();
@@ -27,18 +27,18 @@ export default function RoomJoinModal({
   const [code, setCode] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const mode: 'create' | 'edit' | 'view' = !selectedRoom
+  const mode: 'create' | 'edit' | 'view' = !room
     ? 'create'
-    : selectedRoom.errMsg
+    : room.errMsg
       ? 'edit'
       : 'view';
 
   useEffect(() => {
     if (isOpen) {
-      if (selectedRoom) {
+      if (room) {
         queueMicrotask(() => {
-          setName(selectedRoom.name);
-          setCode(selectedRoom.code || '');
+          setName(room.name);
+          setCode(room.code || '');
           setValidationError(null);
       });
       } else {
@@ -49,7 +49,7 @@ export default function RoomJoinModal({
         });
       }
     }
-  }, [isOpen, selectedRoom]);
+  }, [isOpen, room]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (mode !== 'create') {
@@ -89,7 +89,7 @@ export default function RoomJoinModal({
     // Is unique?
     if (mode === 'create') {
       const isDuplicate = existingRooms.some(
-        (room) => room.scope === scope && room.name.toLowerCase() === trimmedName.toLowerCase()
+        (r) => r.scope === scope && r.name.toLowerCase() === trimmedName.toLowerCase()
       );
       if (isDuplicate) {
         setValidationError(`A watched room named "${trimmedName}" already exists on this scope.`);
@@ -114,22 +114,27 @@ export default function RoomJoinModal({
   };
 
   const isValid = mode === 'view' || (!validationError && name.trim().length > 0 && code.trim().length > 0);
-  const titleText = mode === 'create' ? 'Join Room' : mode === 'edit' ? 'Update Join Room Code' : 'Room Connection Details';
+  const titleText = mode === 'create' ? 'Join Room' : mode === 'edit' ? 'Update Join Code' : 'Details';
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
-      <Dialog.Content style={{ maxWidth: 640, padding: '16px' }}>
-        <Dialog.Title size="3" mb="1">{titleText}</Dialog.Title>
-        <Dialog.Description size="2" color="gray" mb="4">
-          Scope: <Text weight="bold" color="gray" highContrast>{scope}</Text>.
-        </Dialog.Description>
+      <Dialog.Content aria-describedby={undefined} style={{ maxWidth: 640, padding: '16px' }}>
+        <Dialog.Title size="3" mb="1">
+          <Flex align="center" gap="2">
+            {room?.id && (
+              <Badge size="2" color="iris" variant="surface" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                ROOM #{room.id}
+              </Badge>
+            )}
+            <Text size="3" weight="bold">{titleText}</Text>
+          </Flex>
+        </Dialog.Title>
 
         <form onSubmit={handleSave}>
-          <Flex direction="column" gap="3" mb="4">
+          <Flex direction="column" gap="4" mb="4">
 
-            {/* NAME INPUT ROW (Disabled except during explicit creation loops) */}
             <Box>
-              <Text as="label" size="2" weight="bold" color="gray" mb="1">
+              <Text as="label" size="1" weight="bold" color="gray">
                 Watcher Name
               </Text>
               <TextField.Root
@@ -182,7 +187,7 @@ export default function RoomJoinModal({
 
             {/* MONACO EDITOR */}
             <Box>
-              <Text as="label" size="2" weight="bold" color="gray" mb="1">
+              <Text as="label" size="1" weight="bold" color="gray">
                 Code Expression {mode === 'view' && '(Read-Only)'}
               </Text>
               <Box
@@ -191,25 +196,25 @@ export default function RoomJoinModal({
                   border: '1px solid var(--gray-5)',
                   borderRadius: 'var(--radius-2)',
                   overflow: 'hidden',
-                  opacity: mode === 'view' ? 0.75 : 1 // Visually deemphasize when read-only
+                  opacity: mode === 'view' ? 0.75 : 1 // dimmed when read-only
                 }}
               >
                 <Editor
-                  height="100%"
-                  theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
                   language="thingsdb"
-                  path={`ticode-room-resolution-${scope.replace(/[^a-zA-Z0-9]/g, '')}.ti`}
+                  path=".ticode-room-join-code.ti"
                   value={code}
                   onChange={handleEditorChange}
+                  theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
                   options={{
                     readOnly: mode === 'view',
                     domReadOnly: mode === 'view',
-                    minimap: { enabled: false },
                     fontSize: 12,
-                    lineNumbers: 'on',
-                    tabSize: 2,
+                    fontFamily: 'monospace',
+                    minimap: { enabled: false },
                     automaticLayout: true,
+                    lineNumbers: 'off',
                     scrollbar: { vertical: 'visible', horizontal: 'hidden' },
+                    tabSize: 4,
                   }}
                 />
               </Box>
@@ -224,7 +229,7 @@ export default function RoomJoinModal({
             )}
           </Flex>
 
-          {/* DYNAMIC ACTION FOOTER */}
+          {/* FOOTER */}
           <Flex gap="3" justify="end">
             <Dialog.Close>
               <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>

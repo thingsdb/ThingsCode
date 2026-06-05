@@ -194,27 +194,21 @@ export default function StudioResultView() {
           </Flex>
 
           <Editor
-            height="100%"
             language="json"
-            path="ticode-query-result.json"
+            path=".ticode-query-result.json"
             value={formattedJson}
             theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
             loading={null}
             options={{
               readOnly: true,
               domReadOnly: true,
-              minimap: { enabled: false },
               fontSize: 12,
               fontFamily: 'monospace',
-              lineNumbers: 'on',
+              minimap: { enabled: false },
               automaticLayout: true,
-              folding: true,
-              wordWrap: 'on',
-              scrollbar: {
-                vertical: 'visible',
-                horizontal: 'visible'
-              },
-              contextmenu: true,
+              lineNumbers: 'on',
+              scrollbar: { vertical: 'visible', horizontal: 'visible' },
+              tabSize: 2,
             }}
           />
         </Box>

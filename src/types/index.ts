@@ -128,3 +128,4 @@ export interface Scope {
 
 export type StudioTab = 'result' | 'events' | 'log';
 export type WebsocketStatus = 'connecting' | 'connected' | 'disconnected';
+

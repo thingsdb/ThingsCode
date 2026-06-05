@@ -125,19 +125,20 @@ func (s *Settings) AddWorkspace(w *Workspace) (*WorkspaceRes, error) {
 func (s *Settings) RemoveWorkspace(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	targetIndex := -1
+	idx := -1
 	for i, w := range s.Workspaces {
 		if w.ID == id {
-			targetIndex = i
+			idx = i
 			break
 		}
 	}
 
-	if targetIndex == -1 {
+	if idx == -1 {
 		return fmt.Errorf("workspace with ID %s not found", id)
 	}
 
-	s.Workspaces = append(s.Workspaces[:targetIndex], s.Workspaces[targetIndex+1:]...)
+	s.Workspaces = slices.Delete(s.Workspaces, idx, idx+1)
+	s.Save()
 	return nil
 }
 
@@ -780,6 +781,20 @@ func (s *Settings) FetchProcedures(c *ForScope, wsConn *websocket.Conn) ([]Proce
 		return nil, err
 	}
 	return FetchProcedures(conn, c.Scope)
+}
+
+func (s *Settings) FetchTask(c *TaskReq, wsConn *websocket.Conn) (*TaskDetail, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchTask(conn, c.Scope, c.TaskId)
 }
 
 func (s *Settings) StartCleanTask() {

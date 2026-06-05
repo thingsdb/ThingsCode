@@ -186,7 +186,7 @@ export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProp
           scope={scope}
           existingRooms={filteredRooms}
           onJoin={selectedRoom === null ? handleOnJoin : handleOnUpdate}
-          selectedRoom={selectedRoom}
+          room={selectedRoom}
         />
       )}
     </Flex>
