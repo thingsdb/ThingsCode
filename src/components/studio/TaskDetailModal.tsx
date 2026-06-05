@@ -39,7 +39,6 @@ export default function TaskDetailModal({ taskId, scope, onClose }: TaskDetailMo
       setError(null);
       try {
         const response = await emit('FETCH_TASK', { id: activeId, scope, taskId }) as TaskDetail;
-        console.log('TASK: ', response);
         setTask(response);
       } catch (err: unknown) {
         console.error("Failed to fetch task details:", err);

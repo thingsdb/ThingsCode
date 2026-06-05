@@ -160,7 +160,7 @@ export default function ProcedureModal({
 
           <Box pt="2" style={{ flexGrow: 1, minHeight: 0 }}>
 
-            {/* TAB PANELS 1: CODE MONITOR VIEW */}
+            {/* CODE VIEW */}
             <Tabs.Content value="definition" style={{ height: '100%' }}>
               {procedure.definition ? (
                 <Box
@@ -198,7 +198,7 @@ export default function ProcedureModal({
             </Tabs.Content>
 
             <Tabs.Content value="execute" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* SECTION 1: ARGUMENTS HEADER & EDITOR BLOCK */}
+              {/* ARGUMENTS & EDITOR */}
               <Flex direction="column" gap="1" flexShrink="0">
                 <Flex justify="between" align="center">
                   <Text size="1" weight="bold" color="gray">Arguments parameters (JSON Object)</Text>
@@ -235,7 +235,7 @@ export default function ProcedureModal({
                 )}
               </Flex>
 
-              {/* SECTION 2: COMPACT TRIGGER ACTION ROW */}
+              {/* COMPACT TRIGGER RUN */}
               <Flex justify="start" flexShrink="0">
                 <Button
                   size="1"
@@ -251,7 +251,7 @@ export default function ProcedureModal({
                 </Button>
               </Flex>
 
-              {/* SECTION 3: CONDITIONAL STREAMING OUTPUT TERMINAL */}
+              {/* RESPONSE */}
               <Flex direction="column" style={{ flexGrow: 1, minHeight: 0 }}>
                 <Text size="1" weight="bold" color="gray" mb="1">Response</Text>
 
@@ -266,7 +266,6 @@ export default function ProcedureModal({
                     padding: '2px'
                   }}
                 >
-                  {/* 1. STATE: AWAITING QUERY */}
                   {!executionResult && !isRunning && (
                     <Flex justify="center" align="center" style={{ height: '100%' }}>
                       <Text size="1" style={{ fontFamily: 'monospace', color: 'var(--gray-8)' }}>
@@ -319,11 +318,8 @@ export default function ProcedureModal({
                               minimap: { enabled: false },
                               automaticLayout: true,
                               lineNumbers: 'off',
-                              glyphMargin: false,
-                              folding: true,
-                              lineDecorationsWidth: 0,
-                              lineNumbersMinChars: 0,
                               scrollbar: { vertical: 'visible', horizontal: 'visible' },
+                              tabSize: 2,
                             }}
                           />
                         </Box>

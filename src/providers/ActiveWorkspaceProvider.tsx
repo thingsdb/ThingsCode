@@ -272,7 +272,6 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     ));
     try {
       const vars = queryVars ? parse(queryVars) : null;
-      console.log(vars);
       const result = await emit('EXEC_CODE', {
         id: currentWorkspace.id,
         filename,

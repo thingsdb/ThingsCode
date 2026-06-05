@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Dialog, Flex, Button, Text, Tabs, Box, DataList, Badge, Code } from '@radix-ui/themes';
-import { CopyIcon, CheckIcon, InfoCircledIcon, Share2Icon, RocketIcon, GearIcon, Link2Icon, UpdateIcon } from '@radix-ui/react-icons';
+import { Dialog, Flex, Button, Text, Tabs, Box, DataList, Badge, Code, IconButton } from '@radix-ui/themes';
+import { InfoCircledIcon, Share2Icon, RocketIcon, GearIcon, Link2Icon, UpdateIcon } from '@radix-ui/react-icons';
 import type { NodeInfo } from '../../types';
 
 interface NodeInspectModalProps {
@@ -11,7 +11,6 @@ interface NodeInspectModalProps {
 }
 
 export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRefresh }: NodeInspectModalProps) {
-  const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (!nodeInfo) return null;
@@ -28,17 +27,6 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
     const h = Math.floor((seconds % (3600 * 24)) / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     return `${d}d ${h}h ${m}m (approx. ${Math.floor(seconds).toLocaleString()}s)`;
-  };
-
-  // Raw JSON Copy
-  const handleCopyRawJson = async () => {
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(nodeInfo, null, 2));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err: unknown) {
-      console.error('Failed to copy json snapshot:', err);
-    }
   };
 
   // Handle refresh
@@ -73,21 +61,17 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
           </Flex>
 
           <Flex align="center" gap="2">
-            <Button
+            <IconButton
               size="1"
               variant="ghost"
               color="gray"
               onClick={handleRefreshClick}
               disabled={isRefreshing}
+              title={isRefreshing ? 'Refreshing...' : 'Refresh'}
               style={{ cursor: isRefreshing ? 'not-allowed' : 'pointer' }}
             >
               <UpdateIcon className={isRefreshing ? 'animate-spin' : ''} />
-              {isRefreshing ? 'Refreshing...' : 'Refresh'}
-            </Button>
-            <Button size="1" variant="ghost" color="gray" onClick={handleCopyRawJson} style={{ cursor: 'pointer' }}>
-              {copied ? <CheckIcon color="green" /> : <CopyIcon />}
-              {copied ? 'Copied' : 'Copy JSON'}
-            </Button>
+            </IconButton>
           </Flex>
         </Flex>
 
@@ -106,9 +90,8 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
 
             {/* SYSTEM */}
             <Tabs.Content value="system">
-              <DataList.Root size="2" style={{ '--data-list-label-width': '200px' } as React.CSSProperties}>
+              <DataList.Root size="2">
                 <DataList.Item><DataList.Label color="gray">Node Name</DataList.Label><DataList.Value><Text weight="bold">{nodeInfo.nodeName}</Text></DataList.Value></DataList.Item>
-
                 <DataList.Item><DataList.Label color="gray">Node ID</DataList.Label><DataList.Value>{nodeInfo.nodeId}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Zone</DataList.Label><DataList.Value>{nodeInfo.zone}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Version</DataList.Label><DataList.Value style={{ fontFamily: 'monospace' }}>v{nodeInfo.version}</DataList.Value></DataList.Item>
@@ -124,7 +107,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
 
             {/* NETWORK */}
             <Tabs.Content value="network">
-              <DataList.Root size="2" style={{ '--data-list-label-width': '200px' } as React.CSSProperties}>
+              <DataList.Root size="2">
                 <DataList.Item><DataList.Label color="gray">Client API Port</DataList.Label><DataList.Value><Code weight="medium" color="gray">{nodeInfo.clientPort}</Code></DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">HTTP API Port</DataList.Label><DataList.Value><Code weight="medium" color="gray">{nodeInfo.httpApiPort}</Code></DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">HTTP Status Port</DataList.Label><DataList.Value><Code weight="medium" color="gray">{nodeInfo.httpStatusPort}</Code></DataList.Value></DataList.Item>
@@ -136,7 +119,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
 
             {/* ENGINE */}
             <Tabs.Content value="database">
-              <DataList.Root size="2" style={{ '--data-list-label-width': '220px' } as React.CSSProperties}>
+              <DataList.Root size="2">
                 <DataList.Item><DataList.Label color="gray">Result Size Limit</DataList.Label><DataList.Value>{formatBytes(nodeInfo.resultSizeLimit)}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Global Stored Change ID</DataList.Label><DataList.Value>{nodeInfo.globalStoredChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Global Committed Change ID</DataList.Label><DataList.Value>{nodeInfo.globalCommittedChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
@@ -160,7 +143,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
 
             {/* DEPENDENCIES & LIBRARIES */}
             <Tabs.Content value="libraries">
-              <DataList.Root size="2" style={{ '--data-list-label-width': '220px' } as React.CSSProperties}>
+              <DataList.Root size="2">
                 <DataList.Item><DataList.Label color="gray">libcleri (Grammar Engine)</DataList.Label><DataList.Value style={{ fontFamily: 'monospace' }}>{nodeInfo.libcleriVersion}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">libpcre2 (Regex Engine)</DataList.Label><DataList.Value style={{ fontFamily: 'monospace' }}>{nodeInfo.libpcre2Version}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">libuv (Async I/O Core)</DataList.Label><DataList.Value style={{ fontFamily: 'monospace' }}>{nodeInfo.libuvVersion}</DataList.Value></DataList.Item>

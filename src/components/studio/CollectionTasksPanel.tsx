@@ -24,7 +24,6 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
     try {
       const response = await emit('FETCH_TASKS', { id: activeId, scope }) as Task[];
       setTasks(response || []);
-      console.log('TASKS: ', response);
     } catch (err: unknown) {
       console.error("Failed to fetch tasks:", err);
       setFetchError(errStr(err, "Failed to fetch tasks."));
@@ -133,9 +132,6 @@ export default function CollectionTasksPanel({ scope }: CollectionTasksPanelProp
                     <Badge size="1" color={hasError ? 'orange' : 'iris'} variant="outline" style={{ fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
                       #{task.id}
                     </Badge>
-                    <Text size="1" color="gray" weight="medium" truncate>
-                      Owner: <Text color="gray" highContrast>{task.owner}</Text>
-                    </Text>
                   </Flex>
 
                   {/* Timestamp, solid to prevent time-strings from wrapping or breaking */}
