@@ -812,6 +812,20 @@ func (s *Settings) FetchProcedures(c *ForScope, wsConn *websocket.Conn) ([]Proce
 	return FetchProcedures(conn, c.Scope)
 }
 
+func (s *Settings) FetchEnums(c *ForScope, wsConn *websocket.Conn) ([]*Enum, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchEnums(conn, c.Scope)
+}
+
 func (s *Settings) FetchTask(c *TaskReq, wsConn *websocket.Conn) (*TaskDetail, error) {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {

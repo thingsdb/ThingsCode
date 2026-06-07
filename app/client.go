@@ -353,6 +353,17 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "FETCH_ENUMS":
+			var scope ForScope
+			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchEnums(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
 		case "FETCH_TASK":
 			var req TaskReq
 			if err := json.Unmarshal(msg.Payload, &req); err != nil {

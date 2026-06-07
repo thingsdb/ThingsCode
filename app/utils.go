@@ -235,3 +235,34 @@ func fixNumericTypes(v reflect.Value) {
 		}
 	}
 }
+
+func CategorizeType(val any) string {
+	if val == nil {
+		return "nil"
+	}
+
+	t := reflect.TypeOf(val)
+	switch t.Kind() {
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return "int"
+
+	case reflect.Float32, reflect.Float64:
+		return "float"
+
+	case reflect.String:
+		return "str"
+
+	case reflect.Slice, reflect.Array:
+		if t.Elem().Kind() == reflect.Uint8 {
+			return "bytes"
+		}
+		return "unknown"
+
+	case reflect.Map:
+		return "thing"
+
+	default:
+		return "unknown"
+	}
+}

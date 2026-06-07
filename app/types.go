@@ -289,6 +289,21 @@ type Procedure struct {
 	Arguments       []string `msgpack:"arguments" json:"arguments"`
 }
 
+type Enum struct {
+	Name       string  `msgpack:"name" json:"name"`
+	Default    string  `msgpack:"default" json:"default"`
+	CreatedAt  int64   `msgpack:"created_at" json:"createdAt"`
+	ModifiedAt int64   `msgpack:"modified_at,omitempty" json:"modifiedAt,omitempty"`
+	Members    [][]any `msgpack:"members" json:"members"`
+	Type       string  `json:"type"`
+	Methods    map[string]struct {
+		WithSideEffects bool     `msgpack:"with_side_effects" json:"withSideEffects"`
+		Definition      string   `msgpack:"definition" json:"definition"`
+		Doc             string   `msgpack:"doc" json:"doc,omitempty"`
+		Arguments       []string `msgpack:"arguments" json:"arguments"`
+	} `msgpack:"methods" json:"methods"`
+}
+
 type Scope struct {
 	Name          string `json:"name"`
 	RequireCommit bool   `json:"requireCommit"`

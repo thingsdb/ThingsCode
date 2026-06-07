@@ -78,7 +78,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
     deleteFile(filename);
   };
 
-  const handleSelectFile = (e: React.MouseEvent, filename: string) => {
+  const handleSelectFile = (_: React.MouseEvent, filename: string) => {
     setActiveFile(filename);
   };
 

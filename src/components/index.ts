@@ -7,3 +7,4 @@ export { default as NotificationToast } from './NotificationToast';
 export { default as WorkspaceNotFound } from './WorkspaceNotFound';
 export { default as NodeStatusBadge } from './NodeStatusBadge';
 export { default as Search } from './Search';
+export { default as HashIcon } from './HashIcon';

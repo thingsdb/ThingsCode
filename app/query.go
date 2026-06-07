@@ -80,6 +80,21 @@ func FetchProcedures(conn *thingsdb.Conn, scope string) ([]Procedure, error) {
 	return procedures, nil
 }
 
+func FetchEnums(conn *thingsdb.Conn, scope string) ([]*Enum, error) {
+	var enums []*Enum
+	res, err := conn.QueryRaw(scope, "enums_info();", nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &enums); err != nil {
+		return nil, err
+	}
+	for _, enum := range enums {
+		enum.Type = CategorizeType(enum.Members[0][1])
+	}
+	return enums, nil
+}
+
 func FetchTask(conn *thingsdb.Conn, scope string, taskId uint64) (*TaskDetail, error) {
 	var taskDetail TaskDetail
 	res, err := conn.QueryRaw(scope, `

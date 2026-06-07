@@ -122,6 +122,50 @@ export interface Procedure {
   arguments: string[];
 }
 
+
+// {
+//   "created_at": 1780854841,
+//   "default": "a",
+//   "enum_id": 64,
+//   "members": [
+//     [
+//       "a",
+//       0
+//     ]
+//   ],
+//   "methods": {
+//     "x": {
+//       "arguments": [],
+//       "definition": "|| nil",
+//       "doc": "",
+//       "with_side_effects": false
+//     }
+//   },
+//   "modified_at": null,
+//   "name": "E"
+// }
+
+export interface Method {
+  withSideEffects: boolean;
+  definition: string;
+  doc?: string;  // only when docstring is available
+  arguments: string[];
+}
+
+export interface ThingId {
+  '#': number;
+}
+
+export interface Enum {
+  name: string;
+  default: string;
+  createdAt: number;
+  modifiedAt?: number;
+  methods: Record<string, Method>;
+  members: [string, string | number | ThingId][];
+  type: EnumType;
+}
+
 export interface Scope {
 	name: string;
 	requireCommit: boolean;
@@ -129,6 +173,7 @@ export interface Scope {
 
 export type StudioTab = 'result' | 'events' | 'log';
 export type WebsocketStatus = 'connecting' | 'connected' | 'disconnected';
+export type EnumType = 'int' | 'float' | 'str' | 'bytes' | 'thing';
 
 export enum SearchIndexType {
   File = 'FILE',

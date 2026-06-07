@@ -4,6 +4,7 @@ import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import CollectionRoomsPanel from './CollectionRoomsPanel';
 import TasksPanel from './TasksPanel';
 import ProceduresPanel from './ProceduresPanel';
+import EnumsPanel from './EnumsPanel';
 
 interface CollectionContextPanelProps {
   scope: string;
@@ -84,6 +85,22 @@ export default function CollectionContextPanel({ scope }: CollectionContextPanel
         </Flex>
         {openSection === 'procedures' && <ProceduresPanel scope={scope} />}
       </Card>
+
+      {/* ENUMS */}
+      <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+        <Flex
+          align="center"
+          justify="between"
+          py="1"
+          style={{ cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => toggleSection('enums')}
+        >
+          <Text size="2" weight="bold">Enums</Text>
+          {openSection === 'enums' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+        </Flex>
+        {openSection === 'enums' && <EnumsPanel scope={scope} />}
+      </Card>
+
     </Flex>
   );
 }
