@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Card, Container, Flex, Grid, Heading, Text, TextField, IconButton, Tooltip, Button } from '@radix-ui/themes';
+import { Box, Card, Container, Flex, Grid, Heading, Text, TextField, IconButton, Tooltip, Button, Badge } from '@radix-ui/themes';
 import { MagnifyingGlassIcon, Pencil2Icon, TrashIcon, Link2Icon, SunIcon, MoonIcon, Cross2Icon } from '@radix-ui/react-icons';
 import { useWorkspaces, useTheme } from '../hooks';
 import { NewWorkspaceModal, WorkspaceModal, ConfirmDialog } from './';
@@ -103,6 +103,24 @@ export default function WorkspaceLauncher() {
                         <Text size="1" color="gray">
                             {ws.host}:{ws.port}
                         </Text>
+                        {ws.type === 'production' && (
+                          <Badge color="red" variant="surface" size="1" style={{ letterSpacing: '0.05em' }}>
+                            <Text size="1" weight="bold">PRD</Text>
+                          </Badge>
+                        )}
+
+                        {ws.type === 'staging' && (
+                          <Badge color="amber" variant="surface" size="1" style={{ letterSpacing: '0.05em' }}>
+                            <Text size="1" weight="bold">STG</Text>
+                          </Badge>
+                        )}
+
+                        {ws.type === 'development' && (
+                          <Badge color="iris" variant="outline" size="1" style={{ letterSpacing: '0.05em' }}>
+                            <Text size="1" weight="medium">DEV</Text>
+                          </Badge>
+                        )}
+
                     </Flex>
                   </Box>
 
