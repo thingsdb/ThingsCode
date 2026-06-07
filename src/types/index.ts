@@ -130,3 +130,13 @@ export interface Scope {
 export type StudioTab = 'result' | 'events' | 'log';
 export type WebsocketStatus = 'connecting' | 'connected' | 'disconnected';
 
+export enum SearchIndexType {
+  File = 'FILE',
+  Scope = 'SCOPE',
+}
+
+export interface SearchRecord {
+  id: string;
+  name: string;
+  type: SearchIndexType;
+}

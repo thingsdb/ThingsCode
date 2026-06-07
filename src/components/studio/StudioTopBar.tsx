@@ -1,19 +1,22 @@
 import { Flex, Text, Button, Tooltip, IconButton, Separator, Box, Badge } from '@radix-ui/themes';
-import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspace, useWebSocket } from '../../hooks';
 import { useTheme } from '../../hooks';
 import ScopeSelector from './ScopeSelector';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import QueryVarsDialog from './QueryVarsDialog';
 import AboutModal from '../AboutModal';
+import { Search } from '..';
+import { SearchIndexType, type SearchRecord } from '../../types';
 
 export default function StudioTopBar() {
   const { status, emit } = useWebSocket();
-  const { loading, activeScope, activeFile, updateQueryVars, activeFilename, refreshScopes, activeContent, workspace, isExecuting, execCode } = useActiveWorkspace();
+  const { loading, activeScope, activeFile, setActiveScopeState, setActiveFile, updateQueryVars, activeFilename, refreshScopes, activeContent, workspace, isExecuting, execCode, scopes, files } = useActiveWorkspace();
   const { appearance, toggleAppearance } = useTheme();
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const isTiCode = activeFilename && activeFilename.endsWith('.ti');
 
@@ -42,6 +45,32 @@ export default function StudioTopBar() {
       setIsRefreshing(false);
     }
   };
+
+  const handleSearchSelect = (selection: SearchRecord) => {
+    if (selection.type === SearchIndexType.File) {
+      setActiveFile(selection.name);
+    } else if (selection.type === SearchIndexType.Scope) {
+      setActiveScopeState(selection.name);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === 'p') {
+        event.preventDefault();
+        const radixDialogExists = document.querySelector('[data-state="open"][class*="DialogContent"]');
+        const radixOverlayExists = document.querySelector('[class*="DialogOverlay"]');
+
+        if (!isSearchOpen && !radixDialogExists && !radixOverlayExists) {
+          setIsSearchOpen(true);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isSearchOpen]);
 
   return (
     <Flex
@@ -215,6 +244,21 @@ export default function StudioTopBar() {
 
         <Separator orientation="vertical" size="1" />
 
+        <Tooltip content="Search files or scopes (Ctrl+p)">
+          <Button
+            variant="ghost"
+            onClick={() => setIsSearchOpen(true)}
+            disabled={isSearchOpen}
+            size="2"
+            style={{ cursor: 'pointer' }}
+            color="gray"
+          >
+            <MagnifyingGlassIcon width="16" height="16" />
+          </Button>
+        </Tooltip>
+
+        <Separator orientation="vertical" size="1" />
+
         <Tooltip content={appearance === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
           <Button
             variant="ghost"
@@ -242,6 +286,14 @@ export default function StudioTopBar() {
         </Tooltip>
       </Flex>
       <AboutModal isOpen={isAboutOpen} onOpenChange={setIsAboutOpen} />
+      {isSearchOpen && (
+        <Search
+          files={files}
+          scopes={scopes}
+          onClose={() => setIsSearchOpen(false)}
+          onSelect={handleSearchSelect}
+        />
+      )}
     </Flex>
   );
 }
