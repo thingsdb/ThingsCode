@@ -240,7 +240,7 @@ export default function ProcedureModal({
                 <Button
                   size="1"
                   color={procedure.withSideEffects ? "orange" : "green"}
-                  variant="surface"
+                  variant="solid"
                   loading={isRunning}
                   disabled={jsonError !== null}
                   onClick={handleExecuteProcedure}
