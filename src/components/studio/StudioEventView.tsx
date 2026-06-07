@@ -164,7 +164,7 @@ export default function StudioEventView() {
                       {item.localTime}
                     </Text>
                     <Badge color="iris" variant="outline" size="1" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      #{item.roomId}
+                      #{item.roomId} {item.scope}
                     </Badge>
                     <Text size="1" weight="bold" truncate style={{ fontFamily: 'monospace', color: 'var(--gray-12)' }}>
                       {item.event}

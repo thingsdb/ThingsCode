@@ -100,6 +100,7 @@ export interface NodeInfo {
 export interface EmitEvent {
   workspaceID: string;
   roomId: number;
+  scope: string;
   ts: number;
   event: string;
   args: unknown[];

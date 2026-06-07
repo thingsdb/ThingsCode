@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Card, Flex, Text } from '@radix-ui/themes';
 import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import CollectionRoomsPanel from './CollectionRoomsPanel';
-import CollectionTasksPanel from './CollectionTasksPanel';
-import CollectionProceduresPanel from './CollectionProceduresPanel';
+import TasksPanel from './TasksPanel';
+import ProceduresPanel from './ProceduresPanel';
 
 interface CollectionContextPanelProps {
   scope: string;
@@ -67,7 +67,7 @@ export default function CollectionContextPanel({ scope }: CollectionContextPanel
           <Text size="2" weight="bold">Tasks</Text>
           {openSection === 'tasks' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
-        {openSection === 'tasks' && <CollectionTasksPanel scope={scope} />}
+        {openSection === 'tasks' && <TasksPanel scope={scope} />}
       </Card>
 
       {/* PROCEDURES */}
@@ -82,7 +82,7 @@ export default function CollectionContextPanel({ scope }: CollectionContextPanel
           <Text size="2" weight="bold">Procedures</Text>
           {openSection === 'procedures' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
-        {openSection === 'procedures' && <CollectionProceduresPanel scope={scope} />}
+        {openSection === 'procedures' && <ProceduresPanel scope={scope} />}
       </Card>
     </Flex>
   );

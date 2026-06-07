@@ -2,6 +2,7 @@ import { Box, Flex, Text, Heading, ScrollArea } from '@radix-ui/themes';
 import { useActiveWorkspace } from '../../hooks';
 import NodeContextPanel from './NodeContextPanel';
 import CollectionContextPanel from './CollectionContextPanel';
+import ThingsDBContextPanel from './ThingsDBContextPanel';
 
 export default function StudioRightPanel() {
   const { activeScope } = useActiveWorkspace();
@@ -31,9 +32,7 @@ export default function StudioRightPanel() {
         <Box p="1">
           {isNode && <NodeContextPanel key={`context-node-${activeScope}`} scope={activeScope} />}
           {isCollection && <CollectionContextPanel key={`context-node-${activeScope}`} scope={activeScope} />}
-          {isThingsDB && (
-            <Text size="2" color="gray">ThingsDB coming soon...</Text>
-          )}
+          {isThingsDB && <ThingsDBContextPanel key={`context-node-${activeScope}`} scope={activeScope} />}
         </Box>
       </ScrollArea>
     </Flex>

@@ -14,6 +14,7 @@ func OnEmitHandler(room *thingsdb.Room, event string, args []any) {
 		payload := WSEmitPayload{
 			WorkspaceID: workspaceID,
 			RoomID:      room.Id(),
+			Scope: 		 room.Scope(),
 			Ts:          time.Now(),
 			Event:       event,
 			Args:        args,

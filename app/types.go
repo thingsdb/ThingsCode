@@ -161,6 +161,7 @@ type WSPackage struct {
 type WSEmitPayload struct {
 	WorkspaceID string    `json:"workspaceID"`
 	RoomID      uint64    `json:"roomId"`
+	Scope       string    `json:"scope"`
 	Ts          time.Time `json:"ts"`
 	Event       string    `json:"event"`
 	Args        []any     `json:"args"`
