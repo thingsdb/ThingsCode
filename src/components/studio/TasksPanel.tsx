@@ -40,7 +40,7 @@ export default function TasksPanel({ scope }: TasksPanelProps) {
     <Flex direction="column" gap="3">
       <Flex justify="between" align="center" mt="2">
         <Text size="1" color="gray" weight="bold" mt="2">
-          TASKS ({tasks.length})
+          TASKS ({isLoading ? '...' : tasks.length})
         </Text>
         <Tooltip content="Refresh tasks list">
           <IconButton

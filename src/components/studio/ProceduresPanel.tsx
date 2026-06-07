@@ -56,7 +56,7 @@ export default function ProceduresPanel({ scope }: ProceduresPanelProps) {
     <Flex direction="column" gap="3">
       <Flex justify="between" align="center" mt="2">
         <Text size="1" color="gray" weight="bold" mt="2">
-          PROCEDURES ({filtered.length})
+          PROCEDURES ({isLoading ? '...' : filtered.length})
         </Text>
         <Tooltip content="Refresh procedures list">
           <IconButton
