@@ -1,8 +1,8 @@
 import { Box, Callout, Flex, Text, IconButton, Tooltip } from '@radix-ui/themes';
-import { InfoCircledIcon, ExclamationTriangleIcon, CopyIcon, CheckIcon, ClockIcon } from '@radix-ui/react-icons';
+import { InfoCircledIcon, ExclamationTriangleIcon, CopyIcon, CheckIcon, ClockIcon, FileTextIcon, CodeIcon } from '@radix-ui/react-icons';
 import Editor from '@monaco-editor/react';
 import { useActiveWorkspace, useTheme } from '../../hooks';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Result } from '../../types';
 
 const renderTextWithLinks = (text: string) => {
@@ -36,17 +36,28 @@ export default function StudioResultView() {
   const { appearance } = useTheme();
   const { activeFile, isExecuting } = useActiveWorkspace();
   const [copied, setCopied] = useState(false);
+  const [viewRawString, setViewRawString] = useState(false);
 
   const result = useMemo<Result | null>(() => {
     return activeFile?.result || null;
   }, [activeFile?.result]);
 
-  const formattedJson = useMemo(() => {
-    if (result?.data === undefined) {
-      return '';
+  const isStringWithNewlines = useMemo(() => {
+    return typeof result?.data === 'string' && (result.data.includes('\n') || result.data.includes('\t'));
+  }, [result]);
+
+  useEffect(() => {
+    queueMicrotask(() => setViewRawString(false));
+  }, [result]);
+
+  const outputContent = useMemo(() => {
+    if (result?.data === undefined) return '';
+
+    if (viewRawString && typeof result.data === 'string') {
+      return result.data;
     }
     return JSON.stringify(result.data, null, 2);
-  }, [result]);
+  }, [result, viewRawString]);
 
   const localTime = useMemo(() => {
     if (!result?.ts) {
@@ -66,15 +77,15 @@ export default function StudioResultView() {
   }, [result]);
 
   const handleCopyToClipboard = async () => {
-    if (!formattedJson) {
+    if (!outputContent) {
       return;
     }
     try {
-      await navigator.clipboard.writeText(formattedJson);
+      await navigator.clipboard.writeText(outputContent);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset icon after 2 seconds
     } catch (err) {
-      console.error('Failed to copy json execution result payload:', err);
+      console.error('Failed to copy execution result payload:', err);
     }
   };
 
@@ -152,6 +163,20 @@ export default function StudioResultView() {
               pointerEvents: 'none'
             }}
           >
+            {isStringWithNewlines && (
+              <Tooltip content={viewRawString ? "View as JSON Object" : "View as multi-line string"}>
+                <IconButton
+                  size="1"
+                  variant={viewRawString ? "solid" : "soft"}
+                  color="iris"
+                  onClick={() => setViewRawString(!viewRawString)}
+                  style={{ cursor: 'pointer', boxShadow: 'var(--shadow-1)', pointerEvents: 'auto' }}
+                >
+                  {viewRawString ? <FileTextIcon width="14" height="14" /> : <CodeIcon width="14" height="14" />}
+                </IconButton>
+              </Tooltip>
+            )}
+
             {localTime && (
               <Tooltip content={`Received at: ${result.ts}`}>
                 <Flex
@@ -175,7 +200,7 @@ export default function StudioResultView() {
               </Tooltip>
             )}
 
-            <Tooltip content={copied ? "Copied!" : "Copy JSON to clipboard"}>
+            <Tooltip content={copied ? "Copied!" : "Copy content to clipboard"}>
               <IconButton
                 size="1"
                 variant="soft"
@@ -194,9 +219,9 @@ export default function StudioResultView() {
           </Flex>
 
           <Editor
-            language="json"
-            path=".ticode-query-result.json"
-            value={formattedJson}
+            language={viewRawString ? "thingsdb" : "json"}
+            path={viewRawString ? ".ticode-query-result.ti" : ".ticode-query-result.json"}
+            value={outputContent}
             theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
             loading={null}
             options={{

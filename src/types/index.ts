@@ -122,29 +122,6 @@ export interface Procedure {
   arguments: string[];
 }
 
-
-// {
-//   "created_at": 1780854841,
-//   "default": "a",
-//   "enum_id": 64,
-//   "members": [
-//     [
-//       "a",
-//       0
-//     ]
-//   ],
-//   "methods": {
-//     "x": {
-//       "arguments": [],
-//       "definition": "|| nil",
-//       "doc": "",
-//       "with_side_effects": false
-//     }
-//   },
-//   "modified_at": null,
-//   "name": "E"
-// }
-
 export interface Method {
   withSideEffects: boolean;
   definition: string;

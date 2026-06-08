@@ -142,8 +142,7 @@ type Workspace struct {
 }
 
 type WorkspaceRes struct {
-	ID         string `json:"id"`
-	Workfolder string `json:"workfolder"`
+	ID string `json:"id"`
 }
 
 type WSMessage struct {

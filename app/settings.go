@@ -66,6 +66,10 @@ func (s *Settings) FetchWorkspaces() []*Workspace {
 		if err != nil {
 			log.Printf("Error decrypting: %v", err)
 		}
+		workFolder := ws.Workfolder
+		if ws.IsTmp {
+			workFolder = ""
+		}
 		decryptedWs := Workspace{
 			ID:             ws.ID,
 			Name:           ws.Name,
@@ -76,7 +80,7 @@ func (s *Settings) FetchWorkspaces() []*Workspace {
 			Password:       password,
 			Token:          token,
 			SSL:            ws.SSL,
-			Workfolder:     ws.Workfolder,
+			Workfolder:     workFolder,
 			IsTmp:          ws.IsTmp,
 			IsQuickConnect: ws.IsQuickConnect,
 			Type:           ws.Type,
@@ -112,8 +116,7 @@ func (s *Settings) AddWorkspace(w *Workspace) (*WorkspaceRes, error) {
 	s.Workspaces = append(s.Workspaces, w)
 
 	res := WorkspaceRes{
-		ID:         w.ID,
-		Workfolder: w.Workfolder,
+		ID: w.ID,
 	}
 
 	if err := s.Save(); err != nil {
@@ -225,8 +228,7 @@ func (s *Settings) UpdateWorkspace(ws *Workspace) (*WorkspaceRes, error) {
 	}
 
 	res := WorkspaceRes{
-		ID:         w.ID,
-		Workfolder: w.Workfolder,
+		ID: w.ID,
 	}
 
 	return &res, nil

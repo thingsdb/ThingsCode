@@ -4,8 +4,9 @@ import { UpdateIcon, DividerHorizontalIcon, Cross2Icon, QuoteIcon, CubeIcon, Tok
 import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
 import type { Enum } from '../../types';
 import { errStr } from '../../utils';
-import HashIcon from '../HashIcon';
-// import EnumModal from './EnumModal';
+import { HashIcon } from '../icons';
+import EnumModal from './EnumModal';
+
 
 interface EnumsPanelProps {
   scope: string;
@@ -190,14 +191,12 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
           );
         })}
       </Flex>
-      {viewEnum && <>{null}</>}
-      {/* {viewEnum && (
+      {viewEnum && (
         <EnumModal
           onClose={() => setViewEnum(null)}
-          scope={scope}
-          enum={viewEnum}
+          enu={viewEnum}
         />
-      )} */}
+      )}
     </Flex>
   );
 }

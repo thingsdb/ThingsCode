@@ -49,10 +49,15 @@ func main() {
 
 	// Serve static files at the root path
 	http.Handle("/", fileServer)
+	// for example; /workspace/37f0e378 should also go to / and will be read by react app
 
 	// Serve WebSockets
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		app.ServeWs(w, r)
+	})
+
+	http.HandleFunc("/workspace/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./dist/index.html")
 	})
 
 	server := &http.Server{

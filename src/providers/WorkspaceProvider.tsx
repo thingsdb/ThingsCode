@@ -61,8 +61,10 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
 
   const updateWorkspace = async (updated: Workspace) => {
     try {
-      const res = await emit('UPDATE_WORKSPACE', updated) as { id: string, workfolder: string };
-      updated.workfolder = res.workfolder;
+      await emit('UPDATE_WORKSPACE', {
+        ...updated,
+        isTmp: updated.workfolder === "",
+      }) as { id: string };
       setWorkspaces((prev) => {
         return prev.map((ws) => (ws.id === updated.id ? updated : ws));
       });
@@ -74,7 +76,7 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
   };
 
   const addWorkspaceHelper = async (newWs: Omit<Workspace, 'id'>) => {
-    const res = await emit('ADD_WORKSPACE', newWs) as { id: string, workfolder: string };
+    const res = await emit('ADD_WORKSPACE', newWs) as { id: string };
     if (!res || !res.id) {
       throw new Error("Backend response did not return a valid workspace ID");
     }
@@ -83,7 +85,6 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
       {
         ...newWs,
         id: res.id,
-        workfolder: res.workfolder,
       } as Workspace,
     ]);
     return res.id;
