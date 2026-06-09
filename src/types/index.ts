@@ -193,6 +193,15 @@ export interface User {
   whitelists: Whitelists;
 }
 
+export interface Commit {
+  id: number;
+  by: string;
+  createdOn: string;  // e.g., "2026-06-09T13:46:18Z"
+  message: string;
+  errMsg?: string;
+  code?: string;
+}
+
 export interface Scope {
 	name: string;
 	requireCommit: boolean;

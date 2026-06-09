@@ -106,7 +106,7 @@ export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
                   <DataList.Value>
                     <Flex align="center" gap="1" style={{color: "gray"}}>
                       <CalendarIcon width="14" height="14" />
-                      <Text size="2">{new Date(enu.createdAt * 1000).toLocaleString()}</Text>
+                      <Text size="2">{new Date(enu.createdAt * 1000).toLocaleString(undefined, {hour12: false})}</Text>
                     </Flex>
                   </DataList.Value>
                 </DataList.Item>
@@ -116,7 +116,7 @@ export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
                     <DataList.Value>
                       <Flex align="center" gap="1" style={{color: "gray"}}>
                         <CalendarIcon width="14" height="14" />
-                        <Text size="2">{new Date(enu.modifiedAt * 1000).toLocaleString()}</Text>
+                        <Text size="2">{new Date(enu.modifiedAt * 1000).toLocaleString(undefined, {hour12: false})}</Text>
                       </Flex>
                     </DataList.Value>
                   </DataList.Item>

@@ -5,7 +5,7 @@ import CollectionContextPanel from './CollectionContextPanel';
 import ThingsDBContextPanel from './ThingsDBContextPanel';
 
 export default function StudioRightPanel() {
-  const { activeScope } = useActiveWorkspace();
+  const { activeScope, requireCommit } = useActiveWorkspace();
 
   if (!activeScope) {
     return (
@@ -31,8 +31,8 @@ export default function StudioRightPanel() {
       <ScrollArea scrollbars="vertical" style={{ flexGrow: 1 }}>
         <Box p="1">
           {isNode && <NodeContextPanel key={`context-node-${activeScope}`} scope={activeScope} />}
-          {isCollection && <CollectionContextPanel key={`context-node-${activeScope}`} scope={activeScope} />}
-          {isThingsDB && <ThingsDBContextPanel key={`context-node-${activeScope}`} scope={activeScope} />}
+          {isCollection && <CollectionContextPanel key={`context-node-${activeScope}`} scope={activeScope} requireCommit={requireCommit} />}
+          {isThingsDB && <ThingsDBContextPanel key={`context-node-${activeScope}`} scope={activeScope} requireCommit={requireCommit} />}
         </Box>
       </ScrollArea>
     </Flex>

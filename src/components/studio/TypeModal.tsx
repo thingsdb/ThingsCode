@@ -99,7 +99,7 @@ export default function TypeModal({ onClose, tp, onNavigateToType }: TypeModalPr
                   <DataList.Value>
                     <Flex align="center" gap="1" style={{color: "gray"}}>
                       <CalendarIcon width="14" height="14" />
-                      <Text size="2">{new Date(tp.createdAt * 1000).toLocaleString()}</Text>
+                      <Text size="2">{new Date(tp.createdAt * 1000).toLocaleString(undefined, {hour12: false})}</Text>
                     </Flex>
                   </DataList.Value>
                 </DataList.Item>
@@ -109,7 +109,7 @@ export default function TypeModal({ onClose, tp, onNavigateToType }: TypeModalPr
                     <DataList.Value>
                       <Flex align="center" gap="1" style={{color: "gray"}}>
                         <CalendarIcon width="14" height="14" />
-                        <Text size="2">{new Date(tp.modifiedAt * 1000).toLocaleString()}</Text>
+                        <Text size="2">{new Date(tp.modifiedAt * 1000).toLocaleString(undefined, {hour12: false})}</Text>
                       </Flex>
                     </DataList.Value>
                   </DataList.Item>

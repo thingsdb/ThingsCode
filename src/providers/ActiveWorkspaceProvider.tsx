@@ -125,14 +125,18 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     setActiveFilename(filename);
     const lastSelectedScope = fileScopes[filename];
     if (lastSelectedScope) {
+      const scope = scopes.find(s => s.name === lastSelectedScope);
       setActiveScope(lastSelectedScope);
+      setRequireCommit(scope?.requireCommit || false);
     }
   };
 
-  const setActiveScopeState = (scope: string) => {
-    setActiveScope(scope);
+  const setActiveScopeState = (scopeStr: string) => {
+    const scope = scopes.find(s => s.name === scopeStr);
+    setActiveScope(scopeStr);
+    setRequireCommit(scope?.requireCommit || false);
     if (activeFilename && activeFilename.endsWith('.ti')) {
-      updateFileScope(activeFilename, scope);
+      updateFileScope(activeFilename, scopeStr);
     }
   };
 

@@ -51,7 +51,7 @@ func FetchTasks(conn *thingsdb.Conn, scope string) ([]Task, error) {
 	var tasks []Task
 	res, err := conn.QueryRaw(scope, `
 		// TiCode query tasks
-		assert(tasks().len() <= 40, 'too many tasks; use "tasks()" instead');
+		assert(tasks().len() <= 100, 'too many tasks; use "tasks()" instead');
 		tasks().map(|task| {
 			id: task.id(),
 			owner: task.owner(),
@@ -105,6 +105,41 @@ func FetchTypes(conn *thingsdb.Conn, scope string) ([]*Type, error) {
 		return nil, err
 	}
 	return types, nil
+}
+
+func FetchHistory(conn *thingsdb.Conn, scope string) ([]*Commit, error) {
+	var commits []*Commit
+	res, err := conn.QueryRaw("/t", "history(options);", map[string]any{
+		"options": map[string]any{
+			"last":  100,
+			"scope": scope,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &commits); err != nil {
+		return nil, err
+	}
+	return commits, nil
+}
+
+func FetchCommit(conn *thingsdb.Conn, scope string, commitId uint64) (*Commit, error) {
+	var commit *Commit
+	res, err := conn.QueryRaw("/t", "history(options);", map[string]any{
+		"options": map[string]any{
+			"id":     commitId,
+			"scope":  scope,
+			"detail": true,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &commit); err != nil {
+		return nil, err
+	}
+	return commit, nil
 }
 
 func FetchUsers(conn *thingsdb.Conn) ([]*User, error) {

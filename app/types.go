@@ -251,6 +251,12 @@ type ThingReq struct {
 	ThingsID uint64 `json:"thingId"`
 }
 
+type CommitReq struct {
+	ID       string `json:"id"`
+	Scope    string `json:"scope"`
+	CommitID uint64 `json:"commitId"`
+}
+
 type TaskDetail struct {
 	Id      uint64 `msgpack:"id" json:"id"`
 	Owner   string `msgpack:"owner" json:"owner"`
@@ -348,6 +354,15 @@ type User struct {
 		Procedures []string `msgpack:"procedures,omitempty" json:"procedures,omitempty"`
 		Rooms      []string `msgpack:"rooms,omitempty" json:"rooms,omitempty"`
 	} `msgpack:"whitelists" json:"whitelists"`
+}
+
+type Commit struct {
+	ID        uint64 `msgpack:"id" json:"id"`
+	By        string `msgpack:"by" json:"by"`
+	CreatedOn string `msgpack:"created_on" json:"createdOn"`
+	Message   string `msgpack:"message" json:"message"`
+	ErrMsg    string `msgpack:"err_msg,omitempty" json:"errMsg,omitempty"`
+	Code      string `msgpack:"code,omitempty" json:"code,omitempty"`
 }
 
 type Scope struct {

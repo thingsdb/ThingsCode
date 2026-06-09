@@ -22,6 +22,8 @@ For development, **also** start the dev server, the **dev** app will be availabl
 npm run dev
 ```
 
+> _(The DEV site will open the WebSocket connection hardcoded on `ws://localhost:6213` so keep the port default when stating `./ticode`)_
+
 ## Build the app for production:
 
 ```bash

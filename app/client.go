@@ -375,6 +375,28 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "FETCH_HISTORY":
+			var scope ForScope
+			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchHistory(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
+		case "FETCH_COMMIT":
+			var req CommitReq
+			if err := json.Unmarshal(msg.Payload, &req); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchCommit(&req, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
 		case "FETCH_USERS":
 			var wsId WorkspaceID
 			if err := json.Unmarshal(msg.Payload, &wsId); err != nil {
@@ -419,7 +441,6 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
-
 		default:
 			_ = writeError(wsConn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
 		}

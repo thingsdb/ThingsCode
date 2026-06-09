@@ -2,7 +2,7 @@ import { Box, Callout, Flex, Text, IconButton, Tooltip } from '@radix-ui/themes'
 import { InfoCircledIcon, ExclamationTriangleIcon, CopyIcon, CheckIcon, ClockIcon, FileTextIcon, CodeIcon } from '@radix-ui/react-icons';
 import Editor from '@monaco-editor/react';
 import { useActiveWorkspace, useTheme } from '../../hooks';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Result } from '../../types';
 
 const renderTextWithLinks = (text: string) => {
@@ -42,12 +42,14 @@ export default function StudioResultView() {
     return activeFile?.result || null;
   }, [activeFile?.result]);
 
+  const [prevResult, setPrevResult] = useState<Result | null>(result);
+  if (result !== prevResult) {
+    setPrevResult(result);
+    setViewRawString(false);
+  }
+
   const isStringWithNewlines = useMemo(() => {
     return typeof result?.data === 'string' && (result.data.includes('\n') || result.data.includes('\t'));
-  }, [result]);
-
-  useEffect(() => {
-    queueMicrotask(() => setViewRawString(false));
   }, [result]);
 
   const outputContent = useMemo(() => {
@@ -58,6 +60,11 @@ export default function StudioResultView() {
     }
     return JSON.stringify(result.data, null, 2);
   }, [result, viewRawString]);
+
+  const sessionNonce = useMemo(() => {
+    if (!result?.ts) return 'idle';
+    return new Date(result.ts).getTime().toString();
+  }, [result]);
 
   const localTime = useMemo(() => {
     if (!result?.ts) {
@@ -220,7 +227,11 @@ export default function StudioResultView() {
 
           <Editor
             language={viewRawString ? "thingsdb" : "json"}
-            path={viewRawString ? ".ticode-query-result.ti" : ".ticode-query-result.json"}
+            path={
+              viewRawString
+                ? `.ticode-query-raw-${sessionNonce}.ti`
+                : `.ticode-query-result-${sessionNonce}.json`
+            }
             value={outputContent}
             theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
             loading={null}

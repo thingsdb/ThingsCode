@@ -4,12 +4,14 @@ import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import TasksPanel from './TasksPanel';
 import ProceduresPanel from './ProceduresPanel';
 import UsersPanel from './UserPanel';
+import HistoryPanel from './HistoryPanel';
 
 interface ThingsDBContextPanelProps {
   scope: string;
+  requireCommit: boolean;
 }
 
-export default function ThingsDBContextPanel({ scope }: ThingsDBContextPanelProps) {
+export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBContextPanelProps) {
   const [openSection, setOpenSection] = useState<string | null>(() => {
     try {
       const storedSection = localStorage.getItem('ticode-thingsdb-context-section');
@@ -86,19 +88,21 @@ export default function ThingsDBContextPanel({ scope }: ThingsDBContextPanelProp
       </Card>
 
       {/* HISTORY */}
-      <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
-        <Flex
-          align="center"
-          justify="between"
-          py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
-          onClick={() => toggleSection('history')}
-        >
-          <Text size="2" weight="bold">History</Text>
-          {openSection === 'history' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
-        </Flex>
-        {openSection === 'history' && null}
-      </Card>
+      {requireCommit && (
+        <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+          <Flex
+            align="center"
+            justify="between"
+            py="1"
+            style={{ cursor: 'pointer', userSelect: 'none' }}
+            onClick={() => toggleSection('history')}
+          >
+            <Text size="2" weight="bold">History</Text>
+            {openSection === 'history' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+          </Flex>
+          {openSection === 'history' && <HistoryPanel scope={scope} />}
+        </Card>
+      )}
     </Flex>
   );
 }

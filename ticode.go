@@ -29,7 +29,8 @@ func main() {
 
 	defaultSettingsPath := filepath.Join(homeDir, ".config", "ThingsCode", "settings.json")
 	settingsFilePtr := flag.String("settings-file", defaultSettingsPath, "Path to the settings JSON file")
-	httpPortPtr := flag.Uint("port", 6213, "Specific port for the http webserver.")
+	httpPortPtr := flag.Uint("port", 6213, "Specific port for the HTTP webserver")
+	disableOpenBrowser := flag.Bool("disable-open-browser", false, "Disable opening ThingsCode in your default browser")
 
 	// Parse arguments
 	flag.Parse()
@@ -69,6 +70,10 @@ func main() {
 
 	go func() {
 		log.Printf("Server starting on :%d\n", *httpPortPtr)
+		if !*disableOpenBrowser {
+			go app.OpenUrl(fmt.Sprintf("http://localhost:%d/", *httpPortPtr))
+		}
+
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Critical webserver listener crash: %v", err)
 		}

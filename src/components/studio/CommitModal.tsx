@@ -4,52 +4,46 @@ import { ExclamationTriangleIcon, CalendarIcon, PersonIcon } from '@radix-ui/rea
 import Editor from '@monaco-editor/react';
 import { useTheme, useWebSocket, useActiveWorkspaceId } from '../../hooks';
 import { errStr } from '../../utils';
+import type { Commit } from '../../types';
 
-interface TaskDetail {
-  id: number;
-  owner: string;
-  at: string | null;
-  closure: string;
-  error: string | null;
-}
 
-interface TaskModalProps {
-  taskId: number;
+interface CommitModalProps {
+  commitId: number;
   scope: string;
   onClose: () => void;
 }
 
-export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
+export default function CommitModal({ commitId, scope, onClose }: CommitModalProps) {
   const { emit } = useWebSocket();
   const activeId = useActiveWorkspaceId();
   const { appearance } = useTheme();
 
-  const [task, setTask] = useState<TaskDetail | null>(null);
+  const [commit, setCommit] = useState<Commit | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (taskId === null) {
-      queueMicrotask(() => setTask(null));
+    if (commitId === null) {
+      queueMicrotask(() => setCommit(null));
       return;
     }
 
-    const fetchTaskDetail = async () => {
+    const fetchCommit = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await emit('FETCH_TASK', { id: activeId, scope, taskId }) as TaskDetail;
-        setTask(response);
+        const response = await emit('FETCH_COMMIT', { id: activeId, scope, commitId }) as Commit;
+        setCommit(response);
       } catch (err: unknown) {
-        console.error("Failed to fetch task details:", err);
-        setError(errStr(err, "Failed to fetch task details."));
+        console.error("Failed to fetch commit details:", err);
+        setError(errStr(err, "Failed to fetch commit details."));
       } finally {
         setIsLoading(false);
       }
     };
 
-    queueMicrotask(fetchTaskDetail);
-  }, [taskId, scope, activeId, emit]);
+    queueMicrotask(fetchCommit);
+  }, [commitId, scope, activeId, emit]);
 
   return (
     <Dialog.Root open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -62,17 +56,17 @@ export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
           <Flex align="center" justify="between">
             <Flex align="center" gap="2">
               <Badge size="2" color="iris" variant="surface" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                TASK #{taskId}
+                COMMIT #{commitId}
               </Badge>
               <Text size="3" weight="bold">Details</Text>
             </Flex>
 
-            {/* Owner Tag badge */}
-            {task && (
+            {/* By Tag badge */}
+            {commit && (
               <Flex align="center" gap="2">
                 <PersonIcon color="var(--gray-8)" />
                 <Text size="1" color="gray" weight="medium">
-                  Owner: <Text color="gray" highContrast>{task.owner}</Text>
+                  By: <Text color="gray" highContrast>{commit.by}</Text>
                 </Text>
               </Flex>
             )}
@@ -83,7 +77,7 @@ export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
         {isLoading && (
           <Flex justify="center" align="center" py="6" direction="column" gap="3">
             <Spinner size="3" />
-            <Text size="1" color="gray">Fetching task...</Text>
+            <Text size="1" color="gray">Fetching commit...</Text>
           </Flex>
         )}
 
@@ -93,9 +87,9 @@ export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
           </Box>
         )}
 
-        {task && !isLoading && (
+        {commit && !isLoading && (
           <Flex direction="column" gap="4" mt="2">
-            {task.error ? (
+            {commit.errMsg && (
               <Flex
                 align="start"
                 gap="2"
@@ -109,36 +103,34 @@ export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
                 <ExclamationTriangleIcon color="var(--orange-9)" style={{ marginTop: 2, flexShrink: 0 }} />
                 <Flex direction="column" gap="0.5">
                   <Text size="2" color="orange" style={{ fontFamily: 'monospace', wordBreak: 'break-all', lineHeight: '1.3' }}>
-                    {task.error}
+                    {commit.errMsg}
                   </Text>
                 </Flex>
               </Flex>
-            ) : (
-              <Box>
-                <Text as="label" size="1" weight="bold" color="gray">
-                  Next Planned Run
-                </Text>
-                <Flex
-                  align="center"
-                  gap="2"
-                  p="2"
-                  style={{
-                    backgroundColor: 'var(--gray-2)',
-                    borderRadius: 'var(--radius-3)',
-                    border: '1px solid var(--gray-4)',
-                  }}
-                >
-                  <CalendarIcon color="var(--iris-8)" />
-                  <Flex direction="column">
-                    <Text size="2" color="gray" weight="medium" style={{ fontFamily: 'monospace' }}>
-                      {task.at ? new Date(task.at).toLocaleString(undefined, {
-                        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-                      }) : 'Immediate (Next execution tick loop)'}
-                    </Text>
-                  </Flex>
-                </Flex>
-              </Box>
             )}
+
+            <Box>
+              <Text as="label" size="1" weight="bold" color="gray">
+                Created On
+              </Text>
+              <Flex
+                align="center"
+                gap="2"
+                p="2"
+                style={{
+                backgroundColor: 'var(--gray-2)',
+                borderRadius: 'var(--radius-3)',
+                border: '1px solid var(--gray-4)',
+                }}
+              >
+                <CalendarIcon color="var(--iris-8)" />
+                  <Flex direction="column">
+                  <Text size="2" color="gray" weight="medium" style={{ fontFamily: 'monospace' }}>
+                    {new Date(commit.createdOn).toLocaleString(undefined, {hour12: false})}
+                  </Text>
+                </Flex>
+              </Flex>
+            </Box>
 
             {/* MONACO EDITOR */}
             <Box>
@@ -156,8 +148,8 @@ export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
               >
                 <Editor
                   language="thingsdb"
-                  path=".ticode-task-code.ti"
-                  value={task.closure}
+                  path=".ticode-commit-code.ti"
+                  value={commit.code}
                   theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
                   options={{
                     readOnly: true,

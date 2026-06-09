@@ -118,7 +118,7 @@ export default function UserModal({ onClose, user }: UserModalProps) {
                   <DataList.Value>
                     <Flex align="center" gap="1" style={ {color: "gray" }}>
                       <CalendarIcon width="14" height="14" />
-                      <Text size="2">{new Date(user.createdAt * 1000).toLocaleString()}</Text>
+                      <Text size="2">{new Date(user.createdAt * 1000).toLocaleString(undefined, {hour12: false})}</Text>
                     </Flex>
                   </DataList.Value>
                 </DataList.Item>
@@ -222,13 +222,13 @@ export default function UserModal({ onClose, user }: UserModalProps) {
                                 )}
                               </Table.Cell>
                               <Table.Cell style={{ color: 'var(--gray-10)', fontSize: '11px' }}>
-                                {new Date(token.createdOn).toLocaleString()}
+                                {new Date(token.createdOn).toLocaleString(undefined, {hour12: false})}
                               </Table.Cell>
                               <Table.Cell style={{ fontSize: '11px', fontWeight: token.expirationTime === 'never' ? 'bold' : 'normal' }}>
                                 {token.expirationTime === 'never' ? (
                                   'Never'
                                 ) : (
-                                  new Date(token.expirationTime).toLocaleString()
+                                  new Date(token.expirationTime).toLocaleString(undefined, {hour12: false})
                                 )}
                               </Table.Cell>
                             </Table.Row>

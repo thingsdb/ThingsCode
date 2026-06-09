@@ -842,6 +842,34 @@ func (s *Settings) FetchTypes(c *ForScope, wsConn *websocket.Conn) ([]*Type, err
 	return FetchTypes(conn, c.Scope)
 }
 
+func (s *Settings) FetchHistory(c *ForScope, wsConn *websocket.Conn) ([]*Commit, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchHistory(conn, c.Scope)
+}
+
+func (s *Settings) FetchCommit(c *CommitReq, wsConn *websocket.Conn) (*Commit, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchCommit(conn, c.Scope, c.CommitID)
+}
+
 func (s *Settings) FetchUsers(c *WorkspaceID, wsConn *websocket.Conn) ([]*User, error) {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {

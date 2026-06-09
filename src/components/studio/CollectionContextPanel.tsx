@@ -7,12 +7,14 @@ import ProceduresPanel from './ProceduresPanel';
 import EnumsPanel from './EnumsPanel';
 import ThingExplorer from '../ThingExplorer';
 import TypesPanel from './TypesPanel';
+import HistoryPanel from './HistoryPanel';
 
 interface CollectionContextPanelProps {
   scope: string;
+  requireCommit: boolean;
 }
 
-export default function CollectionContextPanel({ scope }: CollectionContextPanelProps) {
+export default function CollectionContextPanel({ scope, requireCommit }: CollectionContextPanelProps) {
   const [openSection, setOpenSection] = useState<string | null>(() => {
     try {
       const storedSection = localStorage.getItem('ticode-collection-context-section');
@@ -132,6 +134,23 @@ export default function CollectionContextPanel({ scope }: CollectionContextPanel
         </Flex>
         {openSection === 'explorer' && <ThingExplorer scope={scope} startThingId={1} />}
       </Card>
+
+      {/* HISTORY */}
+      {requireCommit && (
+        <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+          <Flex
+            align="center"
+            justify="between"
+            py="1"
+            style={{ cursor: 'pointer', userSelect: 'none' }}
+            onClick={() => toggleSection('history')}
+          >
+            <Text size="2" weight="bold">History</Text>
+            {openSection === 'history' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+          </Flex>
+          {openSection === 'history' && <HistoryPanel scope={scope} />}
+        </Card>
+      )}
 
     </Flex>
   );
