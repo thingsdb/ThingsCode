@@ -5,11 +5,11 @@ import { useActiveWorkspace } from '../../hooks';
 import RoomJoinModal from './RoomJoinModal';
 import type { Room } from '../../types';
 
-interface CollectionRoomsPanelProps {
+interface RoomsPanelProps {
   scope: string;
 }
 
-export default function CollectionRoomsPanel({ scope }: CollectionRoomsPanelProps) {
+export default function RoomsPanel({ scope }: RoomsPanelProps) {
   const { rooms, joinRoom, updateRoom, leaveRoom, refreshRooms, loading } = useActiveWorkspace();
   const [isRoomJoinOpen, setIsRoomJoinOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);

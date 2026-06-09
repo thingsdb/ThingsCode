@@ -1,70 +1,65 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Flex, Text, Card, Box, IconButton, Tooltip, TextField } from '@radix-ui/themes';
-import { UpdateIcon, DividerHorizontalIcon, Cross2Icon, QuoteIcon, CubeIcon, TokensIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { UpdateIcon, MagnifyingGlassIcon, Cross2Icon } from '@radix-ui/react-icons';
 import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
-import type { Enum } from '../../types';
+import type { User } from '../../types';
 import { errStr } from '../../utils';
-import { HashIcon } from '../icons';
-import EnumModal from './EnumModal';
+import UserModal from './UserModal';
+// import UserModal from './UserModal';
 
 
-interface EnumsPanelProps {
-  scope: string;
-}
-
-export default function EnumsPanel({ scope }: EnumsPanelProps) {
+export default function UsersPanel() {
   const { emit } = useWebSocket();
   const activeId = useActiveWorkspaceId();
-  const [enums, setEnums] = useState<Enum[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewEnum, setViewEnum] = useState<Enum | null>(null);
+  const [viewUser, setViewUser] = useState<User | null>(null);
 
-  const fetchEnums = useCallback(async () => {
+  const fetchUsers = useCallback(async () => {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_ENUMS', { id: activeId, scope }) as Enum[];
-      setEnums(response || []);
+      const response = await emit('FETCH_USERS', { id: activeId }) as User[];
+      setUsers(response || []);
     } catch (err: unknown) {
-      console.error("Failed to fetch enums:", err);
-      setFetchError(errStr(err, "Failed to fetch enums."));
+      console.error("Failed to fetch users:", err);
+      setFetchError(errStr(err, "Failed to fetch users."));
     } finally {
       setIsLoading(false);
     }
-  }, [activeId, emit, scope]);
+  }, [activeId, emit]);
 
   useEffect(() => {
-    queueMicrotask(fetchEnums);
-  }, [fetchEnums]);
+    queueMicrotask(fetchUsers);
+  }, [fetchUsers]);
 
   const filtered = useMemo(() => {
     const cleanedQuery = searchQuery.trim().toLowerCase();
     if (!cleanedQuery) {
-      return enums;
+      return users;
     }
 
-    return enums.filter((enu) => {
-      const nameMatch = enu.name?.toLowerCase().includes(cleanedQuery);
-
+    return users.filter((proc) => {
+      const nameMatch = proc.name?.toLowerCase().includes(cleanedQuery);
       return nameMatch;
     });
-  }, [enums, searchQuery]);
+  }, [users, searchQuery]);
 
   return (
     <Flex direction="column" gap="3">
       <Flex justify="between" align="center" mt="2">
         <Text size="1" color="gray" weight="bold" mt="2">
-          ENUMS ({isLoading ? '...' : filtered.length})
+          USERS ({isLoading ? '...' : filtered.length})
         </Text>
-        <Tooltip content="Refresh enums list">
+        <Tooltip content="Refresh users list">
           <IconButton
             size="1"
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchEnums}
+            onClick={fetchUsers}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -72,9 +67,9 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
         </Tooltip>
       </Flex>
 
-      {(enums.length > 0 || searchQuery) && (
+      {(users.length > 0 || searchQuery) && (
         <TextField.Root
-          placeholder="Search name..."
+          placeholder="Search name or doc..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           size="1"
@@ -98,7 +93,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
         </TextField.Root>
       )}
 
-      {fetchError && enums.length === 0 && !isLoading && (
+      {fetchError && users.length === 0 && !isLoading && (
         <Box
           py="3"
           px="2"
@@ -113,7 +108,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
         </Box>
       )}
 
-      {!fetchError && enums.length === 0 && !isLoading && (
+      {!fetchError && users.length === 0 && !isLoading && (
         <Box
           py="3"
           px="2"
@@ -123,11 +118,11 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
             borderRadius: 'var(--radius-2)'
           }}
         >
-          <Text size="1" color="gray">No enums found in this scope.</Text>
+          <Text size="1" color="gray">No users found in this scope.</Text>
         </Box>
       )}
 
-      {!fetchError && enums.length > 0 && filtered.length === 0 && (
+      {!fetchError && users.length > 0 && filtered.length === 0 && (
         <Box
           py="3"
           px="2"
@@ -137,22 +132,22 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
             borderRadius: 'var(--radius-2)'
           }}
         >
-          <Text size="1" color="gray" >No matching enums match your query.</Text>
+          <Text size="1" color="gray" >No matching users match your query.</Text>
         </Box>
       )}
 
-      {!fetchError && isLoading && enums.length === 0 && (
+      {!fetchError && isLoading && users.length === 0 && (
         <Flex justify="center" py="2">
-          <Text size="1" color="gray" className="animate-pulse">Loading enums...</Text>
+          <Text size="1" color="gray" className="animate-pulse">Loading users...</Text>
         </Flex>
       )}
 
       <Flex direction="column" gap="2">
-        {filtered.map((enu) => {
+        {filtered.map((user) => {
 
           return (
             <Card
-              key={enu.name}
+              key={user.name}
               size="1"
               style={{
                 padding: '6px 8px',
@@ -160,42 +155,33 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
                 borderColor: 'var(--gray-4)',
                 cursor: 'pointer',
               }}
-              onClick={() => setViewEnum(enu)}
+              onClick={() => setViewUser(user)}
             >
               <Flex direction="column" gap="2">
-                <Flex align="center" justify="between" gap="2">
-                  <Tooltip content={enu.name}>
-                    <Text
-                      size="1"
-                      weight="bold"
-                      truncate
-                      style={{
-                        fontFamily: 'monospace',
-                        color: 'var(--gray-12)',
-                        minWidth: 0,
-                        flexGrow: 1
-                      }}
-                    >
-                      {enu.name}
-                    </Text>
-                  </Tooltip>
-
-                  {enu.type === 'str' && <QuoteIcon color='var(--iris-5)' width="14" height="14" />}
-                  {enu.type === 'int' && <HashIcon color='var(--iris-5)' width="14" height="14" />}
-                  {enu.type === 'float' && <DividerHorizontalIcon color='var(--iris-5)' width="14" height="14" />}
-                  {enu.type === 'bytes' && <TokensIcon color='var(--iris-5)' width="14" height="14" />}
-                  {enu.type === 'thing' && <CubeIcon color='var(--iris-5)' width="14" height="14" />}
-                </Flex>
+                <Tooltip content={user.name}>
+                <Text
+                    size="1"
+                    weight="bold"
+                    truncate
+                    style={{
+                    fontFamily: 'monospace',
+                    color: 'var(--gray-12)',
+                    minWidth: 0,
+                    flexGrow: 1
+                    }}
+                >
+                    {user.name}
+                </Text>
+                </Tooltip>
               </Flex>
             </Card>
           );
         })}
       </Flex>
-      {viewEnum && (
-        <EnumModal
-          onClose={() => setViewEnum(null)}
-          enu={viewEnum}
-          scope={scope}
+      {viewUser && (
+        <UserModal
+          onClose={() => setViewUser(null)}
+          user={viewUser}
         />
       )}
     </Flex>

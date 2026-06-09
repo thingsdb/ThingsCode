@@ -3,6 +3,7 @@ import { Card, Flex, Text } from '@radix-ui/themes';
 import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import TasksPanel from './TasksPanel';
 import ProceduresPanel from './ProceduresPanel';
+import UsersPanel from './UserPanel';
 
 interface ThingsDBContextPanelProps {
   scope: string;
@@ -67,6 +68,36 @@ export default function ThingsDBContextPanel({ scope }: ThingsDBContextPanelProp
           {openSection === 'procedures' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
         {openSection === 'procedures' && <ProceduresPanel scope={scope} />}
+      </Card>
+
+      {/* USERS */}
+      <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+        <Flex
+          align="center"
+          justify="between"
+          py="1"
+          style={{ cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => toggleSection('users')}
+        >
+          <Text size="2" weight="bold">Users</Text>
+          {openSection === 'users' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+        </Flex>
+        {openSection === 'users' && <UsersPanel />}
+      </Card>
+
+      {/* HISTORY */}
+      <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+        <Flex
+          align="center"
+          justify="between"
+          py="1"
+          style={{ cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => toggleSection('history')}
+        >
+          <Text size="2" weight="bold">History</Text>
+          {openSection === 'history' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+        </Flex>
+        {openSection === 'history' && null}
       </Card>
     </Flex>
   );

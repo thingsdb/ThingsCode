@@ -130,7 +130,7 @@ export interface Method {
 }
 
 export interface ThingId {
-  '#': number;
+  [key: string]: number;
 }
 
 export interface Enum {
@@ -141,6 +141,56 @@ export interface Enum {
   methods: Record<string, Method>;
   members: [string, string | number | ThingId][];
   type: EnumType;
+}
+
+export interface Relation {
+  type: string;
+  property: string;
+  definition: string;
+}
+
+export interface Definition {
+  [key: string]: string | Definition | Definition[];
+}
+
+export interface Type {
+  name: string;
+  createdAt: number;
+  modifiedAt?: number;
+  methods: Record<string, Method>;
+  fields: [string, string | Definition | Definition[]][];
+  relations: Record<string, Relation>;
+  autoIndex: boolean;
+  hideId: boolean;
+  wrapOnly: boolean;
+}
+
+export interface UserAccess {
+  privileges: string;
+  scope: string;
+}
+
+export type TokenStatus = 'OK' | 'EXPIRED';
+
+export interface UserToken {
+  createdOn: string;  // e.g., "2026-06-09T13:46:18Z"
+  expirationTime: string; // e.g., "2027-06-09T13:46:18+0200" or "never"
+  key: string; // e.g. "bW7aKAJ0ROZwbDz8kpVzeZ"
+  status: TokenStatus; // "OK" or "EXPIRED"
+}
+
+export interface Whitelists {
+  procedures?: string[];
+  rooms?: string[];
+}
+
+export interface User {
+  name: string;
+  createdAt: number;
+  hasPassword: boolean;
+  access: UserAccess[];
+  tokens: UserToken[];
+  whitelists: Whitelists;
 }
 
 export interface Scope {
@@ -162,3 +212,12 @@ export interface SearchRecord {
   name: string;
   type: SearchIndexType;
 }
+
+export type TreeNodeType =
+  | string
+  | number
+  | boolean
+  | null
+  | ThingId
+  | TreeNodeType[]
+  | { [key: string]: TreeNodeType };

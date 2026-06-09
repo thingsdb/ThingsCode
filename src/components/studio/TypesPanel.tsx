@@ -1,70 +1,74 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Flex, Text, Card, Box, IconButton, Tooltip, TextField } from '@radix-ui/themes';
-import { UpdateIcon, DividerHorizontalIcon, Cross2Icon, QuoteIcon, CubeIcon, TokensIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { Flex, Text, Card, Box, IconButton, Tooltip, TextField, Badge } from '@radix-ui/themes';
+import { UpdateIcon, Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
-import type { Enum } from '../../types';
+import type { Type } from '../../types';
 import { errStr } from '../../utils';
-import { HashIcon } from '../icons';
-import EnumModal from './EnumModal';
+import TypeModal from './TypeModal';
+// import TypeModal from './TypeModal';
 
 
-interface EnumsPanelProps {
+interface TypesPanelProps {
   scope: string;
 }
 
-export default function EnumsPanel({ scope }: EnumsPanelProps) {
+export default function TypesPanel({ scope }: TypesPanelProps) {
   const { emit } = useWebSocket();
   const activeId = useActiveWorkspaceId();
-  const [enums, setEnums] = useState<Enum[]>([]);
+  const [types, setTypes] = useState<Type[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewEnum, setViewEnum] = useState<Enum | null>(null);
+  const [viewType, setViewType] = useState<Type | null>(null);
 
-  const fetchEnums = useCallback(async () => {
+  const fetchTypes = useCallback(async () => {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_ENUMS', { id: activeId, scope }) as Enum[];
-      setEnums(response || []);
+      const response = await emit('FETCH_TYPES', { id: activeId, scope }) as Type[];
+      setTypes(response || []);
     } catch (err: unknown) {
-      console.error("Failed to fetch enums:", err);
-      setFetchError(errStr(err, "Failed to fetch enums."));
+      console.error("Failed to fetch types:", err);
+      setFetchError(errStr(err, "Failed to fetch types."));
     } finally {
       setIsLoading(false);
     }
   }, [activeId, emit, scope]);
 
   useEffect(() => {
-    queueMicrotask(fetchEnums);
-  }, [fetchEnums]);
+    queueMicrotask(fetchTypes);
+  }, [fetchTypes]);
+
+  const handleOnNavigateToType = (name: string) => {
+    setViewType(types.find(tp => tp.name === name) || null);
+  };
 
   const filtered = useMemo(() => {
     const cleanedQuery = searchQuery.trim().toLowerCase();
     if (!cleanedQuery) {
-      return enums;
+      return types;
     }
 
-    return enums.filter((enu) => {
-      const nameMatch = enu.name?.toLowerCase().includes(cleanedQuery);
+    return types.filter((tp) => {
+      const nameMatch = tp.name?.toLowerCase().includes(cleanedQuery);
 
       return nameMatch;
     });
-  }, [enums, searchQuery]);
+  }, [types, searchQuery]);
 
   return (
     <Flex direction="column" gap="3">
       <Flex justify="between" align="center" mt="2">
         <Text size="1" color="gray" weight="bold" mt="2">
-          ENUMS ({isLoading ? '...' : filtered.length})
+          TYPES ({isLoading ? '...' : filtered.length})
         </Text>
-        <Tooltip content="Refresh enums list">
+        <Tooltip content="Refresh types list">
           <IconButton
             size="1"
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchEnums}
+            onClick={fetchTypes}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -72,7 +76,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
         </Tooltip>
       </Flex>
 
-      {(enums.length > 0 || searchQuery) && (
+      {(types.length > 0 || searchQuery) && (
         <TextField.Root
           placeholder="Search name..."
           value={searchQuery}
@@ -98,7 +102,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
         </TextField.Root>
       )}
 
-      {fetchError && enums.length === 0 && !isLoading && (
+      {fetchError && types.length === 0 && !isLoading && (
         <Box
           py="3"
           px="2"
@@ -113,7 +117,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
         </Box>
       )}
 
-      {!fetchError && enums.length === 0 && !isLoading && (
+      {!fetchError && types.length === 0 && !isLoading && (
         <Box
           py="3"
           px="2"
@@ -123,11 +127,11 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
             borderRadius: 'var(--radius-2)'
           }}
         >
-          <Text size="1" color="gray">No enums found in this scope.</Text>
+          <Text size="1" color="gray">No types found in this scope.</Text>
         </Box>
       )}
 
-      {!fetchError && enums.length > 0 && filtered.length === 0 && (
+      {!fetchError && types.length > 0 && filtered.length === 0 && (
         <Box
           py="3"
           px="2"
@@ -137,22 +141,22 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
             borderRadius: 'var(--radius-2)'
           }}
         >
-          <Text size="1" color="gray" >No matching enums match your query.</Text>
+          <Text size="1" color="gray" >No matching types match your query.</Text>
         </Box>
       )}
 
-      {!fetchError && isLoading && enums.length === 0 && (
+      {!fetchError && isLoading && types.length === 0 && (
         <Flex justify="center" py="2">
-          <Text size="1" color="gray" className="animate-pulse">Loading enums...</Text>
+          <Text size="1" color="gray" className="animate-pulse">Loading types...</Text>
         </Flex>
       )}
 
       <Flex direction="column" gap="2">
-        {filtered.map((enu) => {
+        {filtered.map((tp) => {
 
           return (
             <Card
-              key={enu.name}
+              key={tp.name}
               size="1"
               style={{
                 padding: '6px 8px',
@@ -160,11 +164,11 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
                 borderColor: 'var(--gray-4)',
                 cursor: 'pointer',
               }}
-              onClick={() => setViewEnum(enu)}
+              onClick={() => setViewType(tp)}
             >
               <Flex direction="column" gap="2">
-                <Flex align="center" justify="between" gap="2">
-                  <Tooltip content={enu.name}>
+                <Flex align="center" justify="between" gap="1">
+                  <Tooltip content={tp.name}>
                     <Text
                       size="1"
                       weight="bold"
@@ -176,26 +180,24 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
                         flexGrow: 1
                       }}
                     >
-                      {enu.name}
+                      {tp.name}
                     </Text>
                   </Tooltip>
 
-                  {enu.type === 'str' && <QuoteIcon color='var(--iris-5)' width="14" height="14" />}
-                  {enu.type === 'int' && <HashIcon color='var(--iris-5)' width="14" height="14" />}
-                  {enu.type === 'float' && <DividerHorizontalIcon color='var(--iris-5)' width="14" height="14" />}
-                  {enu.type === 'bytes' && <TokensIcon color='var(--iris-5)' width="14" height="14" />}
-                  {enu.type === 'thing' && <CubeIcon color='var(--iris-5)' width="14" height="14" />}
+                  {tp.autoIndex && <Badge color="yellow" variant="outline" size="1">IDX</Badge>}
+                  {tp.hideId && <Badge color="gray" variant="outline" size="1">HID</Badge>}
+                  {tp.wrapOnly && <Badge color="iris" variant="outline" size="1">WPO</Badge>}
                 </Flex>
               </Flex>
             </Card>
           );
         })}
       </Flex>
-      {viewEnum && (
-        <EnumModal
-          onClose={() => setViewEnum(null)}
-          enu={viewEnum}
-          scope={scope}
+      {viewType && (
+        <TypeModal
+          onClose={() => setViewType(null)}
+          tp={viewType}
+          onNavigateToType={handleOnNavigateToType}
         />
       )}
     </Flex>

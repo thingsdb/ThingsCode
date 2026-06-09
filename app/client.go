@@ -364,6 +364,39 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			} else {
 				_ = writeResponse(wsConn, &msg, res)
 			}
+		case "FETCH_TYPES":
+			var scope ForScope
+			if err := json.Unmarshal(msg.Payload, &scope); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchTypes(&scope, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
+		case "FETCH_USERS":
+			var wsId WorkspaceID
+			if err := json.Unmarshal(msg.Payload, &wsId); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchUsers(&wsId, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
+		case "FETCH_USER":
+			var wsId WorkspaceID
+			if err := json.Unmarshal(msg.Payload, &wsId); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchUser(&wsId, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
 		case "FETCH_TASK":
 			var req TaskReq
 			if err := json.Unmarshal(msg.Payload, &req); err != nil {
@@ -371,6 +404,17 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 				continue
 			}
 			if res, err := currentSettings.FetchTask(&req, wsConn); err != nil {
+				_ = writeError(wsConn, &msg, err)
+			} else {
+				_ = writeResponse(wsConn, &msg, res)
+			}
+		case "FETCH_THING":
+			var req ThingReq
+			if err := json.Unmarshal(msg.Payload, &req); err != nil {
+				_ = writeError(wsConn, &msg, err)
+				continue
+			}
+			if res, err := currentSettings.FetchThing(&req, wsConn); err != nil {
 				_ = writeError(wsConn, &msg, err)
 			} else {
 				_ = writeResponse(wsConn, &msg, res)

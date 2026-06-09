@@ -1,5 +1,5 @@
 import { Flex, Text, Button, Tooltip, IconButton, Separator, Box, Badge } from '@radix-ui/themes';
-import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon, MagnifyingGlassIcon, CubeIcon, PersonIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspace, useWebSocket } from '../../hooks';
 import { useTheme } from '../../hooks';
 import ScopeSelector from './ScopeSelector';
@@ -8,6 +8,8 @@ import QueryVarsDialog from './QueryVarsDialog';
 import AboutModal from '../AboutModal';
 import { Search } from '..';
 import { SearchIndexType, type SearchRecord } from '../../types';
+import ThingExplorerModal from '../ThingExplorerModal';
+import MyUserModal from './MyUserModal';
 
 export default function StudioTopBar() {
   const { status, emit } = useWebSocket();
@@ -17,8 +19,11 @@ export default function StudioTopBar() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isExplorerOpen, setIsExplorerOpen] = useState(false);
+  const [isMyUserOpen, setIsMyUserOpen] = useState(false);
 
   const isTiCode = activeFilename && activeFilename.endsWith('.ti');
+  const isCollectionScope = activeScope && activeScope.startsWith('@collection:');
 
   const handleLogout = async () => {
     if (status === 'connected') {
@@ -138,7 +143,7 @@ export default function StudioTopBar() {
             loading={isExecuting || isRefreshing}
             disabled={!isTiCode}
             onClick={handleExecuteCode}
-            style={{ cursor: isTiCode ? 'pointer' : 'not-allowed' }}
+            style={{ cursor: !isTiCode ? 'not-allowed' : 'pointer' }}
           >
             <PlayIcon width="14" height="14" />
           </Button>
@@ -152,7 +157,7 @@ export default function StudioTopBar() {
             disabled={!isTiCode || isRefreshing}
             onClick={() => setIsConfigOpen(true)}
             title="Edit Execution Arguments (JSON)"
-            style={{ cursor: isTiCode ? 'pointer' : 'not-allowed' }}
+            style={{ cursor: !isTiCode || isRefreshing ? 'not-allowed' : 'pointer' }}
           >
             <GearIcon width="16" height="16" />
           </IconButton>
@@ -163,12 +168,26 @@ export default function StudioTopBar() {
             variant="ghost"
             color="gray"
             size="2"
-            disabled={!isTiCode || isRefreshing || loading}
+            disabled={isRefreshing || loading}
             onClick={() => handleRefreshScopes()}
             title="Refresh Scopes"
-            style={{ cursor: isTiCode ? 'pointer' : 'not-allowed' }}
+            style={{ cursor: isRefreshing || loading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="16" height="16" />
+          </IconButton>
+
+          <Separator orientation="vertical" size="1" />
+
+          <IconButton
+            variant="ghost"
+            color="gray"
+            size="2"
+            disabled={!isCollectionScope || isRefreshing || loading || isExplorerOpen}
+            onClick={() => setIsExplorerOpen(true)}
+            title="Open Thing Explorer"
+            style={{ cursor: !isCollectionScope || isRefreshing || loading || isExplorerOpen ? 'not-allowed' : 'pointer' }}
+          >
+            <CubeIcon width="16" height="16" />
           </IconButton>
 
           {workspace.type && <Separator orientation="vertical" size="1" /> }
@@ -273,6 +292,18 @@ export default function StudioTopBar() {
 
         <Separator orientation="vertical" size="1" />
 
+        <Tooltip content="View user profile">
+          <Button
+            variant="ghost"
+            onClick={() => setIsMyUserOpen(true)}
+            size="2"
+            style={{ cursor: 'pointer' }}
+            color="gray"
+          >
+            <PersonIcon width="16" height="16" />
+          </Button>
+        </Tooltip>
+
         <Tooltip content="Logout session">
           <Button
             size="1"
@@ -292,6 +323,17 @@ export default function StudioTopBar() {
           scopes={scopes}
           onClose={() => setIsSearchOpen(false)}
           onSelect={handleSearchSelect}
+        />
+      )}
+      {isExplorerOpen && isCollectionScope && (
+        <ThingExplorerModal
+          scope={activeScope}
+          onClose={() => setIsExplorerOpen(false)}
+        />
+      )}
+      {isMyUserOpen && (
+        <MyUserModal
+          onClose={() => setIsMyUserOpen(false)}
         />
       )}
     </Flex>

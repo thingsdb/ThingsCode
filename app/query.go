@@ -95,6 +95,42 @@ func FetchEnums(conn *thingsdb.Conn, scope string) ([]*Enum, error) {
 	return enums, nil
 }
 
+func FetchTypes(conn *thingsdb.Conn, scope string) ([]*Type, error) {
+	var types []*Type
+	res, err := conn.QueryRaw(scope, "types_info();", nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &types); err != nil {
+		return nil, err
+	}
+	return types, nil
+}
+
+func FetchUsers(conn *thingsdb.Conn) ([]*User, error) {
+	var users []*User
+	res, err := conn.QueryRaw("/t", "users_info();", nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &users); err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func FetchUser(conn *thingsdb.Conn) (*User, error) {
+	var user *User
+	res, err := conn.QueryRaw("/t", "user_info();", nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &user); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func FetchTask(conn *thingsdb.Conn, scope string, taskId uint64) (*TaskDetail, error) {
 	var taskDetail TaskDetail
 	res, err := conn.QueryRaw(scope, `
@@ -114,4 +150,14 @@ func FetchTask(conn *thingsdb.Conn, scope string, taskId uint64) (*TaskDetail, e
 		return nil, err
 	}
 	return &taskDetail, nil
+}
+
+func FetchThing(conn *thingsdb.Conn, scope string, thingsId uint64) (any, error) {
+	if thingsId == 1 {
+		// Thing ID 1 is always the root for containers, except for old ThingsDB
+		// collections. However, in an old ThingsDB collecion there is no "1",
+		// so we can in this case just return the root.
+		return conn.Query(scope, "root();", nil)
+	}
+	return conn.Query(scope, "thing(id);", map[string]any{"id": thingsId})
 }

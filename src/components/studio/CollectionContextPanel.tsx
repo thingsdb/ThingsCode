@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Card, Flex, Text } from '@radix-ui/themes';
 import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
-import CollectionRoomsPanel from './CollectionRoomsPanel';
+import RoomsPanel from './RoomsPanel';
 import TasksPanel from './TasksPanel';
 import ProceduresPanel from './ProceduresPanel';
 import EnumsPanel from './EnumsPanel';
+import ThingExplorer from '../ThingExplorer';
+import TypesPanel from './TypesPanel';
 
 interface CollectionContextPanelProps {
   scope: string;
@@ -53,7 +55,7 @@ export default function CollectionContextPanel({ scope }: CollectionContextPanel
           <Text size="2" weight="bold">Rooms</Text>
           {openSection === 'rooms' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
-        {openSection === 'rooms' && <CollectionRoomsPanel scope={scope} />}
+        {openSection === 'rooms' && <RoomsPanel scope={scope} />}
       </Card>
 
       {/* TASKS */}
@@ -99,6 +101,36 @@ export default function CollectionContextPanel({ scope }: CollectionContextPanel
           {openSection === 'enums' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
         {openSection === 'enums' && <EnumsPanel scope={scope} />}
+      </Card>
+
+      {/* TYPES */}
+      <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+        <Flex
+          align="center"
+          justify="between"
+          py="1"
+          style={{ cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => toggleSection('types')}
+        >
+          <Text size="2" weight="bold">Types</Text>
+          {openSection === 'types' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+        </Flex>
+        {openSection === 'types' && <TypesPanel scope={scope} />}
+      </Card>
+
+      {/* EXPLORER */}
+      <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+        <Flex
+          align="center"
+          justify="between"
+          py="1"
+          style={{ cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => toggleSection('explorer')}
+        >
+          <Text size="2" weight="bold">Explorer</Text>
+          {openSection === 'explorer' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+        </Flex>
+        {openSection === 'explorer' && <ThingExplorer scope={scope} startThingId={1} />}
       </Card>
 
     </Flex>

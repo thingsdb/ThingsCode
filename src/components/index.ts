@@ -7,3 +7,6 @@ export { default as NotificationToast } from './NotificationToast';
 export { default as WorkspaceNotFound } from './WorkspaceNotFound';
 export { default as NodeStatusBadge } from './NodeStatusBadge';
 export { default as Search } from './Search';
+export { default as TreeNode } from './TreeNode';
+export { default as ThingExplorer } from './ThingExplorer';
+export { default as MethodsTab } from './MethodsTab';

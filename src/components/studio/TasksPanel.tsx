@@ -4,7 +4,7 @@ import { ExclamationTriangleIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
 import type { Task } from '../../types';
 import { errStr } from '../../utils';
-import TaskDetailModal from './TaskDetailModal';
+import TaskModal from './TaskModal';
 
 interface TasksPanelProps {
   scope: string;
@@ -166,7 +166,7 @@ export default function TasksPanel({ scope }: TasksPanelProps) {
         })}
       </Flex>
       {viewTaskId && (
-        <TaskDetailModal
+        <TaskModal
           taskId={viewTaskId}
           scope={scope}
           onClose={() => setViewTaskId(null)}

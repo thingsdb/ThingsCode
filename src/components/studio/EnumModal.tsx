@@ -1,44 +1,37 @@
-import { useState, useEffect, useMemo } from 'react';
+import { Fragment, useState } from 'react';
 import { Dialog, Flex, Button, Box, Text, Badge, Tabs, DataList, ScrollArea } from '@radix-ui/themes';
-import Editor from '@monaco-editor/react';
-import { InfoCircledIcon, QuoteIcon, DividerHorizontalIcon, TokensIcon, CubeIcon, CalendarIcon, LightningBoltIcon, EyeOpenIcon } from '@radix-ui/react-icons';
-import { useTheme } from '../../hooks';
+import { QuoteIcon, DividerHorizontalIcon, TokensIcon, CubeIcon, CalendarIcon, ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import { HashIcon } from '../icons';
-import type { Enum, Method, ThingId } from '../../types';
+import type { Enum, ThingId } from '../../types';
+import { MethodsTab, ThingExplorer } from '../';
 
 interface EnumModalProps {
   onClose: (open: boolean) => void;
   enu: Enum;
+  scope: string;
 }
 
-export default function EnumModal({ onClose, enu }: EnumModalProps) {
-  const { appearance } = useTheme();
+export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
   const [activeTab, setActiveTab] = useState<string>('general');
-  const [selectedMethodName, setSelectedMethodName] = useState<string | null>(null);
-
-  const methodNames = useMemo(() => {
-    return enu?.methods ? Object.keys(enu.methods).sort() : [];
-  }, [enu]);
-
-  useEffect(() => {
-    if (methodNames.length > 0) {
-      const name = methodNames[0];
-      queueMicrotask(() => setSelectedMethodName(name));
-    } else {
-      queueMicrotask(() => setSelectedMethodName(null));
-    }
-  }, [methodNames]);
+  const [expandedMembers, setExpandedMembers] = useState<Record<string, boolean>>({});
 
   if (!enu) return null;
 
-  const activeMethod: Method | undefined = enu.methods?.[selectedMethodName || ''];
+  const toggleMemberExplorer = (key: string) => {
+    setExpandedMembers((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   const renderMemberValue = (val: string | number | ThingId) => {
     if (typeof val === 'object' && val !== null && '#' in val) {
       return (
         <Flex align="center" gap="1">
-          <CubeIcon color="var(--gray-8)" />
-          <Text size="2" style={{ fontFamily: 'monospace' }}>#{val['#']}</Text>
+          <CubeIcon color="var(--iris-8)" />
+          <Text size="2" style={{ fontFamily: 'monospace', color: 'var(--iris-11)', fontWeight: 500 }}>
+            #{val['#']}
+          </Text>
         </Flex>
       );
     }
@@ -58,7 +51,6 @@ export default function EnumModal({ onClose, enu }: EnumModalProps) {
                 <Text size="3" weight="bold" color="gray">Enumerator Details</Text>
               </Flex>
               <Flex align="center" gap="2">
-                {/* Re-use type icons matched directly with text labels */}
                 <Badge color="iris" variant="soft" style={{ gap: '4px', paddingInline: '6px' }}>
                   {enu.type === 'str' && <QuoteIcon width="12" height="12" />}
                   {enu.type === 'int' && <HashIcon width="12" height="12" />}
@@ -83,10 +75,10 @@ export default function EnumModal({ onClose, enu }: EnumModalProps) {
           <Tabs.List size="2" style={{ flexShrink: 0 }}>
             <Tabs.Trigger value="general" style={{ cursor: 'pointer' }}>General</Tabs.Trigger>
             <Tabs.Trigger value="members" style={{ cursor: 'pointer' }}>
-              Members ({enu.members?.length || 0})
+              Members ({enu.members.length})
             </Tabs.Trigger>
             <Tabs.Trigger value="methods" style={{ cursor: 'pointer' }}>
-              Methods ({methodNames.length})
+              Methods ({Object.keys(enu.methods).length})
             </Tabs.Trigger>
           </Tabs.List>
 
@@ -102,9 +94,7 @@ export default function EnumModal({ onClose, enu }: EnumModalProps) {
                 <DataList.Item>
                   <DataList.Label color="gray">Default Member</DataList.Label>
                   <DataList.Value>
-                    <Badge color="gray" variant="surface" style={{ fontFamily: 'monospace' }}>
-                      {enu.default}
-                    </Badge>
+                    <Badge color="gray" variant="surface" style={{ fontFamily: 'monospace' }}>{enu.default}</Badge>
                   </DataList.Value>
                 </DataList.Item>
                 <DataList.Item>
@@ -135,22 +125,8 @@ export default function EnumModal({ onClose, enu }: EnumModalProps) {
             </Tabs.Content>
 
             {/* MEMBERS */}
-            <Tabs.Content
-              value="members"
-              style={{
-                height: '100%',
-                maxHeight: '100%',
-              }}
-            >
-              <Flex
-                direction="column"
-                style={{
-                  height: '100%',
-                  maxHeight: '100%',
-                  minHeight: 0,
-                  overflow: 'hidden'
-                }}
-              >
+            <Tabs.Content value="members" style={{ height: '100%', maxHeight: '100%' }}>
+              <Flex direction="column" style={{ height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'hidden' }}>
                 <Box style={{ flexGrow: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                   <ScrollArea
                     type="auto"
@@ -174,37 +150,70 @@ export default function EnumModal({ onClose, enu }: EnumModalProps) {
                     >
                       {enu.members?.map(([key, val]) => {
                         const isDefault = key === enu.default;
+                        const isThingType = enu.type === 'thing' && typeof val === 'object' && val !== null && '#' in val;
+                        const isRowOpen = !!expandedMembers[key];
+
                         return (
-                          <DataList.Item
-                            key={key}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'start',
-                              gap: '12px',
-                              paddingBlock: '4px',
-                              paddingInline: '12px',
-                              borderBottom: '1px solid var(--gray-3)',
-                            }}
-                          >
-                            <DataList.Label style={{ flexShrink: 0, minWidth: 'unset', width: 'auto' }}>
-                              <Text
-                                size="2"
-                                weight={isDefault ? "bold" : "medium"}
-                                color="gray"
-                                style={{ fontFamily: 'monospace' }}
+                          <Fragment key={key}>
+                            <DataList.Item
+                              onClick={() => isThingType && toggleMemberExplorer(key)}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'start',
+                                gap: '12px',
+                                paddingBlock: '6px',
+                                paddingInline: '12px',
+                                borderBottom: isRowOpen ? 'none' : '1px solid var(--gray-3)',
+                                cursor: isThingType ? 'pointer' : 'default',
+                                userSelect: 'none'
+                              }}
+                            >
+                              {/* expandable thing */}
+                              {isThingType && (
+                                <Box style={{ color: 'var(--gray-8)', marginLeft: '-4px', marginRight: '-4px', display: 'flex' }}>
+                                  {isRowOpen ? <ChevronDownIcon width="14" height="14" /> : <ChevronRightIcon width="14" height="14" />}
+                                </Box>
+                              )}
+
+                              <DataList.Label style={{ flexShrink: 0, minWidth: 'unset', width: 'auto' }}>
+                                <Text
+                                  size="2"
+                                  weight={isDefault ? "bold" : "medium"}
+                                  color="gray"
+                                  style={{ fontFamily: 'monospace' }}
+                                >
+                                  {key}
+                                </Text>
+                              </DataList.Label>
+                              <Text size="1" color="gray" style={{ userSelect: 'none', opacity: 0.5 }}>=</Text>
+                              <DataList.Value style={{ width: 'auto' }}>
+                                <Flex align="center" gap="2">
+                                  {renderMemberValue(val)}
+                                  {isDefault && <Badge color="iris" size="1" variant="soft">Default</Badge>}
+                                </Flex>
+                              </DataList.Value>
+                            </DataList.Item>
+
+                            {/* THING EXPLORER */}
+                            {isThingType && isRowOpen && (
+                              <Box
+                                px="3"
+                                pb="3"
+                                style={{
+                                  backgroundColor: isDefault ? 'var(--iris-1)' : 'transparent',
+                                  borderBottom: '1px solid var(--gray-3)'
+                                }}
                               >
-                                {key}
-                              </Text>
-                            </DataList.Label>
-                            <Text size="1" color="gray" style={{ userSelect: 'none', opacity: 0.5 }}>=</Text>
-                            <DataList.Value style={{ width: 'auto' }}>
-                              <Flex align="center" gap="2">
-                                {renderMemberValue(val)}
-                                {isDefault && <Badge color="iris" size="1" variant="soft">Default</Badge>}
-                              </Flex>
-                            </DataList.Value>
-                          </DataList.Item>
+                                <Box style={{ paddingLeft: '16px', borderLeft: '2px solid var(--iris-4)' }}>
+                                  <ThingExplorer
+                                    scope={scope}
+                                    startThingId={Object.values(val as ThingId)[0]}
+                                  />
+                                </Box>
+                              </Box>
+                            )}
+                          </Fragment>
                         );
                       })}
                     </DataList.Root>
@@ -215,122 +224,18 @@ export default function EnumModal({ onClose, enu }: EnumModalProps) {
 
             {/* METHODS */}
             <Tabs.Content value="methods" style={{ height: '100%' }}>
-              {methodNames.length === 0 ? (
-                <Flex align="center" justify="center" style={{ height: '100%' }}>
-                  <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
-                    No custom methods defined on this enumerator type.
-                  </Text>
-                </Flex>
-              ) : (
-                <Flex gap="3" style={{ height: '100%', minHeight: 0 }}>
-                  <Flex direction="column" gap="1" style={{
-                    width: '240px',
-                    flexShrink: 0,
-                    overflowY: 'auto',
-                    border: '1px solid var(--gray-4)',
-                    borderRadius: 'var(--radius-3)',
-                    padding: '2px',
-                    backgroundColor: 'var(--gray-1)'
-                  }}>
-                    {methodNames.map((mName) => {
-                      const isSelected = mName === selectedMethodName;
-                      return (
-                        <Box
-                          key={mName}
-                          onClick={() => setSelectedMethodName(mName)}
-                          px="2"
-                          py="1"
-                          style={{
-                            borderRadius: 'var(--radius-2)',
-                            cursor: 'pointer',
-                            backgroundColor: isSelected ? 'var(--iris-9)' : 'transparent',
-                            transition: 'background-color 0.1s ease',
-                          }}
-                        >
-                          <Text size="1" weight={isSelected ? "bold" : "regular"} style={{
-                            color: isSelected ? '#fff' : 'var(--gray-12)',
-                            fontFamily: 'monospace',
-                            wordBreak: 'break-all'
-                          }}>
-                            {mName}()
-                          </Text>
-                        </Box>
-                      );
-                    })}
-                  </Flex>
-
-                  {/* CODE VIEW */}
-                  <Flex direction="column" style={{ flexGrow: 1, minHeight: 0, gap: '8px' }}>
-                    {activeMethod ? (
-                      <Flex direction="column" style={{ height: '100%', minHeight: 0 }} gap="2">
-                        <Flex align="center" justify="between" flexShrink="0">
-                          <Flex align="center" gap="2">
-                            <Text size="2" weight="bold" style={{ fontFamily: 'monospace' }}>
-                              {selectedMethodName}({activeMethod.arguments?.join(', ') || ''})
-                            </Text>
-                          </Flex>
-                          {activeMethod.withSideEffects ? (
-                            <Badge color="orange" variant="surface" size="1" style={{ gap: '2px' }}>
-                              <LightningBoltIcon width="10" height="10" />
-                              <Text style={{ fontSize: '9px' }}>WSE</Text>
-                            </Badge>
-                          ) : (
-                            <Badge color="gray" variant="outline" size="1" style={{ gap: '2px', borderColor: 'var(--gray-4)' }}>
-                              <EyeOpenIcon width="10" height="10" color="var(--gray-7)" />
-                              <Text style={{ fontSize: '9px', color: 'var(--gray-9)' }}>NSE</Text>
-                            </Badge>
-                          )}
-                        </Flex>
-
-                        {/* Optional Docstring */}
-                        {activeMethod.doc && (
-                          <Flex align="start" gap="2" p="2" style={{ backgroundColor: 'var(--gray-2)', borderRadius: 'var(--radius-2)' }} flexShrink="0">
-                            <InfoCircledIcon width="14" height="14" color="var(--iris-8)" style={{ marginTop: '1px', flexShrink: 0 }} />
-                            <Text size="1" color="gray" style={{ fontStyle: 'italic' }}>
-                              {activeMethod.doc}
-                            </Text>
-                          </Flex>
-                        )}
-
-                        {/* Monaco Editor */}
-                        <Box style={{ flexGrow: 1, border: '1px solid var(--gray-5)', borderRadius: 'var(--radius-2)', overflow: 'hidden' }}>
-                          <Editor
-                            theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
-                            language="thingsdb"
-                            path={`.ticode-enum-method-${selectedMethodName}.ti`}
-                            value={activeMethod.definition}
-                            options={{
-                              readOnly: true,
-                              domReadOnly: true,
-                              fontSize: 12,
-                              fontFamily: 'monospace',
-                              minimap: { enabled: false },
-                              automaticLayout: true,
-                              lineNumbers: 'on',
-                              scrollbar: { vertical: 'visible', horizontal: 'visible' },
-                              tabSize: 4,
-                            }}
-                          />
-                        </Box>
-                      </Flex>
-                    ) : (
-                      <Flex align="center" justify="center" style={{ height: '100%' }}>
-                        <Text size="1" color="gray">Select a method from the left column to view definition.</Text>
-                      </Flex>
-                    )}
-                  </Flex>
-                </Flex>
-              )}
+              <MethodsTab
+                methods={enu.methods}
+                editorPathPrefix="enum"
+                fallbackText="No methods defined on this enumerator type."
+              />
             </Tabs.Content>
           </Box>
         </Tabs.Root>
 
-        {/* BOTTOM DIALOG FOOTER ACTION */}
         <Flex gap="3" justify="end" flexShrink="0" style={{ paddingTop: '12px', marginTop: '12px' }}>
           <Dialog.Close>
-            <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
-              Close
-            </Button>
+            <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>Close</Button>
           </Dialog.Close>
         </Flex>
       </Dialog.Content>

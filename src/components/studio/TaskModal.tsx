@@ -13,13 +13,13 @@ interface TaskDetail {
   error: string | null;
 }
 
-interface TaskDetailModalProps {
+interface TaskModalProps {
   taskId: number | null;
   scope: string;
   onClose: () => void;
 }
 
-export default function TaskDetailModal({ taskId, scope, onClose }: TaskDetailModalProps) {
+export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
   const { emit } = useWebSocket();
   const activeId = useActiveWorkspaceId();
   const { appearance } = useTheme();

@@ -141,7 +141,7 @@ type Workspace struct {
 	conn       *thingsdb.Conn    `json:"-"`
 }
 
-type WorkspaceRes struct {
+type WorkspaceID struct {
 	ID string `json:"id"`
 }
 
@@ -245,6 +245,12 @@ type TaskReq struct {
 	TaskId uint64 `json:"taskId"`
 }
 
+type ThingReq struct {
+	ID       string `json:"id"`
+	Scope    string `json:"scope"`
+	ThingsID uint64 `json:"thingId"`
+}
+
 type TaskDetail struct {
 	Id      uint64 `msgpack:"id" json:"id"`
 	Owner   string `msgpack:"owner" json:"owner"`
@@ -301,6 +307,47 @@ type Enum struct {
 		Doc             string   `msgpack:"doc" json:"doc,omitempty"`
 		Arguments       []string `msgpack:"arguments" json:"arguments"`
 	} `msgpack:"methods" json:"methods"`
+}
+
+type Type struct {
+	Name       string  `msgpack:"name" json:"name"`
+	CreatedAt  int64   `msgpack:"created_at" json:"createdAt"`
+	ModifiedAt int64   `msgpack:"modified_at,omitempty" json:"modifiedAt,omitempty"`
+	HideId     bool    `msgpack:"hide_id" json:"hideId"`
+	WrapOnly   bool    `msgpack:"wrap_only" json:"wrapOnly"`
+	AutoIndex  bool    `msgpack:"auto_index" json:"autoIndex"`
+	Fields     [][]any `msgpack:"fields" json:"fields"`
+	Methods    map[string]struct {
+		WithSideEffects bool     `msgpack:"with_side_effects" json:"withSideEffects"`
+		Definition      string   `msgpack:"definition" json:"definition"`
+		Doc             string   `msgpack:"doc" json:"doc,omitempty"`
+		Arguments       []string `msgpack:"arguments" json:"arguments"`
+	} `msgpack:"methods" json:"methods"`
+	Relations map[string]struct {
+		Type       string `msgpack:"type" json:"type"`
+		Property   string `msgpack:"property" json:"property"`
+		Definition string `msgpack:"definition" json:"definition"`
+	} `msgpack:"relations" json:"relations"`
+}
+
+type User struct {
+	Name        string `msgpack:"name" json:"name"`
+	CreatedAt   int64  `msgpack:"created_at" json:"createdAt"`
+	HasPassword bool   `msgpack:"has_password" json:"hasPassword"`
+	Access      []struct {
+		Privileges string `msgpack:"privileges" json:"privileges"`
+		Scope      string `msgpack:"scope" json:"scope"`
+	} `msgpack:"access" json:"access"`
+	Tokens []struct {
+		CreatedOn      string `msgpack:"created_on" json:"createdOn"`
+		ExpirationTime string `msgpack:"expiration_time" json:"expirationTime"`
+		Key            string `msgpack:"key" json:"key"`
+		Status         string `msgpack:"status" json:"status"`
+	} `msgpack:"tokens" json:"tokens"`
+	Whitelists struct {
+		Procedures []string `msgpack:"procedures,omitempty" json:"procedures,omitempty"`
+		Rooms      []string `msgpack:"rooms,omitempty" json:"rooms,omitempty"`
+	} `msgpack:"whitelists" json:"whitelists"`
 }
 
 type Scope struct {

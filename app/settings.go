@@ -90,7 +90,7 @@ func (s *Settings) FetchWorkspaces() []*Workspace {
 	return decryptedList
 }
 
-func (s *Settings) AddWorkspace(w *Workspace) (*WorkspaceRes, error) {
+func (s *Settings) AddWorkspace(w *Workspace) (*WorkspaceID, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	w.GenerateID()
@@ -115,7 +115,7 @@ func (s *Settings) AddWorkspace(w *Workspace) (*WorkspaceRes, error) {
 
 	s.Workspaces = append(s.Workspaces, w)
 
-	res := WorkspaceRes{
+	res := WorkspaceID{
 		ID: w.ID,
 	}
 
@@ -158,7 +158,7 @@ func (s *Settings) CloseWorkspace(id string) error {
 	return nil
 }
 
-func (s *Settings) UpdateWorkspace(ws *Workspace) (*WorkspaceRes, error) {
+func (s *Settings) UpdateWorkspace(ws *Workspace) (*WorkspaceID, error) {
 	w, err := s.getWorkspace(ws.ID)
 	if err != nil {
 		return nil, err
@@ -227,7 +227,7 @@ func (s *Settings) UpdateWorkspace(ws *Workspace) (*WorkspaceRes, error) {
 		return nil, fmt.Errorf("failed to commit workspace updates to disk: %w", err)
 	}
 
-	res := WorkspaceRes{
+	res := WorkspaceID{
 		ID: w.ID,
 	}
 
@@ -828,6 +828,48 @@ func (s *Settings) FetchEnums(c *ForScope, wsConn *websocket.Conn) ([]*Enum, err
 	return FetchEnums(conn, c.Scope)
 }
 
+func (s *Settings) FetchTypes(c *ForScope, wsConn *websocket.Conn) ([]*Type, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchTypes(conn, c.Scope)
+}
+
+func (s *Settings) FetchUsers(c *WorkspaceID, wsConn *websocket.Conn) ([]*User, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchUsers(conn)
+}
+
+func (s *Settings) FetchUser(c *WorkspaceID, wsConn *websocket.Conn) (*User, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchUser(conn)
+}
+
 func (s *Settings) FetchTask(c *TaskReq, wsConn *websocket.Conn) (*TaskDetail, error) {
 	w, err := s.getWorkspace(c.ID)
 	if err != nil {
@@ -840,6 +882,20 @@ func (s *Settings) FetchTask(c *TaskReq, wsConn *websocket.Conn) (*TaskDetail, e
 		return nil, err
 	}
 	return FetchTask(conn, c.Scope, c.TaskId)
+}
+
+func (s *Settings) FetchThing(c *ThingReq, wsConn *websocket.Conn) (any, error) {
+	w, err := s.getWorkspace(c.ID)
+	if err != nil {
+		return nil, err
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	conn, err := s.getConn(w, wsConn)
+	if err != nil {
+		return nil, err
+	}
+	return FetchThing(conn, c.Scope, c.ThingsID)
 }
 
 func (s *Settings) StartCleanTask() {
