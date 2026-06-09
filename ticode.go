@@ -71,7 +71,9 @@ func main() {
 	go func() {
 		log.Printf("Server starting on :%d\n", *httpPortPtr)
 		if !*disableOpenBrowser {
-			go app.OpenUrl(fmt.Sprintf("http://localhost:%d/", *httpPortPtr))
+			go func() {
+				_ = app.OpenUrl(fmt.Sprintf("http://localhost:%d/", *httpPortPtr))
+			}()
 		}
 
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
