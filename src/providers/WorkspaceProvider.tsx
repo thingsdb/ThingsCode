@@ -103,7 +103,7 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
   const quickConnect = async (tmpWs: Omit<Workspace, 'id'>) => {
     try {
       const id = await addWorkspaceHelper(tmpWs);
-      window.history.pushState({}, '', `/workspace/${id}`);
+      window.history.pushState({}, '', `?workspace=${id}`);
       window.dispatchEvent(new PopStateEvent('popstate'));
     } catch (err: unknown) {
       console.error("Failed to set-up quick connect workspace:", err);

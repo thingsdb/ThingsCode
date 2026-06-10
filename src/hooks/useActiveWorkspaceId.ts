@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
 
-// Quick helper hook to grab the workspace ID out of the native browser URL window
 export function useActiveWorkspaceId() {
-  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const getWorkspaceId = () =>
+    new URLSearchParams(window.location.search).get('workspace');
+
+  const [workspaceId, setWorkspaceId] = useState(getWorkspaceId);
 
   useEffect(() => {
-    const handleLocationChange = () => setCurrentPath(window.location.pathname);
+    const handleLocationChange = () => setWorkspaceId(getWorkspaceId());
+
     window.addEventListener('popstate', handleLocationChange);
+
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
 
-  if (currentPath.startsWith('/workspace/')) {
-    return currentPath.replace('/workspace/', '');
-  }
-  return null;
+  return workspaceId;
 }

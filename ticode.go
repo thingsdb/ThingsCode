@@ -69,11 +69,6 @@ func main() {
 		app.ServeWs(w, r)
 	})
 
-	// for example; /workspace/37f0e378 should also go to / and will be read by react app
-	http.HandleFunc("/workspace/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./dist/index.html")
-	})
-
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", *httpPortPtr),
 		Handler: nil,
