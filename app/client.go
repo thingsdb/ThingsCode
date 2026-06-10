@@ -62,7 +62,7 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 		}
 
 		// ROUTE BY TYPE
-		log.Printf("MSG TYPE START: %s", msg.Type)
+		// log.Printf("MSG TYPE START: %s", msg.Type)
 
 		switch msg.Type {
 		case "FETCH_WORKSPACES":
@@ -467,6 +467,6 @@ func ServeWs(httpRespWriter http.ResponseWriter, httpRequest *http.Request) {
 			_ = writeError(wsConn, &msg, fmt.Errorf("unknown msg Type: %s", msg.Type))
 		}
 
-		log.Printf("MSG TYPE END: %s", msg.Type)
+		// log.Printf("MSG TYPE END: %s", msg.Type)
 	}
 }

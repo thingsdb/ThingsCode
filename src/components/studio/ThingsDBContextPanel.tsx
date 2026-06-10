@@ -5,6 +5,7 @@ import TasksPanel from './TasksPanel';
 import ProceduresPanel from './ProceduresPanel';
 import UsersPanel from './UserPanel';
 import HistoryPanel from './HistoryPanel';
+import ModulesPanel from './ModulesPanel';
 
 interface ThingsDBContextPanelProps {
   scope: string;
@@ -85,6 +86,21 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
           {openSection === 'users' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
         {openSection === 'users' && <UsersPanel />}
+      </Card>
+
+      {/* MODULES */}
+      <Card size="1" variant="ghost" style={{ padding: '15px', backgroundColor: 'var(--gray-2)', borderBottom: '1px solid var(--gray-4)', borderRadius: 0 }}>
+        <Flex
+          align="center"
+          justify="between"
+          py="1"
+          style={{ cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => toggleSection('modules')}
+        >
+          <Text size="2" weight="bold">Modules</Text>
+          {openSection === 'modules' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
+        </Flex>
+        {openSection === 'modules' && <ModulesPanel scope={scope} />}
       </Card>
 
       {/* HISTORY */}

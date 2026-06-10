@@ -81,7 +81,7 @@ export default function ModulesPanel({ scope }: ModulesPanelProps) {
             borderRadius: 'var(--radius-2)'
           }}
         >
-          <Text size="1" color="gray">No modules found on this node.</Text>
+          <Text size="1" color="gray">No modules found.</Text>
         </Box>
       )}
 
