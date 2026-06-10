@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Card, Flex, Text, Box, Em } from '@radix-ui/themes';
+import { Card, Flex, Text } from '@radix-ui/themes';
 import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import NodeInfoPanel from './NodeInfoPanel';
 import NodeCountersPanel from './NodeCountersPanel';
+import BackupsPanel from './BackupsPanel';
+import ModulesPanel from './ModulesPanel';
 
 interface NodeContextPanelProps {
   scope: string;
@@ -85,7 +87,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           <Text size="2" weight="bold">Backups</Text>
           {openSection === 'backups' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
-        {openSection === 'backups' && <Box pb="3"><Text size="1" color="gray"><Em>Backups coming soon...</Em></Text></Box>}
+        {openSection === 'backups' && <BackupsPanel scope={scope} />}
       </Card>
 
       {/* MODULES */}
@@ -100,7 +102,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           <Text size="2" weight="bold">Modules</Text>
           {openSection === 'modules' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
         </Flex>
-        {openSection === 'modules' && <Box pb="3"><Text size="1" color="gray"><Em>Modules coming soon...</Em></Text></Box>}
+        {openSection === 'modules' && <ModulesPanel scope={scope} />}
       </Card>
     </Flex>
   );

@@ -58,6 +58,8 @@ export const LanguageData = {
             'map_id': 'The function must be called on a list with things and returns a new list with the Ids of all the things.',
             'map_type': 'The function must be called on a list with Ids (integer values) or things and returns a new list with the Ids and things converted to corresponding typed things.',
             'map_wrap': 'The function must be called on a list with things and returns a new list with every thing wrapped according the given type.',
+            'max': 'Returns the maximum value from a list or tuple.',
+            'min': 'Returns the minimum value from a list or tuple.',
             'pop': 'Removes the last element from a list and returns that element. This method changes the length of the list. The pop() method works on a list type array, but not on a tuple since tuples are immutable.',
             'push': 'Adds new items to the end of an list, and returns the new length',
             'reduce': 'Executes a given reducer closure on each element of the list, resulting in a single output value.',

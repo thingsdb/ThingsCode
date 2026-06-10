@@ -294,7 +294,7 @@ type Task struct {
 type Procedure struct {
 	Name            string   `msgpack:"name" json:"name"`
 	WithSideEffects bool     `msgpack:"with_side_effects" json:"withSideEffects"`
-	CreatedAt       int64    `msgpack:"created_at" json:"createdAt"`
+	CreatedAt       uint64   `msgpack:"created_at" json:"createdAt"`
 	Definition      string   `msgpack:"definition" json:"definition,omitempty"`
 	Doc             string   `msgpack:"doc" json:"doc,omitempty"`
 	Arguments       []string `msgpack:"arguments" json:"arguments"`
@@ -303,8 +303,8 @@ type Procedure struct {
 type Enum struct {
 	Name       string  `msgpack:"name" json:"name"`
 	Default    string  `msgpack:"default" json:"default"`
-	CreatedAt  int64   `msgpack:"created_at" json:"createdAt"`
-	ModifiedAt int64   `msgpack:"modified_at,omitempty" json:"modifiedAt,omitempty"`
+	CreatedAt  uint64  `msgpack:"created_at" json:"createdAt"`
+	ModifiedAt uint64  `msgpack:"modified_at,omitempty" json:"modifiedAt,omitempty"`
 	Members    [][]any `msgpack:"members" json:"members"`
 	Type       string  `json:"type"`
 	Methods    map[string]struct {
@@ -317,8 +317,8 @@ type Enum struct {
 
 type Type struct {
 	Name       string  `msgpack:"name" json:"name"`
-	CreatedAt  int64   `msgpack:"created_at" json:"createdAt"`
-	ModifiedAt int64   `msgpack:"modified_at,omitempty" json:"modifiedAt,omitempty"`
+	CreatedAt  uint64  `msgpack:"created_at" json:"createdAt"`
+	ModifiedAt uint64  `msgpack:"modified_at,omitempty" json:"modifiedAt,omitempty"`
 	HideId     bool    `msgpack:"hide_id" json:"hideId"`
 	WrapOnly   bool    `msgpack:"wrap_only" json:"wrapOnly"`
 	AutoIndex  bool    `msgpack:"auto_index" json:"autoIndex"`
@@ -338,7 +338,7 @@ type Type struct {
 
 type User struct {
 	Name        string `msgpack:"name" json:"name"`
-	CreatedAt   int64  `msgpack:"created_at" json:"createdAt"`
+	CreatedAt   uint64 `msgpack:"created_at" json:"createdAt"`
 	HasPassword bool   `msgpack:"has_password" json:"hasPassword"`
 	Access      []struct {
 		Privileges string `msgpack:"privileges" json:"privileges"`
@@ -363,6 +363,36 @@ type Commit struct {
 	Message   string `msgpack:"message" json:"message"`
 	ErrMsg    string `msgpack:"err_msg,omitempty" json:"errMsg,omitempty"`
 	Code      string `msgpack:"code,omitempty" json:"code,omitempty"`
+}
+
+type Backup struct {
+	ID            uint64   `msgpack:"id" json:"id"`
+	CreatedAt     uint64   `msgpack:"created_at" json:"createdAt"`
+	FileTemplate  string   `msgpack:"file_template" json:"fileTemplate"`
+	Files         []string `msgpack:"files" json:"files"`
+	NextRun       string   `msgpack:"next_run,omitempty" json:"nextRun,omitempty"`
+	Repeat        *uint64  `msgpack:"repeat,omitempty" json:"repeat,omitempty"`
+	MaxFiles      *uint64  `msgpack:"max_files,omitempty" json:"maxFiles,omitempty"`
+	ResultCode    *int64   `msgpack:"result_code,omitempty" json:"resultCode,omitempty"`
+	ResultMessage string   `msgpack:"result_message,omitempty" json:"resultMessage,omitempty"`
+}
+
+type Module struct {
+	Name            string  `msgpack:"name" json:"name"`
+	CreatedAt       uint64  `msgpack:"created_at" json:"createdAt"`
+	Status          string  `msgpack:"status" json:"status"`
+	Version         string  `msgpack:"version,omitempty" json:"version,omitempty"`
+	Scope           string  `msgpack:"scope,omitempty" json:"scope,omitempty"`
+	File            string  `msgpack:"file,omitempty" json:"file,omitempty"`
+	Doc             string  `msgpack:"doc,omitempty" json:"doc,omitempty"`
+	Conf            any     `msgpack:"conf,omitempty" json:"conf,omitempty"`
+	Exposes         any     `msgpack:"exposes,omitempty" json:"exposes,omitempty"`
+	Restarts        *uint64 `msgpack:"restarts,omitempty" json:"restarts,omitempty"`
+	Tasks           *uint64 `msgpack:"tasks,omitempty" json:"tasks,omitempty"`
+	GithubOwner     string  `msgpack:"github_owner,omitempty" json:"githubOwner,omitempty"`
+	GithubRef       string  `msgpack:"github_ref,omitempty" json:"githubRef,omitempty"`
+	GithubRepo      string  `msgpack:"github_repo,omitempty" json:"githubRepo,omitempty"`
+	GithubWithToken *bool   `msgpack:"github_with_token,omitempty" json:"githubWithToken,omitempty"`
 }
 
 type Scope struct {

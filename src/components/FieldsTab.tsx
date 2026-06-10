@@ -180,7 +180,7 @@ export default function FieldsTab({ tp, onNavigateToType }: FieldsTabProps) {
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {isComplex ? (Array.isArray(definition) ? '[{...}]' : '{...}') : definition}
+                        {isComplex ? (Array.isArray(definition) ? '[{…}]' : '{…}') : definition}
                       </Text>
 
                       <DataList.Value style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>

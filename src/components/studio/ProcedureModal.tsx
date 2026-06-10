@@ -3,7 +3,7 @@ import { Dialog, Flex, Button, Box, Text, Callout, Badge, Tabs } from '@radix-ui
 import Editor from '@monaco-editor/react';
 import { InfoCircledIcon, ExclamationTriangleIcon, LightningBoltIcon, EyeOpenIcon, PlayIcon } from '@radix-ui/react-icons';
 import { useTheme, useWebSocket, useActiveWorkspaceId } from '../../hooks';
-import type { Procedure } from '../../types';
+import type { Procedure, Result } from '../../types';
 import { parse } from 'lossless-json';
 import { errStr } from '../../utils';
 
@@ -11,12 +11,6 @@ interface ProcedureModalProps {
   onClose: (open: boolean) => void;
   scope: string;
   procedure: Procedure;
-}
-
-interface Result {
-  data?: unknown;
-  error?: string;
-  warning?: string;
 }
 
 export default function ProcedureModal({
@@ -95,7 +89,8 @@ export default function ProcedureModal({
       setExecutionResult(response);
     } catch (err: unknown) {
       setExecutionResult({
-        error: errStr(err, "An unknown network error occurred during procedure execution.")
+        error: errStr(err, "An unknown network error occurred during procedure execution."),
+        ts: Date.now(),
       });
     } finally {
       setIsRunning(false);

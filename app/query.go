@@ -107,6 +107,30 @@ func FetchTypes(conn *thingsdb.Conn, scope string) ([]*Type, error) {
 	return types, nil
 }
 
+func FetchBackups(conn *thingsdb.Conn, scope string) ([]*Backup, error) {
+	var backups []*Backup
+	res, err := conn.QueryRaw(scope, "backups_info();", nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &backups); err != nil {
+		return nil, err
+	}
+	return backups, nil
+}
+
+func FetchModules(conn *thingsdb.Conn, scope string) ([]*Module, error) {
+	var modules []*Module
+	res, err := conn.QueryRaw(scope, "modules_info();", nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := msgpack.Unmarshal(res, &modules); err != nil {
+		return nil, err
+	}
+	return modules, nil
+}
+
 func FetchHistory(conn *thingsdb.Conn, scope string) ([]*Commit, error) {
 	var commits []*Commit
 	res, err := conn.QueryRaw("/t", "history(options);", map[string]any{

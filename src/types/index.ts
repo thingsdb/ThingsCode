@@ -202,6 +202,36 @@ export interface Commit {
   code?: string;
 }
 
+export interface Backup {
+  id: number;
+  createdAt: number;
+  fileTemplate: string;
+  files: string[];
+  nextRun?: string;  // e.g., "2026-06-09 13:46:18Z"
+  repeat?: number;  // repeat every X seconds (undefined = no repeat)
+  maxFiles?: number;  // keep max X files (undefined = keep all)
+  resultCode?: number;  // 0=success, undefined=pending, other=error
+  resultMessage?: string;  // success or failed message, undefined=pending
+}
+
+export interface Module {
+  name: string;
+  createdAt: number;
+  status: string;  // "running", "installing module...", or error string
+  version?: string;
+  scope?: string;  // scope restriction, undefined = not restricted to any scope
+  file?: string;  // module file loaded
+  doc?: string;  // doc string, most likely a link to docs if not undefined
+  conf?: Record<string, unknown>;  // optional configuration best viewed as JSON
+  exposes?: Record<string, unknown>;  // optional exposing configuration, best vieded as JSON
+  restarts?: number;  // number of restarts on this node (available since ThingsDB >=1.8.9)
+  tasks?: number;  // number of running tasks on this node (available since ThingsDB >=1.8.9)
+  githubOwner?: string;  // GitHub owner (if GH module)
+  githubRef?: string;  // GitHub reference (if GH module) e.g., default or tag
+  githubRepo?: string;  // GitHub repository (if GH module)
+  githubWithToken?: boolean;  // GitHub token auth used (or not) (if GH module)
+}
+
 export interface Scope {
 	name: string;
 	requireCommit: boolean;
