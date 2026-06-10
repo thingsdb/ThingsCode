@@ -38,3 +38,15 @@ GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bin/linux-amd64/ticode
 mkdir -p bin/windows-amd64
 GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o bin/windows-amd64/ticode.exe
 ```
+
+
+## Update
+
+```
+npm update
+```
+
+```
+go get -u ./...
+go mod tidy
+```

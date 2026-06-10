@@ -6,10 +6,6 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/thingsdb/go-thingsdb v1.0.10 h1:KZhdELUSOf8aQzLv9k0pqSC3QqKsy1bq1dl5YX/TMC4=
-github.com/thingsdb/go-thingsdb v1.0.10/go.mod h1:Egsm5zNcshZtdjLR6Dd02Wjk8UR626XTcaZLc03Hnpw=
-github.com/thingsdb/go-thingsdb v1.1.0 h1:mwaP5UhT2qQQnHklp3rFdXn71YCtaDH8Q8ApMxGBpds=
-github.com/thingsdb/go-thingsdb v1.1.0/go.mod h1:Egsm5zNcshZtdjLR6Dd02Wjk8UR626XTcaZLc03Hnpw=
 github.com/thingsdb/go-thingsdb v1.1.2 h1:ECzB/sUByLP3dzM/7Cfu2yx5SkMIyMBs/zVn/jbYsvI=
 github.com/thingsdb/go-thingsdb v1.1.2/go.mod h1:Egsm5zNcshZtdjLR6Dd02Wjk8UR626XTcaZLc03Hnpw=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
