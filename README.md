@@ -30,7 +30,7 @@ The following command will install `ticode` in path if supported by the OS.
 sudo ./ticode install
 ```
 
-## Local Setup
+## Local development/custom build
 
 **1. Install the dependencies:**
 
