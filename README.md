@@ -14,8 +14,8 @@ ThingsCode (or **ticode** for short) is the interactive development studio built
 - [Linux (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.1/ticode-linux-arm64-1.0.1.tar.gz)
 - [Darwin (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.1/ticode-darwin-amd64-1.0.1.tar.gz)
 - [Darwin (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.1/ticode-darwin-arm64-1.0.1.tar.gz)
-- [Windows (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.1/ticode-windows-amd64-1.0.1.zip)
-- [Windows (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.1/ticode-windows-arm64-1.0.1.zip)
+- [Windows (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.1/ticode-windows-amd64-1.0.1.tar.gz)
+- [Windows (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.1/ticode-windows-arm64-1.0.1.tar.gz)
 
 **2. Extract the contents of the archive using a tool like `tar`. Here's an example for Linux (amd64):**
 
