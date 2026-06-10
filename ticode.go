@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/thingsdb/ThingsCode/app"
+	"github.com/thingsdb/ThingsCode/install"
 )
 
 //go:embed dist
@@ -31,9 +32,21 @@ func main() {
 	settingsFilePtr := flag.String("settings-file", defaultSettingsPath, "Path to the settings JSON file")
 	httpPortPtr := flag.Uint("port", 6213, "Specific port for the HTTP webserver")
 	disableOpenBrowser := flag.Bool("disable-open-browser", false, "Disable opening ThingsCode in your default browser")
+	cmdInstall := flag.Bool("install", false, "Install ThingsCode")
+	cmdVersion := flag.Bool("version", false, "Print version and exit")
 
 	// Parse arguments
 	flag.Parse()
+
+	if *cmdInstall {
+		install.Install()
+		os.Exit(0)
+	}
+
+	if *cmdVersion {
+		fmt.Printf("ThingsCode Version %s\n", app.Version)
+		os.Exit(0)
+	}
 
 	settingsFile := *settingsFilePtr
 

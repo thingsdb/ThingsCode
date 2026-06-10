@@ -1,14 +1,44 @@
+[![CI](https://github.com/thingsdb/ThingsCode/workflows/CI/badge.svg)](https://github.com/thingsdb/ThingsCode/actions)
+[![Release Version](https://img.shields.io/github/release/thingsdb/ThingsCode)](https://github.com/thingsdb/ThingsCode/releases)
+
 # ThingsDB Code
 
-## Setup
+ThingsCode (or **ticode** for short) is the interactive development studio built for [ThingsDB](https://docs.thingsdb.io).
 
-Install the dependencies:
+## Installation
+
+**1. Download the latest version:**
+
+- [Linux (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.0/ticode-linux-amd64-1.0.0.tar.gz)
+- [Linux (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.0/ticode-linux-arm64-1.0.0.tar.gz)
+- [Darwin (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.0/ticode-darwin-amd64-1.0.0.tar.gz)
+- [Darwin (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.0/ticode-darwin-arm64-1.0.0.tar.gz)
+- [Windows (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.0/ticode-windows-amd64-1.0.0.zip)
+- [Windows (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.0/ticode-windows-arm64-1.0.0.zip)
+
+**2. Extract the contents of the archive using a tool like `tar`. Here's an example for Linux (amd64):**
+
+```bash
+tar -xzvf ticode-linux-amd64-1.0.0.tar.gz
+```
+
+**3. Install:**
+
+The following command will install `ticode` in path if supported by the OS.
+
+```bash
+sudo ./ticode install
+```
+
+## Local Setup
+
+**1. Install the dependencies:**
 
 ```bash
 npm install
 ```
 
-## Get started
+**2. Start the webserver:**
 
 Start the webserver, the app will be available at [http://localhost:6213](http://localhost:6213).
 
@@ -28,25 +58,50 @@ npm run dev
 
 ```bash
 npm run build
-
-mkdir -p bin/darwin-arm64
-GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -o bin/darwin-arm64/ticode
-
-mkdir -p bin/linux-amd64
-GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bin/linux-amd64/ticode
-
-mkdir -p bin/windows-amd64
-GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o bin/windows-amd64/ticode.exe
+CGO_ENABLED=0 go build -trimpath -o ticode
 ```
 
+Or, if you want to make a release and upload tar.gz files for all architecture:
+
+```bash
+npm run build
+
+mkdir -p bin/darwin-amd64
+GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -o bin/darwin-amd64/ticode
+tar -zcf bin/ticode-darwin-amd64-1.0.0.tar.gz -C ./bin/darwin-amd64/ ticode
+
+mkdir -p bin/darwin-arm64
+GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -o bin/darwin-arm64/ticode
+tar -zcf bin/ticode-darwin-arm64-1.0.0.tar.gz -C ./bin/darwin-arm64/ ticode
+
+mkdir -p bin/linux-amd64
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -o bin/linux-amd64/ticode
+tar -zcf bin/ticode-linux-amd64-1.0.0.tar.gz -C ./bin/linux-amd64/ ticode
+
+mkdir -p bin/linux-arm64
+GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -o bin/linux-arm64/ticode
+tar -zcf bin/ticode-linux-arm64-1.0.0.tar.gz -C ./bin/linux-arm64/ ticode
+
+mkdir -p bin/windows-amd64
+GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -o bin/windows-amd64/ticode.exe
+tar -zcf bin/ticode-windows-amd64-1.0.0.tar.gz -C ./bin/windows-amd64/ ticode.exe
+
+mkdir -p bin/windows-arm64
+GOOS=windows GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -o bin/windows-arm64/ticode.exe
+tar -zcf bin/ticode-windows-arm64-1.0.0.tar.gz -C ./bin/windows-arm64/ ticode.exe
+```
 
 ## Update
 
-```
+NPM Packages:
+
+```bash
 npm update
 ```
 
-```
+GO Packages:
+
+```bash
 go get -u ./...
 go mod tidy
 ```

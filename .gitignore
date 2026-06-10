@@ -19,3 +19,4 @@ dist/
 ticode
 ThingsCode
 bin/
+*.tar.gz
