@@ -1,4 +1,5 @@
-[![CI](https://github.com/thingsdb/ThingsCode/workflows/CI/badge.svg)](https://github.com/thingsdb/ThingsCode/actions)
+[![CI (golang)](https://github.com/thingsdb/ThingsCode/actions/workflows/ci-go.yaml/badge.svg)](https://github.com/thingsdb/ThingsCode/actions/workflows/ci-go.yaml)
+[![CI (TypeScript)](https://github.com/thingsdb/ThingsCode/actions/workflows/ci-ts.yaml/badge.svg)](https://github.com/thingsdb/ThingsCode/actions/workflows/ci-ts.yaml)
 [![Release Version](https://img.shields.io/github/release/thingsdb/ThingsCode)](https://github.com/thingsdb/ThingsCode/releases)
 
 # ThingsDB Code
