@@ -1,5 +1,5 @@
 import { Flex, Text, Button, Tooltip, IconButton, Separator, Box, Badge } from '@radix-ui/themes';
-import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon, MagnifyingGlassIcon, CubeIcon, PersonIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
+import { ExitIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon, MagnifyingGlassIcon, CubeIcon, PersonIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspace, useWebSocket } from '../../hooks';
 import { useTheme } from '../../hooks';
 import ScopeSelector from './ScopeSelector';
