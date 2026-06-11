@@ -55,12 +55,12 @@ export default function QuickConnectModal() {
         }}
       >
         <Dialog.Title>
-            <Flex align="center" gap="2">
+          <Flex align="center" gap="2">
             Quick Connect
-            </Flex>
+          </Flex>
         </Dialog.Title>
         <Dialog.Description size="2" mb="4" color="gray">
-            Establish a temporary session link. This configuration won't be saved to your workspaces list.
+          Establish a temporary session link. This configuration won't be saved to your workspaces list.
         </Dialog.Description>
 
         <form onSubmit={handleSubmit}>
@@ -117,33 +117,33 @@ export default function QuickConnectModal() {
 
             {/* Auth */}
             {authType === 'token' ? (
-                <label>
+              <label>
                 <Text as="div" size="2" weight="bold" mb="1">ThingsDB Access Token</Text>
                 <TextField.Root type={showToken ? "text" : "password"} value={token} onChange={e => setToken(e.target.value)} required>
-                    <TextField.Slot side="right" px="1">
-                    <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowToken(!showToken)} style={{ cursor: 'pointer' }}>
-                        {showToken ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
+                  <TextField.Slot side="right" px="1">
+                    <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowToken(!showToken)} className="cursor-pointer">
+                      {showToken ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
                     </IconButton>
-                    </TextField.Slot>
+                  </TextField.Slot>
                 </TextField.Root>
-                </label>
+              </label>
             ) : (
-                <Flex gap="3">
+              <Flex gap="3">
                 <Box style={{ flexGrow: 1 }}>
-                    <Text as="div" size="2" weight="bold" mb="1">Username</Text>
-                    <TextField.Root value={username} onChange={e => setUsername(e.target.value)} required />
+                  <Text as="div" size="2" weight="bold" mb="1">Username</Text>
+                  <TextField.Root value={username} onChange={e => setUsername(e.target.value)} required />
                 </Box>
                 <Box style={{ flexGrow: 1 }}>
-                    <Text as="div" size="2" weight="bold" mb="1">Password</Text>
-                    <TextField.Root type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required>
+                  <Text as="div" size="2" weight="bold" mb="1">Password</Text>
+                  <TextField.Root type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required>
                     <TextField.Slot side="right" px="1">
-                        <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }}>
+                      <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowPassword(!showPassword)} className="cursor-pointer">
                         {showPassword ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
-                        </IconButton>
+                      </IconButton>
                     </TextField.Slot>
-                    </TextField.Root>
+                  </TextField.Root>
                 </Box>
-                </Flex>
+              </Flex>
             )}
 
             <Flex gap="3" mt="4" justify="end">

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Dialog, Flex, Text, Badge, Box, Button, Spinner } from '@radix-ui/themes';
+import { Dialog, Flex, Text, Badge, Box, Button, Spinner, Callout } from '@radix-ui/themes';
 import { ExclamationTriangleIcon, CalendarIcon, PersonIcon } from '@radix-ui/react-icons';
 import Editor from '@monaco-editor/react';
 import { useTheme, useWebSocket, useActiveWorkspaceId } from '../../hooks';
-import { errStr } from '../../utils';
+import { errStr, renderTextWithLinks } from '../../utils';
 import type { Commit } from '../../types';
 
 
@@ -48,9 +48,9 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
   return (
     <Dialog.Root open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
       <Dialog.Content aria-describedby={undefined} style={{
-          width: '60vw',
-          maxWidth: '1024px',
-          padding: '16px'
+        width: '60vw',
+        maxWidth: '1024px',
+        padding: '16px'
       }}>
         <Dialog.Title style={{ margin: 0, paddingBottom: '12px' }}>
           <Flex align="center" justify="between">
@@ -90,23 +90,10 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
         {commit && !isLoading && (
           <Flex direction="column" gap="4" mt="2">
             {commit.errMsg && (
-              <Flex
-                align="start"
-                gap="2"
-                p="2"
-                style={{
-                  backgroundColor: 'var(--orange-2)',
-                  borderRadius: 'var(--radius-3)',
-                  border: '1px solid var(--orange-4)',
-                }}
-              >
-                <ExclamationTriangleIcon color="var(--orange-9)" style={{ marginTop: 2, flexShrink: 0 }} />
-                <Flex direction="column" gap="0.5">
-                  <Text size="2" color="orange" style={{ fontFamily: 'monospace', wordBreak: 'break-all', lineHeight: '1.3' }}>
-                    {commit.errMsg}
-                  </Text>
-                </Flex>
-              </Flex>
+              <Callout.Root color="red" size="1" style={{ flexShrink: 0 }}>
+                <Callout.Icon><ExclamationTriangleIcon /></Callout.Icon>
+                <Callout.Text style={{ wordBreak: 'break-word' }}>{renderTextWithLinks(commit.errMsg)}</Callout.Text>
+              </Callout.Root>
             )}
 
             <Box>
@@ -118,15 +105,15 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
                 gap="2"
                 p="2"
                 style={{
-                backgroundColor: 'var(--gray-2)',
-                borderRadius: 'var(--radius-3)',
-                border: '1px solid var(--gray-4)',
+                  backgroundColor: 'var(--gray-2)',
+                  borderRadius: 'var(--radius-3)',
+                  border: '1px solid var(--gray-4)',
                 }}
               >
                 <CalendarIcon color="var(--iris-8)" />
-                  <Flex direction="column">
+                <Flex direction="column">
                   <Text size="2" color="gray" weight="medium" style={{ fontFamily: 'monospace' }}>
-                    {new Date(commit.createdOn).toLocaleString(undefined, {hour12: false})}
+                    {new Date(commit.createdOn).toLocaleString(undefined, { hour12: false })}
                   </Text>
                 </Flex>
               </Flex>
@@ -168,7 +155,7 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
 
             <Flex justify="end" gap="2" pt="2">
               <Dialog.Close>
-                <Button variant="soft" color="gray" style={{ cursor: 'pointer' }} onClick={onClose}>
+                <Button variant="soft" color="gray" className="cursor-pointer" onClick={onClose}>
                   Close
                 </Button>
               </Dialog.Close>

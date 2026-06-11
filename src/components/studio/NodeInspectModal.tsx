@@ -157,7 +157,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
 
         <Flex justify="end" px="4" py="3" style={{ borderTop: '1px solid var(--gray-4)', backgroundColor: 'var(--gray-2)' }}>
           <Dialog.Close>
-            <Button size="2" variant="ghost" color="gray" style={{ cursor: 'pointer' }}>
+            <Button size="2" variant="ghost" color="gray" className="cursor-pointer">
               Close
             </Button>
           </Dialog.Close>

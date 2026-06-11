@@ -280,7 +280,7 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
             variant="soft"
             color="gray"
             onClick={() => fetchCounters()}
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
           >
             <UpdateIcon /> Refresh
           </Button>

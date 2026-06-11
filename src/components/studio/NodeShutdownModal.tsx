@@ -70,7 +70,7 @@ export default function NodeShutdownModal({
 
           <Flex gap="3" justify="end">
             <Dialog.Close>
-              <Button variant="soft" color="gray" disabled={isSubmitting} style={{ cursor: 'pointer' }}>
+              <Button variant="soft" color="gray" disabled={isSubmitting} className="cursor-pointer">
                 Cancel
               </Button>
             </Dialog.Close>

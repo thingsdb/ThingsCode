@@ -35,12 +35,12 @@ export default function BackupModal({
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
       <Dialog.Content aria-describedby={undefined} style={{
-          width: '65vw',
-          maxWidth: '1024px',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '85vh'
+        width: '65vw',
+        maxWidth: '1024px',
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        maxHeight: '85vh'
       }}>
         {/* HEADER */}
         <Box flexShrink="0" mb="2">
@@ -80,10 +80,10 @@ export default function BackupModal({
           overflow: 'hidden'
         }}>
           <Tabs.List size="2" style={{ flexShrink: 0 }}>
-            <Tabs.Trigger value="general" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="general" className="cursor-pointer">
               General
             </Tabs.Trigger>
-            <Tabs.Trigger value="files" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="files" className="cursor-pointer">
               Files Generated ({backup.files?.length || 0})
             </Tabs.Trigger>
           </Tabs.List>
@@ -121,12 +121,12 @@ export default function BackupModal({
                 {backup.nextRun && (
                   <DataList.Item>
                     <DataList.Label color="gray">Next Run</DataList.Label>
-                  <DataList.Value>
-                    <Flex align="center" gap="2" style={{ color: "gray" }}>
-                      <CalendarIcon width="14" height="14" />
-                      <Text size="2">{new Date(backup.nextRun).toLocaleString(undefined, {hour12: false})}</Text>
-                    </Flex>
-                  </DataList.Value>
+                    <DataList.Value>
+                      <Flex align="center" gap="2" style={{ color: "gray" }}>
+                        <CalendarIcon width="14" height="14" />
+                        <Text size="2">{new Date(backup.nextRun).toLocaleString(undefined, { hour12: false })}</Text>
+                      </Flex>
+                    </DataList.Value>
                   </DataList.Item>
                 )}
               </DataList.Root>
@@ -220,7 +220,7 @@ export default function BackupModal({
         {/* FOOTER */}
         <Flex gap="3" justify="end" flexShrink="0" style={{ paddingTop: '12px', marginTop: '12px', borderTop: '1px solid var(--gray-4)' }}>
           <Dialog.Close>
-            <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+            <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">
               Close
             </Button>
           </Dialog.Close>

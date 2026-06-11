@@ -48,12 +48,12 @@ export default function StudioEventView() {
     const query = searchQuery.trim().toLowerCase();
     const filtered = query
       ? formatted.filter((item) => {
-          return (
-            item.event.toLowerCase().includes(query) ||
-            item.roomId.toString().includes(query) ||
-            JSON.stringify(item.args).toLowerCase().includes(query)
-          );
-        })
+        return (
+          item.event.toLowerCase().includes(query) ||
+          item.roomId.toString().includes(query) ||
+          JSON.stringify(item.args).toLowerCase().includes(query)
+        );
+      })
       : formatted;
 
     // Sort based on time
@@ -91,7 +91,7 @@ export default function StudioEventView() {
               variant="soft"
               color="gray"
               onClick={() => setSortNewestFirst((prev) => !prev)}
-              style={{ cursor: 'pointer' }}
+              className="cursor-pointer"
             >
               {sortNewestFirst ? (
                 <>Newest First <ArrowDownIcon /></>
@@ -105,7 +105,7 @@ export default function StudioEventView() {
                 variant="soft"
                 color="gray"
                 onClick={clearEmitEvents}
-                style={{ cursor: 'pointer' }}
+                className="cursor-pointer"
               >
                 <EraserIcon width="14" height="14" />
               </IconButton>
@@ -122,19 +122,19 @@ export default function StudioEventView() {
           <TextField.Slot>
             <MagnifyingGlassIcon height="14" width="14" />
           </TextField.Slot>
-            {searchQuery && (
-              <TextField.Slot style={{ paddingRight: '4px' }}>
-                <IconButton
-                  size="1"
-                  variant="ghost"
-                  color="gray"
-                  onClick={() => setSearchQuery('')}
-                  style={{ cursor: 'pointer', height: '16px', width: '16px' }}
-                >
-                  <Cross2Icon height="12" width="12" />
-                </IconButton>
-              </TextField.Slot>
-            )}
+          {searchQuery && (
+            <TextField.Slot style={{ paddingRight: '4px' }}>
+              <IconButton
+                size="1"
+                variant="ghost"
+                color="gray"
+                onClick={() => setSearchQuery('')}
+                style={{ cursor: 'pointer', height: '16px', width: '16px' }}
+              >
+                <Cross2Icon height="12" width="12" />
+              </IconButton>
+            </TextField.Slot>
+          )}
         </TextField.Root>
       </Flex>
 

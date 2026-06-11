@@ -59,25 +59,25 @@ export default function TicodeSearch({
       if (filteredResults.length === 0) return;
 
       switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          setSelectedIndex((prev) => (prev + 1) % filteredResults.length);
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          setSelectedIndex((prev) => (prev - 1 + filteredResults.length) % filteredResults.length);
-          break;
-        case 'Enter':
-          e.preventDefault();
-          if (filteredResults[selectedIndex]) {
-            onSelect(filteredResults[selectedIndex]);
-            onClose();
-          }
-          break;
-        case 'Escape':
-          e.preventDefault();
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev + 1) % filteredResults.length);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev - 1 + filteredResults.length) % filteredResults.length);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (filteredResults[selectedIndex]) {
+          onSelect(filteredResults[selectedIndex]);
           onClose();
-          break;
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        onClose();
+        break;
       }
     },
     [filteredResults, selectedIndex, onSelect, onClose]

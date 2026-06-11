@@ -159,19 +159,19 @@ export default function UsersPanel() {
             >
               <Flex direction="column" gap="2">
                 <Tooltip content={user.name}>
-                <Text
+                  <Text
                     size="1"
                     weight="bold"
                     truncate
                     style={{
-                    fontFamily: 'monospace',
-                    color: 'var(--gray-12)',
-                    minWidth: 0,
-                    flexGrow: 1
+                      fontFamily: 'monospace',
+                      color: 'var(--gray-12)',
+                      minWidth: 0,
+                      flexGrow: 1
                     }}
-                >
+                  >
                     {user.name}
-                </Text>
+                  </Text>
                 </Tooltip>
               </Flex>
             </Card>

@@ -5,7 +5,7 @@ import { InfoCircledIcon, ExclamationTriangleIcon, LightningBoltIcon, EyeOpenIco
 import { useTheme, useWebSocket, useActiveWorkspaceId } from '../../hooks';
 import type { Procedure, Result } from '../../types';
 import { parse } from 'lossless-json';
-import { errStr } from '../../utils';
+import { errStr, renderTextWithLinks } from '../../utils';
 
 interface ProcedureModalProps {
   onClose: (open: boolean) => void;
@@ -100,9 +100,9 @@ export default function ProcedureModal({
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
       <Dialog.Content aria-describedby={undefined} style={{
-          width: '60vw',
-          maxWidth: '1024px',
-          padding: '16px',
+        width: '60vw',
+        maxWidth: '1024px',
+        padding: '16px',
       }}>
         <Box flexShrink="0" mb="2">
           <Dialog.Title size="3" style={{ margin: 0 }}>
@@ -145,10 +145,10 @@ export default function ProcedureModal({
           minHeight: 0
         }}>
           <Tabs.List size="2">
-            <Tabs.Trigger value="definition" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="definition" className="cursor-pointer">
               Definition
             </Tabs.Trigger>
-            <Tabs.Trigger value="execute" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="execute" className="cursor-pointer">
               Execute
             </Tabs.Trigger>
           </Tabs.List>
@@ -283,7 +283,7 @@ export default function ProcedureModal({
                       {executionResult.error && (
                         <Callout.Root color="red" size="1" style={{ flexShrink: 0 }}>
                           <Callout.Icon><ExclamationTriangleIcon /></Callout.Icon>
-                          <Callout.Text style={{ wordBreak: 'break-word' }}>{executionResult.error}</Callout.Text>
+                          <Callout.Text style={{ wordBreak: 'break-word' }}>{renderTextWithLinks(executionResult.error)}</Callout.Text>
                         </Callout.Root>
                       )}
 
@@ -329,7 +329,7 @@ export default function ProcedureModal({
 
         <Flex gap="3" justify="end" flexShrink="0" style={{ paddingTop: '12px', marginTop: '12px' }}>
           <Dialog.Close>
-            <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+            <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">
               Close
             </Button>
           </Dialog.Close>

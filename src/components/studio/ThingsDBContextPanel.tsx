@@ -49,7 +49,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('tasks')}
         >
           <Text size="2" weight="bold">Tasks</Text>
@@ -64,7 +64,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('procedures')}
         >
           <Text size="2" weight="bold">Procedures</Text>
@@ -79,7 +79,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('users')}
         >
           <Text size="2" weight="bold">Users</Text>
@@ -94,7 +94,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('modules')}
         >
           <Text size="2" weight="bold">Modules</Text>
@@ -110,7 +110,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
             align="center"
             justify="between"
             py="1"
-            style={{ cursor: 'pointer', userSelect: 'none' }}
+            className="cursor-pointer select-none"
             onClick={() => toggleSection('history')}
           >
             <Text size="2" weight="bold">History</Text>

@@ -2,10 +2,10 @@ import { Select, Flex } from '@radix-ui/themes';
 import { useActiveWorkspace } from '../../hooks';
 
 interface ScopeSelectorProps {
-    disabled: boolean;
+  disabled: boolean;
 }
 
-export default function ScopeSelector({disabled} : ScopeSelectorProps) {
+export default function ScopeSelector({ disabled }: ScopeSelectorProps) {
   const { loading, activeScope, setActiveScopeState, scopes } = useActiveWorkspace();
 
   if (loading) return null;
@@ -19,8 +19,8 @@ export default function ScopeSelector({disabled} : ScopeSelectorProps) {
         onValueChange={setActiveScopeState}
       >
         <Select.Trigger
-            style={{ minWidth: '260px' }}
-            placeholder="Select Scope..."
+          style={{ minWidth: '260px' }}
+          placeholder="Select Scope..."
         />
         <Select.Content>
           {scopes.map((scope) => (

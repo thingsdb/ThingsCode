@@ -25,7 +25,7 @@ export default function WorkspaceLauncher() {
             variant="ghost"
             onClick={toggleAppearance}
             size="2"
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
             color="gray"
           >
             {appearance === 'dark' ? <SunIcon width="16" height="16" /> : <MoonIcon width="16" height="16" />}
@@ -99,27 +99,27 @@ export default function WorkspaceLauncher() {
                   >
                     <Heading size="3" mb="1">{ws.name}</Heading>
                     <Flex align="center" gap="1">
-                        <Link2Icon width="12" height="12" style={{ color: 'var(--gray-9)' }} />
-                        <Text size="1" color="gray">
-                            {ws.host}:{ws.port}
-                        </Text>
-                        {ws.type === 'production' && (
-                          <Badge color="red" variant="surface" size="1" style={{ letterSpacing: '0.05em' }}>
-                            <Text size="1" weight="bold">PRD</Text>
-                          </Badge>
-                        )}
+                      <Link2Icon width="12" height="12" style={{ color: 'var(--gray-9)' }} />
+                      <Text size="1" color="gray">
+                        {ws.host}:{ws.port}
+                      </Text>
+                      {ws.type === 'production' && (
+                        <Badge color="red" variant="surface" size="1" style={{ letterSpacing: '0.05em' }}>
+                          <Text size="1" weight="bold">PRD</Text>
+                        </Badge>
+                      )}
 
-                        {ws.type === 'staging' && (
-                          <Badge color="amber" variant="surface" size="1" style={{ letterSpacing: '0.05em' }}>
-                            <Text size="1" weight="bold">STG</Text>
-                          </Badge>
-                        )}
+                      {ws.type === 'staging' && (
+                        <Badge color="amber" variant="surface" size="1" style={{ letterSpacing: '0.05em' }}>
+                          <Text size="1" weight="bold">STG</Text>
+                        </Badge>
+                      )}
 
-                        {ws.type === 'development' && (
-                          <Badge color="iris" variant="outline" size="1" style={{ letterSpacing: '0.05em' }}>
-                            <Text size="1" weight="medium">DEV</Text>
-                          </Badge>
-                        )}
+                      {ws.type === 'development' && (
+                        <Badge color="iris" variant="outline" size="1" style={{ letterSpacing: '0.05em' }}>
+                          <Text size="1" weight="medium">DEV</Text>
+                        </Badge>
+                      )}
 
                     </Flex>
                   </Box>

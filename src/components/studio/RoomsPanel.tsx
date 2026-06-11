@@ -80,7 +80,7 @@ export default function RoomsPanel({ scope }: RoomsPanelProps) {
               variant="soft"
               color="iris"
               onClick={() => handleJoinRoomClick(null)}
-              style={{ cursor: 'pointer' }}
+              className="cursor-pointer"
             >
               <PlusIcon width="14" height="14" />
             </IconButton>

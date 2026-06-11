@@ -103,7 +103,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
                 color="gray"
                 disabled={loading || isRefreshing}
                 onClick={handleRefreshClick}
-                style={{ cursor: 'pointer' }}
+                className="cursor-pointer"
               >
                 <UpdateIcon width="12" height="12" />
               </IconButton>
@@ -115,12 +115,12 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
                 color="iris"
                 disabled={loading || isRefreshing}
                 onClick={handleCreateClick}
-                style={{ cursor: 'pointer' }}
+                className="cursor-pointer"
               >
                 <PlusIcon width="12" height="12" />
               </IconButton>
             </Tooltip>
-            </Flex>
+          </Flex>
         </Flex>
 
         {/* Search */}
@@ -265,12 +265,12 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
         />
       )}
       <RenameFileDialog
-          key={`rename-${fileToRename}-${isRenameOpen}`}
-          isOpen={isRenameOpen}
-          onOpenChange={setIsRenameOpen}
-          filename={fileToRename}
-          existingFiles={files.map(file => file.filename)}
-          onRename={handleRenameConfirm}
+        key={`rename-${fileToRename}-${isRenameOpen}`}
+        isOpen={isRenameOpen}
+        onOpenChange={setIsRenameOpen}
+        filename={fileToRename}
+        existingFiles={files.map(file => file.filename)}
+        onRename={handleRenameConfirm}
       />
       <ConfirmDialog
         key={`delete-${fileToDelete}-${isDeleteOpen}`}

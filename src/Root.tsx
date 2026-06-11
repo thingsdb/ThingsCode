@@ -43,7 +43,7 @@ function Root() {
                   overflowX: 'hidden'
                 }}
               >
-                <WorkspaceProvider appearance={appearance}>
+                <WorkspaceProvider>
                   <App />
                 </WorkspaceProvider>
               </Box>

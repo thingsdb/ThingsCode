@@ -97,11 +97,11 @@ export default function ThingExplorerModal({ onClose, scope }: ThingExplorerModa
 
             <Flex gap="3" justify="end" mt="2">
               <Dialog.Close>
-                <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+                <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">
                   Cancel
                 </Button>
               </Dialog.Close>
-              <Button type="submit" variant="solid" color="iris" size="2" style={{ cursor: 'pointer' }}>
+              <Button type="submit" variant="solid" color="iris" size="2" className="cursor-pointer">
                 Explore <ArrowRightIcon width="14" height="14" />
               </Button>
             </Flex>
@@ -119,11 +119,11 @@ export default function ThingExplorerModal({ onClose, scope }: ThingExplorerModa
 
             {/* FOOTER */}
             <Flex gap="3" justify="between"style={{ flexShrink: 0, borderTop: '1px solid var(--gray-4)', paddingTop: '12px' }}>
-              <Button type="button" variant="ghost" color="gray" size="2" onClick={handleReset} style={{ cursor: 'pointer' }}>
+              <Button type="button" variant="ghost" color="gray" size="2" onClick={handleReset} className="cursor-pointer">
                 <ShadowIcon width="14" height="14" /> Inspect another Thing ID
               </Button>
               <Dialog.Close>
-                <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+                <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">
                   Close
                 </Button>
               </Dialog.Close>

@@ -7,7 +7,6 @@ interface WorkspaceContextType {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   deleteWorkspace: (id: string) => void;
-  appearance: 'light' | 'dark';
   editingWorkspace: Workspace | null;
   setEditingWorkspace: (ws: Workspace | null) => void;
   updateWorkspace: (updated: Workspace) => void;

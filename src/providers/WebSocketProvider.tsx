@@ -37,8 +37,8 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
   const connect = useCallback(function connect(): void {
     if (socketRef.current && (
-          socketRef.current.readyState === WebSocket.CONNECTING ||
-          socketRef.current.readyState === WebSocket.OPEN)) {
+      socketRef.current.readyState === WebSocket.CONNECTING ||
+      socketRef.current.readyState === WebSocket.OPEN)) {
       return;
     }
     setStatus('connecting');
@@ -136,11 +136,10 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
   return (
     <WebSocketContext.Provider value={{
-        status,
-        emit,
-     }}>
+      status,
+      emit,
+    }}>
       {children}
     </WebSocketContext.Provider>
   );
 }
-

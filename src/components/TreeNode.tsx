@@ -111,7 +111,7 @@ export default function TreeNode({
         <Flex
           align="center"
           gap="1"
-          style={{ cursor: 'pointer' }}
+          className="cursor-pointer"
           onClick={handleToggle}
         >
           {isThingReference && <CubeIcon width="12" height="12" color="var(--iris-8)" />}

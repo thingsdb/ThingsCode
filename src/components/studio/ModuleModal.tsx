@@ -34,12 +34,12 @@ export default function ModuleModal({
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
       <Dialog.Content aria-describedby={undefined} style={{
-          width: '65vw',
-          maxWidth: '1024px',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '85vh'
+        width: '65vw',
+        maxWidth: '1024px',
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        maxHeight: '85vh'
       }}>
         {/* HEADER */}
         <Box flexShrink="0" mb="2">
@@ -79,13 +79,13 @@ export default function ModuleModal({
           overflow: 'hidden'
         }}>
           <Tabs.List size="2" style={{ flexShrink: 0 }}>
-            <Tabs.Trigger value="general" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="general" className="cursor-pointer">
               General
             </Tabs.Trigger>
-            <Tabs.Trigger value="conf" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="conf" className="cursor-pointer">
               Configuration
             </Tabs.Trigger>
-            <Tabs.Trigger value="exposes" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="exposes" className="cursor-pointer">
               Exposes
             </Tabs.Trigger>
           </Tabs.List>
@@ -108,7 +108,7 @@ export default function ModuleModal({
                   <DataList.Value>
                     <Flex align="center" gap="2" style={{ color: "gray" }}>
                       <CalendarIcon width="14" height="14" />
-                      <Text size="2">{new Date(module.createdAt).toLocaleString(undefined, {hour12: false})}</Text>
+                      <Text size="2">{new Date(module.createdAt).toLocaleString(undefined, { hour12: false })}</Text>
                     </Flex>
                   </DataList.Value>
                 </DataList.Item>
@@ -203,11 +203,11 @@ export default function ModuleModal({
                   />
                 </Box>
               ) : (
-              <Flex align="center" justify="center" style={{ height: '100%' }}>
-                <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
-                  No configuration for this module.
-                </Text>
-              </Flex>
+                <Flex align="center" justify="center" style={{ height: '100%' }}>
+                  <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
+                    No configuration for this module.
+                  </Text>
+                </Flex>
               )}
             </Tabs.Content>
 
@@ -241,11 +241,11 @@ export default function ModuleModal({
                   />
                 </Box>
               ) : (
-              <Flex align="center" justify="center" style={{ height: '100%' }}>
-                <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
-                  No methods exposed on this module.
-                </Text>
-              </Flex>
+                <Flex align="center" justify="center" style={{ height: '100%' }}>
+                  <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
+                    No methods exposed on this module.
+                  </Text>
+                </Flex>
               )}
             </Tabs.Content>
 
@@ -255,7 +255,7 @@ export default function ModuleModal({
         {/* FOOTER */}
         <Flex gap="3" justify="end" flexShrink="0" style={{ paddingTop: '12px', marginTop: '12px', borderTop: '1px solid var(--gray-4)' }}>
           <Dialog.Close>
-            <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+            <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">
               Close
             </Button>
           </Dialog.Close>

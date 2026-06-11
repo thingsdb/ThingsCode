@@ -51,7 +51,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('rooms')}
         >
           <Text size="2" weight="bold">Rooms</Text>
@@ -66,7 +66,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('tasks')}
         >
           <Text size="2" weight="bold">Tasks</Text>
@@ -81,7 +81,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('procedures')}
         >
           <Text size="2" weight="bold">Procedures</Text>
@@ -96,7 +96,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('enums')}
         >
           <Text size="2" weight="bold">Enums</Text>
@@ -111,7 +111,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('types')}
         >
           <Text size="2" weight="bold">Types</Text>
@@ -126,7 +126,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('explorer')}
         >
           <Text size="2" weight="bold">Explorer</Text>
@@ -142,7 +142,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
             align="center"
             justify="between"
             py="1"
-            style={{ cursor: 'pointer', userSelect: 'none' }}
+            className="cursor-pointer select-none"
             onClick={() => toggleSection('history')}
           >
             <Text size="2" weight="bold">History</Text>

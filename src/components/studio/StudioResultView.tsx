@@ -4,33 +4,7 @@ import Editor from '@monaco-editor/react';
 import { useActiveWorkspace, useTheme } from '../../hooks';
 import { useMemo, useState } from 'react';
 import type { Result } from '../../types';
-
-const renderTextWithLinks = (text: string) => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = text.split(urlRegex);
-
-  return parts.map((part, i) => {
-    if (part.match(urlRegex)) {
-      return (
-        <a
-          key={i}
-          href={part}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            color: 'var(--red-11)',
-            textDecoration: 'underline',
-            fontWeight: '600',
-            wordBreak: 'break-all',
-          }}
-        >
-          {part}
-        </a>
-      );
-    }
-    return part;
-  });
-};
+import { renderTextWithLinks } from '../../utils';
 
 export default function StudioResultView() {
   const { appearance } = useTheme();
