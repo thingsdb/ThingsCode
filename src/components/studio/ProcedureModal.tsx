@@ -5,7 +5,7 @@ import { InfoCircledIcon, ExclamationTriangleIcon, LightningBoltIcon, EyeOpenIco
 import { useTheme, useWebSocket, useActiveWorkspaceId } from '../../hooks';
 import type { Procedure, Result } from '../../types';
 import { parse } from 'lossless-json';
-import { errStr } from '../../utils';
+import { errStr, renderTextWithLinks } from '../../utils';
 
 interface ProcedureModalProps {
   onClose: (open: boolean) => void;
@@ -283,7 +283,7 @@ export default function ProcedureModal({
                       {executionResult.error && (
                         <Callout.Root color="red" size="1" style={{ flexShrink: 0 }}>
                           <Callout.Icon><ExclamationTriangleIcon /></Callout.Icon>
-                          <Callout.Text style={{ wordBreak: 'break-word' }}>{executionResult.error}</Callout.Text>
+                          <Callout.Text style={{ wordBreak: 'break-word' }}>{renderTextWithLinks(executionResult.error)}</Callout.Text>
                         </Callout.Root>
                       )}
 

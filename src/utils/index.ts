@@ -1,3 +1,5 @@
+export { renderTextWithLinks } from './renderWithLinks';
+
 export const errStr = (err: unknown, fallback: string) => {
     const message = err instanceof Error
         ? err.message
@@ -18,3 +20,4 @@ export function determineCardinality(thisDef: string, targetDef: string): Cardin
   if (!thisIsMany && targetIsMany) return '1:N';
   return '1:1';
 }
+
