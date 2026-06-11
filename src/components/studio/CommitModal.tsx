@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Dialog, Flex, Text, Badge, Box, Button, Spinner } from '@radix-ui/themes';
+import { Dialog, Flex, Text, Badge, Box, Button, Spinner, Callout } from '@radix-ui/themes';
 import { ExclamationTriangleIcon, CalendarIcon, PersonIcon } from '@radix-ui/react-icons';
 import Editor from '@monaco-editor/react';
 import { useTheme, useWebSocket, useActiveWorkspaceId } from '../../hooks';
-import { errStr } from '../../utils';
+import { errStr, renderTextWithLinks } from '../../utils';
 import type { Commit } from '../../types';
 
 
@@ -90,23 +90,10 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
         {commit && !isLoading && (
           <Flex direction="column" gap="4" mt="2">
             {commit.errMsg && (
-              <Flex
-                align="start"
-                gap="2"
-                p="2"
-                style={{
-                  backgroundColor: 'var(--orange-2)',
-                  borderRadius: 'var(--radius-3)',
-                  border: '1px solid var(--orange-4)',
-                }}
-              >
-                <ExclamationTriangleIcon color="var(--orange-9)" style={{ marginTop: 2, flexShrink: 0 }} />
-                <Flex direction="column" gap="0.5">
-                  <Text size="2" color="orange" style={{ fontFamily: 'monospace', wordBreak: 'break-all', lineHeight: '1.3' }}>
-                    {commit.errMsg}
-                  </Text>
-                </Flex>
-              </Flex>
+              <Callout.Root color="red" size="1" style={{ flexShrink: 0 }}>
+                <Callout.Icon><ExclamationTriangleIcon /></Callout.Icon>
+                <Callout.Text style={{ wordBreak: 'break-word' }}>{renderTextWithLinks(commit.errMsg)}</Callout.Text>
+              </Callout.Root>
             )}
 
             <Box>
