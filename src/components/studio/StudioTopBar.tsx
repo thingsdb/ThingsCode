@@ -1,5 +1,5 @@
 import { Flex, Text, Button, Tooltip, IconButton, Separator, Box, Badge } from '@radix-ui/themes';
-import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon, MagnifyingGlassIcon, CubeIcon, PersonIcon } from '@radix-ui/react-icons';
+import { ExitIcon, GearIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon, MagnifyingGlassIcon, CubeIcon, PersonIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
 import { useActiveWorkspace, useWebSocket } from '../../hooks';
 import { useTheme } from '../../hooks';
 import ScopeSelector from './ScopeSelector';
@@ -159,7 +159,7 @@ export default function StudioTopBar() {
             title="Edit Runtime Arguments"
             style={{ cursor: !isTiCode || isRefreshing ? 'not-allowed' : 'pointer' }}
           >
-            <GearIcon width="16" height="16" />
+            <MixerHorizontalIcon width="16" height="16" />
           </IconButton>
 
           <Separator orientation="vertical" size="1" />
