@@ -1,6 +1,6 @@
 {
   "name": "ticode",
-  "version": "1.0.2-alpha0",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
   "scripts": {
