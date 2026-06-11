@@ -156,7 +156,7 @@ export default function StudioTopBar() {
             size="2"
             disabled={!isTiCode || isRefreshing}
             onClick={() => setIsConfigOpen(true)}
-            title="Edit Execution Arguments (JSON)"
+            title="Edit Runtime Arguments"
             style={{ cursor: !isTiCode || isRefreshing ? 'not-allowed' : 'pointer' }}
           >
             <GearIcon width="16" height="16" />

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, Flex, Button, Box } from '@radix-ui/themes';
+import { Dialog, Flex, Button, Box, Code } from '@radix-ui/themes';
 import Editor from '@monaco-editor/react';
 import { useTheme } from '../../hooks';
 
@@ -41,9 +41,9 @@ export default function QueryVarsDialog({
   return (
     <Dialog.Root open={true} onOpenChange={onOpenChange}>
       <Dialog.Content style={{ maxWidth: 700, padding: '16px' }}>
-        <Dialog.Title size="3" mb="1">Execution Configuration</Dialog.Title>
+        <Dialog.Title size="3" mb="1">Runtime Arguments</Dialog.Title>
         <Dialog.Description size="2" color="gray" mb="3">
-          Provide runtime arguments as a valid JSON object.
+          Configure runtime arguments for this specific file. Provide a valid JSON object where keys map to variable names; for example, <Code highContrast>{'{"limit": 10}'}</Code>)  registers '<Code highContrast>limit</Code>' as an accessible variable inside your code.
         </Dialog.Description>
 
         <Box
@@ -87,7 +87,7 @@ export default function QueryVarsDialog({
             onClick={handleSave}
             style={{ cursor: isValid ? 'pointer' : 'not-allowed' }}
           >
-            Save Configuration
+            Save
           </Button>
         </Flex>
       </Dialog.Content>
