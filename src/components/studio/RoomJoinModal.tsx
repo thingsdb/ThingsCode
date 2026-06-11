@@ -40,7 +40,7 @@ export default function RoomJoinModal({
           setName(room.name);
           setCode(room.code || '');
           setValidationError(null);
-      });
+        });
       } else {
         queueMicrotask(() => {
           setName('');

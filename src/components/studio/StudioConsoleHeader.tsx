@@ -23,9 +23,9 @@ export default function StudioConsoleHeader({
   const { activeFile } = useActiveWorkspace();
   const { emitEvents, warnings } = useEvent();
 
-    const result = useMemo<Result | null>(() => {
-      return activeFile?.result || null;
-    }, [activeFile?.result]);
+  const result = useMemo<Result | null>(() => {
+    return activeFile?.result || null;
+  }, [activeFile?.result]);
 
   return (
     <Flex
@@ -53,7 +53,7 @@ export default function StudioConsoleHeader({
           onValueChange={(value) => setConsoleTab(value as StudioTab)}
           className="cursor-pointer"
         >
-          <SegmentedControl.Item value="result" style={result?.error ? {backgroundColor: "var(--red-7)"} : {}}>
+          <SegmentedControl.Item value="result" style={result?.error ? { backgroundColor: "var(--red-7)" } : {}}>
             Result
           </SegmentedControl.Item>
           <SegmentedControl.Item value="events">

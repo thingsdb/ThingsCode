@@ -35,12 +35,12 @@ export default function BackupModal({
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
       <Dialog.Content aria-describedby={undefined} style={{
-          width: '65vw',
-          maxWidth: '1024px',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '85vh'
+        width: '65vw',
+        maxWidth: '1024px',
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        maxHeight: '85vh'
       }}>
         {/* HEADER */}
         <Box flexShrink="0" mb="2">
@@ -121,12 +121,12 @@ export default function BackupModal({
                 {backup.nextRun && (
                   <DataList.Item>
                     <DataList.Label color="gray">Next Run</DataList.Label>
-                  <DataList.Value>
-                    <Flex align="center" gap="2" style={{ color: "gray" }}>
-                      <CalendarIcon width="14" height="14" />
-                      <Text size="2">{new Date(backup.nextRun).toLocaleString(undefined, {hour12: false})}</Text>
-                    </Flex>
-                  </DataList.Value>
+                    <DataList.Value>
+                      <Flex align="center" gap="2" style={{ color: "gray" }}>
+                        <CalendarIcon width="14" height="14" />
+                        <Text size="2">{new Date(backup.nextRun).toLocaleString(undefined, { hour12: false })}</Text>
+                      </Flex>
+                    </DataList.Value>
                   </DataList.Item>
                 )}
               </DataList.Root>

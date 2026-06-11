@@ -8,7 +8,7 @@ export default function ConnectionOverlay() {
   const [showOverlay, setShowOverlay] = useState(() => status !== 'connected');
   const [prevStatus, setPrevStatus] = useState(status);
 
-if (status !== prevStatus) {
+  if (status !== prevStatus) {
     setPrevStatus(status);
     if (status !== 'connected') {
       setShowOverlay(true);

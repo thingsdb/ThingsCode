@@ -38,11 +38,11 @@ export default function UserModal({ onClose, user }: UserModalProps) {
           let badgeColor: 'blue' | 'orange' | 'amber' | 'green' | 'purple' = 'blue';
 
           switch (token.trim()) {
-            case 'CHANGE': badgeColor = 'orange'; break;
-            case 'GRANT': badgeColor = 'amber'; break;
-            case 'JOIN': badgeColor = 'purple'; break;
-            case 'RUN': badgeColor = 'green'; break;
-            case 'QUERY': badgeColor = 'blue'; break;
+          case 'CHANGE': badgeColor = 'orange'; break;
+          case 'GRANT': badgeColor = 'amber'; break;
+          case 'JOIN': badgeColor = 'purple'; break;
+          case 'RUN': badgeColor = 'green'; break;
+          case 'QUERY': badgeColor = 'blue'; break;
           }
 
           return (
@@ -116,9 +116,9 @@ export default function UserModal({ onClose, user }: UserModalProps) {
                 <DataList.Item>
                   <DataList.Label color="gray">Created Timestamp</DataList.Label>
                   <DataList.Value>
-                    <Flex align="center" gap="1" style={ {color: "gray" }}>
+                    <Flex align="center" gap="1" style={{ color: "gray" }}>
                       <CalendarIcon width="14" height="14" />
-                      <Text size="2">{new Date(user.createdAt * 1000).toLocaleString(undefined, {hour12: false})}</Text>
+                      <Text size="2">{new Date(user.createdAt * 1000).toLocaleString(undefined, { hour12: false })}</Text>
                     </Flex>
                   </DataList.Value>
                 </DataList.Item>
@@ -174,7 +174,7 @@ export default function UserModal({ onClose, user }: UserModalProps) {
                     <LockOpen1Icon /> <Text size="2" style={{ fontStyle: 'italic' }}>No access tokens.</Text>
                   </Flex>
                 ) : (
-                <ScrollArea type="auto" scrollbars="vertical">
+                  <ScrollArea type="auto" scrollbars="vertical">
                     <Table.Root variant="surface">
                       <Table.Header>
                         <Table.Row style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -222,13 +222,13 @@ export default function UserModal({ onClose, user }: UserModalProps) {
                                 )}
                               </Table.Cell>
                               <Table.Cell style={{ color: 'var(--gray-10)', fontSize: '11px' }}>
-                                {new Date(token.createdOn).toLocaleString(undefined, {hour12: false})}
+                                {new Date(token.createdOn).toLocaleString(undefined, { hour12: false })}
                               </Table.Cell>
                               <Table.Cell style={{ fontSize: '11px', fontWeight: token.expirationTime === 'never' ? 'bold' : 'normal' }}>
                                 {token.expirationTime === 'never' ? (
                                   'Never'
                                 ) : (
-                                  new Date(token.expirationTime).toLocaleString(undefined, {hour12: false})
+                                  new Date(token.expirationTime).toLocaleString(undefined, { hour12: false })
                                 )}
                               </Table.Cell>
                             </Table.Row>

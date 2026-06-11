@@ -134,8 +134,8 @@ export default function FieldsTab({ tp, onNavigateToType }: FieldsTabProps) {
 
                 const cardinalityColor =
                   cardinality === '1:1' ? 'iris' :
-                  cardinality === '1:N' ? 'orange' :
-                  cardinality === 'N:1' ? 'yellow' : 'pink';
+                    cardinality === '1:N' ? 'orange' :
+                      cardinality === 'N:1' ? 'yellow' : 'pink';
 
                 return (
                   <React.Fragment key={name}>

@@ -54,9 +54,9 @@ export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
   return (
     <Dialog.Root open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
       <Dialog.Content aria-describedby={undefined} style={{
-          width: '60vw',
-          maxWidth: '1024px',
-          padding: '16px'
+        width: '60vw',
+        maxWidth: '1024px',
+        padding: '16px'
       }}>
         <Dialog.Title style={{ margin: 0, paddingBottom: '12px' }}>
           <Flex align="center" justify="between">

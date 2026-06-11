@@ -71,7 +71,7 @@ export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
           flexDirection: 'column',
           minHeight: 0,
           overflow: 'hidden'
-         }}>
+        }}>
           <Tabs.List size="2" style={{ flexShrink: 0 }}>
             <Tabs.Trigger value="general" className="cursor-pointer">General</Tabs.Trigger>
             <Tabs.Trigger value="members" className="cursor-pointer">

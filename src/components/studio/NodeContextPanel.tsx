@@ -47,7 +47,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('node-info')}
         >
           <Text size="2" weight="bold">Node Info</Text>
@@ -64,7 +64,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('counters')}
         >
           <Text size="2" weight="bold">Counters</Text>
@@ -81,7 +81,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('backups')}
         >
           <Text size="2" weight="bold">Backups</Text>
@@ -96,7 +96,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           align="center"
           justify="between"
           py="1"
-          style={{ cursor: 'pointer', userSelect: 'none' }}
+          className="cursor-pointer select-none"
           onClick={() => toggleSection('modules')}
         >
           <Text size="2" weight="bold">Modules</Text>

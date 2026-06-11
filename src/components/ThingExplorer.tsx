@@ -54,15 +54,15 @@ export default function ThingExplorer({ scope, startThingId }: ThingExplorerProp
         maxHeight: '100%'
       }}
     >
-        <TreeNode
-          nodeValue={{ '#': startThingId }}
-          label={startThingId === 1 ? "root" : "#"}
-          registry={thingRegistry}
-          loadingMap={loadingMap}
-          errorMap={errorMap}
-          onExpandRequest={fetchThingNode}
-          expandOninit={true}
-        />
+      <TreeNode
+        nodeValue={{ '#': startThingId }}
+        label={startThingId === 1 ? "root" : "#"}
+        registry={thingRegistry}
+        loadingMap={loadingMap}
+        errorMap={errorMap}
+        onExpandRequest={fetchThingNode}
+        expandOninit={true}
+      />
     </Box>
   );
 }

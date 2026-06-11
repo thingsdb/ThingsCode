@@ -38,18 +38,18 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
     queueMicrotask(fetchHistory);
   }, [fetchHistory]);
 
-    const filtered = useMemo(() => {
-      const cleanedQuery = searchQuery.trim().toLowerCase();
-      if (!cleanedQuery) {
-        return commits;
-      }
+  const filtered = useMemo(() => {
+    const cleanedQuery = searchQuery.trim().toLowerCase();
+    if (!cleanedQuery) {
+      return commits;
+    }
 
-      return commits.filter((commit) => {
-        const messageMatch = commit.message?.toLowerCase().includes(cleanedQuery);
+    return commits.filter((commit) => {
+      const messageMatch = commit.message?.toLowerCase().includes(cleanedQuery);
 
-        return messageMatch;
-      });
-    }, [commits, searchQuery]);
+      return messageMatch;
+    });
+  }, [commits, searchQuery]);
 
 
   return (
@@ -152,7 +152,7 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
           const hasError = !!commit.errMsg;
           let displayTime;
           try {
-            displayTime = new Date(commit.createdOn).toLocaleString(undefined, {hour12: false});
+            displayTime = new Date(commit.createdOn).toLocaleString(undefined, { hour12: false });
           } catch {
             displayTime = 'Invalid Date';
           }

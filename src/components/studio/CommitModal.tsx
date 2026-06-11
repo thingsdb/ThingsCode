@@ -48,9 +48,9 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
   return (
     <Dialog.Root open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
       <Dialog.Content aria-describedby={undefined} style={{
-          width: '60vw',
-          maxWidth: '1024px',
-          padding: '16px'
+        width: '60vw',
+        maxWidth: '1024px',
+        padding: '16px'
       }}>
         <Dialog.Title style={{ margin: 0, paddingBottom: '12px' }}>
           <Flex align="center" justify="between">
@@ -105,15 +105,15 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
                 gap="2"
                 p="2"
                 style={{
-                backgroundColor: 'var(--gray-2)',
-                borderRadius: 'var(--radius-3)',
-                border: '1px solid var(--gray-4)',
+                  backgroundColor: 'var(--gray-2)',
+                  borderRadius: 'var(--radius-3)',
+                  border: '1px solid var(--gray-4)',
                 }}
               >
                 <CalendarIcon color="var(--iris-8)" />
-                  <Flex direction="column">
+                <Flex direction="column">
                   <Text size="2" color="gray" weight="medium" style={{ fontFamily: 'monospace' }}>
-                    {new Date(commit.createdOn).toLocaleString(undefined, {hour12: false})}
+                    {new Date(commit.createdOn).toLocaleString(undefined, { hour12: false })}
                   </Text>
                 </Flex>
               </Flex>

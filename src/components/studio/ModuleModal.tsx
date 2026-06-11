@@ -34,12 +34,12 @@ export default function ModuleModal({
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
       <Dialog.Content aria-describedby={undefined} style={{
-          width: '65vw',
-          maxWidth: '1024px',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '85vh'
+        width: '65vw',
+        maxWidth: '1024px',
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        maxHeight: '85vh'
       }}>
         {/* HEADER */}
         <Box flexShrink="0" mb="2">
@@ -108,7 +108,7 @@ export default function ModuleModal({
                   <DataList.Value>
                     <Flex align="center" gap="2" style={{ color: "gray" }}>
                       <CalendarIcon width="14" height="14" />
-                      <Text size="2">{new Date(module.createdAt).toLocaleString(undefined, {hour12: false})}</Text>
+                      <Text size="2">{new Date(module.createdAt).toLocaleString(undefined, { hour12: false })}</Text>
                     </Flex>
                   </DataList.Value>
                 </DataList.Item>
@@ -203,11 +203,11 @@ export default function ModuleModal({
                   />
                 </Box>
               ) : (
-              <Flex align="center" justify="center" style={{ height: '100%' }}>
-                <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
-                  No configuration for this module.
-                </Text>
-              </Flex>
+                <Flex align="center" justify="center" style={{ height: '100%' }}>
+                  <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
+                    No configuration for this module.
+                  </Text>
+                </Flex>
               )}
             </Tabs.Content>
 
@@ -241,11 +241,11 @@ export default function ModuleModal({
                   />
                 </Box>
               ) : (
-              <Flex align="center" justify="center" style={{ height: '100%' }}>
-                <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
-                  No methods exposed on this module.
-                </Text>
-              </Flex>
+                <Flex align="center" justify="center" style={{ height: '100%' }}>
+                  <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
+                    No methods exposed on this module.
+                  </Text>
+                </Flex>
               )}
             </Tabs.Content>
 

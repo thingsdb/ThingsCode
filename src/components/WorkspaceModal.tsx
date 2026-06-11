@@ -17,7 +17,7 @@ export default function WorkspaceModal() {
 
   if (editingWorkspace?.id !== prevId) {
     setPrevId(editingWorkspace?.id);
-    setForm({...editingWorkspace});
+    setForm({ ...editingWorkspace });
   }
 
   if (!editingWorkspace) return null;
@@ -168,17 +168,17 @@ export default function WorkspaceModal() {
                   onChange={e => setForm({ ...form, token: e.target.value })}
                 >
                   <TextField.Slot side="right" px="1">
-                      <IconButton
-                        type="button"
-                        variant="ghost"
-                        color="gray"
-                        onClick={() => setShowToken(!showToken)}
-                        className="cursor-pointer"
-                      >
-                        {showToken ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
-                      </IconButton>
-                    </TextField.Slot>
-                  </TextField.Root>
+                    <IconButton
+                      type="button"
+                      variant="ghost"
+                      color="gray"
+                      onClick={() => setShowToken(!showToken)}
+                      className="cursor-pointer"
+                    >
+                      {showToken ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
+                    </IconButton>
+                  </TextField.Slot>
+                </TextField.Root>
               </label>
             ) : (
               <Flex gap="3">

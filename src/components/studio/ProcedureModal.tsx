@@ -100,9 +100,9 @@ export default function ProcedureModal({
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
       <Dialog.Content aria-describedby={undefined} style={{
-          width: '60vw',
-          maxWidth: '1024px',
-          padding: '16px',
+        width: '60vw',
+        maxWidth: '1024px',
+        padding: '16px',
       }}>
         <Box flexShrink="0" mb="2">
           <Dialog.Title size="3" style={{ margin: 0 }}>

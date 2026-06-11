@@ -44,7 +44,7 @@ export default function TypeModal({ onClose, tp, onNavigateToType }: TypeModalPr
           flexDirection: 'column',
           minHeight: 0,
           overflow: 'hidden'
-         }}>
+        }}>
           <Tabs.List size="2" style={{ flexShrink: 0 }}>
             <Tabs.Trigger value="general" className="cursor-pointer">General</Tabs.Trigger>
             <Tabs.Trigger value="fields" className="cursor-pointer">
