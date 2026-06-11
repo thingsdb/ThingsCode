@@ -61,7 +61,7 @@ export default function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
               If you like using ThingsCode, please give us a star on our official GitHub organization page!
             </Text>
 
-            <Button size="1" color="gray" variant="classic" mt="1" asChild style={{ cursor: 'pointer' }}>
+            <Button size="1" color="gray" variant="classic" mt="1" asChild className="cursor-pointer">
               <a href="https://github.com/thingsdb" target="_blank" rel="noopener noreferrer" style={{ gap: '6px' }}>
                 <GitHubLogoIcon width="13" height="13" />
                 Star on GitHub

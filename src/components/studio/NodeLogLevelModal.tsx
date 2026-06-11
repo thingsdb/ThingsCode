@@ -64,7 +64,7 @@ export default function NodeLogLevelModal({
               <Select.Trigger style={{ width: '100%', cursor: 'pointer' }} />
               <Select.Content>
                 {LOG_LEVELS.map((level) => (
-                  <Select.Item key={level.value} value={level.value} style={{ cursor: 'pointer' }}>
+                  <Select.Item key={level.value} value={level.value} className="cursor-pointer">
                     {level.name}
                   </Select.Item>
                 ))}
@@ -74,7 +74,7 @@ export default function NodeLogLevelModal({
 
           <Flex gap="3" justify="end">
             <Dialog.Close>
-              <Button variant="soft" color="gray" disabled={isSubmitting} style={{ cursor: 'pointer' }}>
+              <Button variant="soft" color="gray" disabled={isSubmitting} className="cursor-pointer">
                 Cancel
               </Button>
             </Dialog.Close>

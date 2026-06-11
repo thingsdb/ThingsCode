@@ -105,16 +105,16 @@ export default function NodeInfoPanel({ scope }: NodeInfoPanelProps) {
         </DataList.Root>
 
         <Grid columns="2" gap="2" mt="1">
-          <Button size="1" variant="soft" color="gray" onClick={() => fetchNodeInfo()} style={{ cursor: 'pointer' }}>
+          <Button size="1" variant="soft" color="gray" onClick={() => fetchNodeInfo()} className="cursor-pointer">
             <UpdateIcon /> Refresh
           </Button>
-          <Button size="1" variant="soft" color="gray" onClick={() => setIsInspectOpen(true)} style={{ cursor: 'pointer' }}>
+          <Button size="1" variant="soft" color="gray" onClick={() => setIsInspectOpen(true)} className="cursor-pointer">
             <SizeIcon /> Inspect Full
           </Button>
-          <Button size="1" variant="soft" color="gray" onClick={() => setIsLogLevelOpen(true)} style={{ cursor: 'pointer' }}>
+          <Button size="1" variant="soft" color="gray" onClick={() => setIsLogLevelOpen(true)} className="cursor-pointer">
             <ReaderIcon /> Log Level
           </Button>
-          <Button size="1" variant="soft" color="red" onClick={() => setIsShutdownOpen(true)} style={{ cursor: 'pointer' }}>
+          <Button size="1" variant="soft" color="red" onClick={() => setIsShutdownOpen(true)} className="cursor-pointer">
             <CrossCircledIcon /> Shutdown
           </Button>
         </Grid>

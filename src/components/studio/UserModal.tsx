@@ -92,14 +92,14 @@ export default function UserModal({ onClose, user }: UserModalProps) {
           overflow: 'hidden'
         }}>
           <Tabs.List size="2" style={{ flexShrink: 0 }}>
-            <Tabs.Trigger value="general" style={{ cursor: 'pointer' }}>General</Tabs.Trigger>
-            <Tabs.Trigger value="access" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="general" className="cursor-pointer">General</Tabs.Trigger>
+            <Tabs.Trigger value="access" className="cursor-pointer">
               Scope Access ({user.access?.length || 0})
             </Tabs.Trigger>
-            <Tabs.Trigger value="tokens" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="tokens" className="cursor-pointer">
               Tokens ({user.tokens?.length || 0})
             </Tabs.Trigger>
-            <Tabs.Trigger value="whitelists" style={{ cursor: 'pointer' }}>Whitelists</Tabs.Trigger>
+            <Tabs.Trigger value="whitelists" className="cursor-pointer">Whitelists</Tabs.Trigger>
           </Tabs.List>
 
           <Box pt="3" style={{ flexGrow: 1, minHeight: 0 }}>
@@ -293,7 +293,7 @@ export default function UserModal({ onClose, user }: UserModalProps) {
         {/* FOOTER */}
         <Flex gap="3" justify="end" flexShrink="0" style={{ paddingTop: '12px', marginTop: '12px', borderTop: '1px solid var(--gray-4)' }}>
           <Dialog.Close>
-            <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+            <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">
               Close
             </Button>
           </Dialog.Close>

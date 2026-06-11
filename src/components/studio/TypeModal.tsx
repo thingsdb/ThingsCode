@@ -46,11 +46,11 @@ export default function TypeModal({ onClose, tp, onNavigateToType }: TypeModalPr
           overflow: 'hidden'
          }}>
           <Tabs.List size="2" style={{ flexShrink: 0 }}>
-            <Tabs.Trigger value="general" style={{ cursor: 'pointer' }}>General</Tabs.Trigger>
-            <Tabs.Trigger value="fields" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="general" className="cursor-pointer">General</Tabs.Trigger>
+            <Tabs.Trigger value="fields" className="cursor-pointer">
               Fields ({tp.fields.length})
             </Tabs.Trigger>
-            <Tabs.Trigger value="methods" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="methods" className="cursor-pointer">
               Methods ({Object.keys(tp.methods).length})
             </Tabs.Trigger>
           </Tabs.List>
@@ -138,7 +138,7 @@ export default function TypeModal({ onClose, tp, onNavigateToType }: TypeModalPr
 
         <Flex gap="3" justify="end" flexShrink="0" style={{ paddingTop: '12px', marginTop: '12px' }}>
           <Dialog.Close>
-            <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>Close</Button>
+            <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">Close</Button>
           </Dialog.Close>
         </Flex>
       </Dialog.Content>

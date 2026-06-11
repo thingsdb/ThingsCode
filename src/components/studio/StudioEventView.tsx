@@ -91,7 +91,7 @@ export default function StudioEventView() {
               variant="soft"
               color="gray"
               onClick={() => setSortNewestFirst((prev) => !prev)}
-              style={{ cursor: 'pointer' }}
+              className="cursor-pointer"
             >
               {sortNewestFirst ? (
                 <>Newest First <ArrowDownIcon /></>
@@ -105,7 +105,7 @@ export default function StudioEventView() {
                 variant="soft"
                 color="gray"
                 onClick={clearEmitEvents}
-                style={{ cursor: 'pointer' }}
+                className="cursor-pointer"
               >
                 <EraserIcon width="14" height="14" />
               </IconButton>

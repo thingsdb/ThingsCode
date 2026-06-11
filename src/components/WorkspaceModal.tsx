@@ -173,7 +173,7 @@ export default function WorkspaceModal() {
                         variant="ghost"
                         color="gray"
                         onClick={() => setShowToken(!showToken)}
-                        style={{ cursor: 'pointer' }}
+                        className="cursor-pointer"
                       >
                         {showToken ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
                       </IconButton>
@@ -202,7 +202,7 @@ export default function WorkspaceModal() {
                         variant="ghost"
                         color="gray"
                         onClick={() => setShowPassword(!showPassword)}
-                        style={{ cursor: 'pointer' }}
+                        className="cursor-pointer"
                       >
                         {showPassword ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
                       </IconButton>

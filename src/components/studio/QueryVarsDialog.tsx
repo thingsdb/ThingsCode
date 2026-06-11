@@ -75,7 +75,7 @@ export default function QueryVarsDialog({
 
         <Flex gap="3" justify="end">
           <Dialog.Close>
-            <Button variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+            <Button variant="soft" color="gray" size="2" className="cursor-pointer">
               Cancel
             </Button>
           </Dialog.Close>

@@ -121,7 +121,7 @@ export default function QuickConnectModal() {
                 <Text as="div" size="2" weight="bold" mb="1">ThingsDB Access Token</Text>
                 <TextField.Root type={showToken ? "text" : "password"} value={token} onChange={e => setToken(e.target.value)} required>
                     <TextField.Slot side="right" px="1">
-                    <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowToken(!showToken)} style={{ cursor: 'pointer' }}>
+                    <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowToken(!showToken)} className="cursor-pointer">
                         {showToken ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
                     </IconButton>
                     </TextField.Slot>
@@ -137,7 +137,7 @@ export default function QuickConnectModal() {
                     <Text as="div" size="2" weight="bold" mb="1">Password</Text>
                     <TextField.Root type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required>
                     <TextField.Slot side="right" px="1">
-                        <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }}>
+                        <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowPassword(!showPassword)} className="cursor-pointer">
                         {showPassword ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
                         </IconButton>
                     </TextField.Slot>

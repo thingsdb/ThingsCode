@@ -7,10 +7,9 @@ import { errStr } from '../utils';
 
 interface WorkspaceProviderProps {
   children: React.ReactNode;
-  appearance: 'light' | 'dark';
 }
 
-export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps) {
+export function WorkspaceProvider({children}: WorkspaceProviderProps) {
   const { status, emit } = useWebSocket();
   const { setErrorMessage } = useError();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
@@ -119,7 +118,6 @@ export function WorkspaceProvider({children, appearance}: WorkspaceProviderProps
       searchQuery,
       setSearchQuery,
       deleteWorkspace,
-      appearance,
       editingWorkspace,
       setEditingWorkspace,
       updateWorkspace,

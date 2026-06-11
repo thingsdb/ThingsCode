@@ -75,7 +75,7 @@ export default function StudioLogView() {
             variant="soft"
             color="gray"
             onClick={() => setSortNewestFirst((prev) => !prev)}
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
           >
             {sortNewestFirst ? (
               <>Newest First <ArrowDownIcon /></>
@@ -89,7 +89,7 @@ export default function StudioLogView() {
               variant="soft"
               color="gray"
               onClick={clearWarnings}
-              style={{ cursor: 'pointer' }}
+              className="cursor-pointer"
             >
               <EraserIcon width="14" height="14" />
             </IconButton>

@@ -73,11 +73,11 @@ export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
           overflow: 'hidden'
          }}>
           <Tabs.List size="2" style={{ flexShrink: 0 }}>
-            <Tabs.Trigger value="general" style={{ cursor: 'pointer' }}>General</Tabs.Trigger>
-            <Tabs.Trigger value="members" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="general" className="cursor-pointer">General</Tabs.Trigger>
+            <Tabs.Trigger value="members" className="cursor-pointer">
               Members ({enu.members.length})
             </Tabs.Trigger>
-            <Tabs.Trigger value="methods" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="methods" className="cursor-pointer">
               Methods ({Object.keys(enu.methods).length})
             </Tabs.Trigger>
           </Tabs.List>
@@ -235,7 +235,7 @@ export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
 
         <Flex gap="3" justify="end" flexShrink="0" style={{ paddingTop: '12px', marginTop: '12px' }}>
           <Dialog.Close>
-            <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>Close</Button>
+            <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">Close</Button>
           </Dialog.Close>
         </Flex>
       </Dialog.Content>

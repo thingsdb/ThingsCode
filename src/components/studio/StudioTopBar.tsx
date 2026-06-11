@@ -82,33 +82,19 @@ export default function StudioTopBar() {
       px="3"
       align="center"
       justify="between"
-      style={{
-        height: 40,
-        borderBottom: '1px solid var(--gray-4)',
-        backgroundColor: 'var(--gray-2)',
-        position: 'relative',
-        zIndex: 2,
-      }}
+      className="h-10 border-b border-[var(--gray-4)] bg-[var(--gray-2)] relative z-10"
     >
       {/* Left side */}
       <Flex align="center" gap="2">
         <Box
           onClick={() => setIsAboutOpen(true)}
-          style={{
-            cursor: 'pointer',
-            borderRadius: 'var(--radius-2)',
-            padding: '4px',
-            margin: '-4px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            userSelect: 'none',
-          }}
+          className="cursor-pointer rounded-[var(--radius-2)] p-1 -m-1 inline-flex items-center select-none"
           title="About ThingsCode"
         >
           <img
             src={appearance === 'dark' ? '/images/logo_on_dark.svg' : '/images/logo_on_white.svg'}
             alt="ThingsDB Logo"
-            style={{ width: 28, height: 28, objectFit: 'contain' }}
+            className="w-7 h-7 object-contain"
           />
         </Box>
 
@@ -125,13 +111,7 @@ export default function StudioTopBar() {
       <Flex
         align="center"
         gap="2"
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 1
-        }}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
       >
         <ScopeSelector disabled={loading} />
 
@@ -143,7 +123,7 @@ export default function StudioTopBar() {
             loading={isExecuting || isRefreshing}
             disabled={!isTiCode}
             onClick={handleExecuteCode}
-            style={{ cursor: !isTiCode ? 'not-allowed' : 'pointer' }}
+            className={!isTiCode ? 'cursor-not-allowed' : 'cursor-pointer'}
           >
             <PlayIcon width="14" height="14" />
           </Button>
@@ -157,7 +137,7 @@ export default function StudioTopBar() {
             disabled={!isTiCode || isRefreshing}
             onClick={() => setIsConfigOpen(true)}
             title="Edit Runtime Arguments"
-            style={{ cursor: !isTiCode || isRefreshing ? 'not-allowed' : 'pointer' }}
+            className={!isTiCode || isRefreshing ? 'cursor-not-allowed' : 'cursor-pointer'}
           >
             <MixerHorizontalIcon width="16" height="16" />
           </IconButton>
@@ -171,9 +151,9 @@ export default function StudioTopBar() {
             disabled={isRefreshing || loading}
             onClick={() => handleRefreshScopes()}
             title="Refresh Scopes"
-            style={{ cursor: isRefreshing || loading ? 'not-allowed' : 'pointer' }}
+            className={isRefreshing || loading ? 'cursor-not-allowed' : 'cursor-pointer'}
           >
-            <UpdateIcon width="16" height="16" />
+            <UpdateIcon width="16" height="16" className={isRefreshing ? 'animate-spin' : ''} />
           </IconButton>
 
           <Separator orientation="vertical" size="1" />
@@ -185,7 +165,7 @@ export default function StudioTopBar() {
             disabled={!isCollectionScope || isRefreshing || loading || isExplorerOpen}
             onClick={() => setIsExplorerOpen(true)}
             title="Open Thing Explorer"
-            style={{ cursor: !isCollectionScope || isRefreshing || loading || isExplorerOpen ? 'not-allowed' : 'pointer' }}
+            className={!isCollectionScope || isRefreshing || loading || isExplorerOpen ? 'cursor-not-allowed' : 'cursor-pointer'}
           >
             <CubeIcon width="16" height="16" />
           </IconButton>
@@ -229,7 +209,7 @@ export default function StudioTopBar() {
             variant="ghost"
             size="2"
             color="gray"
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
             asChild
           >
             <a
@@ -248,7 +228,7 @@ export default function StudioTopBar() {
             variant="ghost"
             size="2"
             color="gray"
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
             asChild
           >
             <a
@@ -269,7 +249,7 @@ export default function StudioTopBar() {
             onClick={() => setIsSearchOpen(true)}
             disabled={isSearchOpen}
             size="2"
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
             color="gray"
           >
             <MagnifyingGlassIcon width="16" height="16" />
@@ -283,7 +263,7 @@ export default function StudioTopBar() {
             variant="ghost"
             onClick={toggleAppearance}
             size="2"
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
             color="gray"
           >
             {appearance === 'dark' ? <SunIcon width="16" height="16" /> : <MoonIcon width="16" height="16" />}
@@ -297,7 +277,7 @@ export default function StudioTopBar() {
             variant="ghost"
             onClick={() => setIsMyUserOpen(true)}
             size="2"
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
             color="gray"
           >
             <PersonIcon width="16" height="16" />

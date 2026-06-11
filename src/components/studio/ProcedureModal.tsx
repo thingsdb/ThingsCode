@@ -145,10 +145,10 @@ export default function ProcedureModal({
           minHeight: 0
         }}>
           <Tabs.List size="2">
-            <Tabs.Trigger value="definition" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="definition" className="cursor-pointer">
               Definition
             </Tabs.Trigger>
-            <Tabs.Trigger value="execute" style={{ cursor: 'pointer' }}>
+            <Tabs.Trigger value="execute" className="cursor-pointer">
               Execute
             </Tabs.Trigger>
           </Tabs.List>
@@ -329,7 +329,7 @@ export default function ProcedureModal({
 
         <Flex gap="3" justify="end" flexShrink="0" style={{ paddingTop: '12px', marginTop: '12px' }}>
           <Dialog.Close>
-            <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+            <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">
               Close
             </Button>
           </Dialog.Close>

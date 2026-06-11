@@ -51,7 +51,7 @@ export default function StudioConsoleHeader({
           size="1"
           value={consoleTab}
           onValueChange={(value) => setConsoleTab(value as StudioTab)}
-          style={{ cursor: 'pointer' }}
+          className="cursor-pointer"
         >
           <SegmentedControl.Item value="result" style={result?.error ? {backgroundColor: "var(--red-7)"} : {}}>
             Result

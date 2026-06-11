@@ -32,7 +32,7 @@ export default function ConfirmDialog({
         <Flex gap="3" justify="end">
           {/* Cancel Trigger Box */}
           <AlertDialog.Cancel>
-            <Button variant="soft" color="gray" style={{ cursor: 'pointer' }}>
+            <Button variant="soft" color="gray" className="cursor-pointer">
               {cancelText}
             </Button>
           </AlertDialog.Cancel>
@@ -43,7 +43,7 @@ export default function ConfirmDialog({
               variant="solid"
               color={colorVariant}
               onClick={onConfirm}
-              style={{ cursor: 'pointer' }}
+              className="cursor-pointer"
             >
               {confirmText}
             </Button>

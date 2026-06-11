@@ -155,7 +155,7 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
 
             <Flex justify="end" gap="2" pt="2">
               <Dialog.Close>
-                <Button variant="soft" color="gray" style={{ cursor: 'pointer' }} onClick={onClose}>
+                <Button variant="soft" color="gray" className="cursor-pointer" onClick={onClose}>
                   Close
                 </Button>
               </Dialog.Close>

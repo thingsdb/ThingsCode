@@ -176,7 +176,7 @@ export default function ModulesPanel({ scope }: ModulesPanelProps) {
                           variant="ghost"
                           size="1"
                           color="gray"
-                          style={{ cursor: 'pointer' }}
+                          className="cursor-pointer"
                           asChild
                         >
                           <a

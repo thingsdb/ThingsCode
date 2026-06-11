@@ -25,7 +25,7 @@ export default function WorkspaceLauncher() {
             variant="ghost"
             onClick={toggleAppearance}
             size="2"
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
             color="gray"
           >
             {appearance === 'dark' ? <SunIcon width="16" height="16" /> : <MoonIcon width="16" height="16" />}

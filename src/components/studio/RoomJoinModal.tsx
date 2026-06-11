@@ -232,7 +232,7 @@ export default function RoomJoinModal({
           {/* FOOTER */}
           <Flex gap="3" justify="end">
             <Dialog.Close>
-              <Button type="button" variant="soft" color="gray" size="2" style={{ cursor: 'pointer' }}>
+              <Button type="button" variant="soft" color="gray" size="2" className="cursor-pointer">
                 {mode === 'view' ? 'Close' : 'Cancel'}
               </Button>
             </Dialog.Close>
