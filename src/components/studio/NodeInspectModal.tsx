@@ -7,7 +7,7 @@ interface NodeInspectModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   nodeInfo: NodeInfo | null;
-  onRefresh: () => void;
+  onRefresh: () => Promise<void>;
 }
 
 export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRefresh }: NodeInspectModalProps) {
@@ -31,7 +31,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
 
   // Handle refresh
   const handleRefreshClick = async () => {
-    if (!onRefresh || isRefreshing) return;
+    if (isRefreshing) return;
     setIsRefreshing(true);
     try {
       await onRefresh();
@@ -65,7 +65,7 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
               size="1"
               variant="ghost"
               color="gray"
-              onClick={handleRefreshClick}
+              onClick={() => { void handleRefreshClick(); }}
               disabled={isRefreshing}
               title={isRefreshing ? 'Refreshing...' : 'Refresh'}
               style={{ cursor: isRefreshing ? 'not-allowed' : 'pointer' }}
@@ -121,13 +121,13 @@ export default function NodeInspectModal({ isOpen, onOpenChange, nodeInfo, onRef
             <Tabs.Content value="database">
               <DataList.Root size="2">
                 <DataList.Item><DataList.Label color="gray">Result Size Limit</DataList.Label><DataList.Value>{formatBytes(nodeInfo.resultSizeLimit)}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Global Stored Change ID</DataList.Label><DataList.Value>{nodeInfo.globalStoredChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Global Committed Change ID</DataList.Label><DataList.Value>{nodeInfo.globalCommittedChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Local Stored Change ID</DataList.Label><DataList.Value>{nodeInfo.localStoredChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Local Committed Change ID</DataList.Label><DataList.Value>{nodeInfo.localCommittedChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">DB Stored Change ID</DataList.Label><DataList.Value>{nodeInfo.dbStoredChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Next Change ID</DataList.Label><DataList.Value>{nodeInfo.nextChangeId?.toLocaleString()}</DataList.Value></DataList.Item>
-                <DataList.Item><DataList.Label color="gray">Next Free ID</DataList.Label><DataList.Value>{nodeInfo.nextFreeId?.toLocaleString()}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Global Stored Change ID</DataList.Label><DataList.Value>{nodeInfo.globalStoredChangeId.toLocaleString()}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Global Committed Change ID</DataList.Label><DataList.Value>{nodeInfo.globalCommittedChangeId.toLocaleString()}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Local Stored Change ID</DataList.Label><DataList.Value>{nodeInfo.localStoredChangeId.toLocaleString()}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Local Committed Change ID</DataList.Label><DataList.Value>{nodeInfo.localCommittedChangeId.toLocaleString()}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">DB Stored Change ID</DataList.Label><DataList.Value>{nodeInfo.dbStoredChangeId.toLocaleString()}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Next Change ID</DataList.Label><DataList.Value>{nodeInfo.nextChangeId.toLocaleString()}</DataList.Value></DataList.Item>
+                <DataList.Item><DataList.Label color="gray">Next Free ID</DataList.Label><DataList.Value>{nodeInfo.nextFreeId.toLocaleString()}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Changes In Queue</DataList.Label><DataList.Value>{nodeInfo.changesInQueue}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Syntax Version</DataList.Label><DataList.Value>{nodeInfo.syntaxVersion}</DataList.Value></DataList.Item>
                 <DataList.Item><DataList.Label color="gray">Scheduled Backups</DataList.Label><DataList.Value>{nodeInfo.scheduledBackups}</DataList.Value></DataList.Item>

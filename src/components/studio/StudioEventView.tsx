@@ -7,7 +7,7 @@ import EventArgsModal from './EventArgsModal';
 
 
 export default function StudioEventView() {
-  const { emitEvents = [], clearEmitEvents } = useEvent();
+  const { emitEvents, clearEmitEvents } = useEvent();
   const [sortNewestFirst, setSortNewestFirst] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isArgsModalOpen, setIsArgsModalOpen] = useState(false);
@@ -90,7 +90,7 @@ export default function StudioEventView() {
               size="1"
               variant="soft"
               color="gray"
-              onClick={() => setSortNewestFirst((prev) => !prev)}
+              onClick={() => { setSortNewestFirst((prev) => !prev); }}
               className="cursor-pointer"
             >
               {sortNewestFirst ? (
@@ -116,7 +116,7 @@ export default function StudioEventView() {
         <TextField.Root
           placeholder="Filter by event name, room ID, or raw arguments..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); }}
           size="1"
         >
           <TextField.Slot>
@@ -128,7 +128,7 @@ export default function StudioEventView() {
                 size="1"
                 variant="ghost"
                 color="gray"
-                onClick={() => setSearchQuery('')}
+                onClick={() => { setSearchQuery(''); }}
                 style={{ cursor: 'pointer', height: '16px', width: '16px' }}
               >
                 <Cross2Icon height="12" width="12" />
@@ -176,7 +176,7 @@ export default function StudioEventView() {
                       size="1"
                       variant="soft"
                       color={item.args.length > 0 ? 'iris' : 'gray'}
-                      onClick={() => handleViewArgs(item)}
+                      onClick={() => { handleViewArgs(item); }}
                       style={{ cursor: 'pointer', fontVariantNumeric: 'tabular-nums' }}
                     >
                       ARGS {item.args.length}

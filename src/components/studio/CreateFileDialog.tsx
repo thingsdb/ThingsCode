@@ -68,7 +68,7 @@ export default function CreateFileDialog({
           <form onSubmit={handleSubmit}>
             <TextField.Root
               value={filename}
-              onChange={(e) => setFilename(e.target.value)}
+              onChange={(e) => { setFilename(e.target.value); }}
               placeholder="filename.ti"
               size="2"
               mb="4"

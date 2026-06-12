@@ -13,7 +13,7 @@ const getLogTypeMeta = (code: number) => {
 };
 
 export default function StudioLogView() {
-  const { warnings = [], clearWarnings } = useEvent();
+  const { warnings, clearWarnings } = useEvent();
   const [sortNewestFirst, setSortNewestFirst] = useState<boolean>(true);
 
   // Parse, format, and sort the logs based on user selection
@@ -74,7 +74,7 @@ export default function StudioLogView() {
             size="1"
             variant="soft"
             color="gray"
-            onClick={() => setSortNewestFirst((prev) => !prev)}
+            onClick={() => { setSortNewestFirst((prev) => !prev); }}
             className="cursor-pointer"
           >
             {sortNewestFirst ? (

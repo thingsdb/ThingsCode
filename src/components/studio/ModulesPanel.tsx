@@ -22,8 +22,8 @@ export default function ModulesPanel({ scope }: ModulesPanelProps) {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_MODULES', { id: activeId, scope }) as Module[];
-      setModules(response || []);
+      const response: Module[] = await emit('FETCH_MODULES', { id: activeId, scope });
+      setModules(response);
     } catch (err: unknown) {
       console.error("Failed to fetch modules:", err);
       setFetchError(errStr(err, "Failed to fetch modules."));
@@ -33,7 +33,7 @@ export default function ModulesPanel({ scope }: ModulesPanelProps) {
   }, [activeId, emit, scope]);
 
   useEffect(() => {
-    queueMicrotask(fetchModules);
+    queueMicrotask(() => { void fetchModules(); });
   }, [fetchModules]);
 
   return (
@@ -48,7 +48,7 @@ export default function ModulesPanel({ scope }: ModulesPanelProps) {
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchModules}
+            onClick={() => { void fetchModules(); }}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -92,114 +92,111 @@ export default function ModulesPanel({ scope }: ModulesPanelProps) {
       )}
 
       <Flex direction="column" gap="2">
-        {modules.map((module) => {
-          const isGithub = module.githubOwner && module.githubRef && module.githubRepo;
-          return (
-            <Card
-              key={module.name}
-              size="1"
-              style={{
-                padding: '6px 8px',
-                backgroundColor: 'var(--gray-2)',
-                borderColor: 'var(--gray-4)',
-                cursor: 'pointer',
-              }}
-              onClick={() => setViewModule(module)}
-            >
-              <Flex direction="column" gap="2">
-                <Flex align="center" justify="between" gap="2">
-                  <Flex gap="2">
-                    {isGithub ? (
-                      <Tooltip content={`${module.githubOwner}/${module.githubRepo}:${module.githubRef}`}>
-                        <GitHubLogoIcon color="gray" width="16" height="16" />
-                      </Tooltip>
-                    ): (
-                      <CubeIcon color="gray" width="16" height="16" />
-                    )}
-                    <Text
-                      size="1"
-                      weight="bold"
-                      truncate
-                      style={{
-                        fontFamily: 'monospace',
-                        color: 'var(--gray-12)',
-                        minWidth: 0,
-                        flexGrow: 1
-                      }}
-                    >
-                      {module.name}
-                    </Text>
-
-                  </Flex>
-
-                  {/* ⚡ PENDING/OK/FAILED */}
-                  {module.status === "installing module..." ? (
-                    <Badge color="amber" variant="surface" size="1" style={{ gap: '2px', padding: '0 5px', flexShrink: 0 }}>
-                      <Text size="1" weight="medium" style={{ fontSize: '10px', letterSpacing: '0.03em' }}>installing…</Text>
-                    </Badge>
-                  ) : module.status === "running" ? (
-                    <Badge color="green" variant="outline" size="1" style={{ gap: '2px', padding: '0 5px', flexShrink: 0, borderColor: 'var(--gray-5)' }}>
-                      <Text size="1" weight="medium" style={{ fontSize: '10px', color: 'var(--green-10)' }}>running</Text>
-                    </Badge>
-                  ) : (
-                    <Badge color="red" variant="outline" size="1" style={{ gap: '2px', padding: '0 5px', flexShrink: 0, borderColor: 'var(--gray-5)' }}>
-                      <Text size="1" weight="medium" style={{ fontSize: '10px', color: 'var(--red-10)' }}>fault</Text>
-                    </Badge>
+        {modules.map((module) => (
+          <Card
+            key={module.name}
+            size="1"
+            style={{
+              padding: '6px 8px',
+              backgroundColor: 'var(--gray-2)',
+              borderColor: 'var(--gray-4)',
+              cursor: 'pointer',
+            }}
+            onClick={() => { setViewModule(module); }}
+          >
+            <Flex direction="column" gap="2">
+              <Flex align="center" justify="between" gap="2">
+                <Flex gap="2">
+                  {module.githubOwner && module.githubRepo && module.githubRef ? (
+                    <Tooltip content={`${module.githubOwner}/${module.githubRepo}:${module.githubRef}`}>
+                      <GitHubLogoIcon color="gray" width="16" height="16" />
+                    </Tooltip>
+                  ): (
+                    <CubeIcon color="gray" width="16" height="16" />
                   )}
-                </Flex>
-
-                {module.version && (
-                  <Flex
-                    align="start"
-                    gap="2"
+                  <Text
+                    size="1"
+                    weight="bold"
+                    truncate
                     style={{
+                      fontFamily: 'monospace',
+                      color: 'var(--gray-12)',
                       minWidth: 0,
-                      borderTop: '1px dashed var(--gray-4)',
-                      paddingTop: '6px'
+                      flexGrow: 1
                     }}
                   >
-                    <Text
-                      size="1"
-                      color="gray"
-                      truncate
-                      style={{
-                        lineHeight: '1.3',
-                        color: 'var(--gray-10)',
-                        fontStyle: 'italic'
-                      }}
-                    >
-                      Version: {module.version}
-                    </Text>
-                    {module.doc && module.doc.startsWith('http') && (
-                      <Tooltip content={`Open ${module.doc}`}>
-                        <IconButton
-                          variant="ghost"
-                          size="1"
-                          color="gray"
-                          className="cursor-pointer"
-                          asChild
-                        >
-                          <a
-                            href={module.doc}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <ExternalLinkIcon width="16" height="16" />
-                          </a>
-                        </IconButton>
-                      </Tooltip>
+                    {module.name}
+                  </Text>
 
-                    )}
-                  </Flex>
+                </Flex>
+
+                {/* ⚡ PENDING/OK/FAILED */}
+                {module.status === "installing module..." ? (
+                  <Badge color="amber" variant="surface" size="1" style={{ gap: '2px', padding: '0 5px', flexShrink: 0 }}>
+                    <Text size="1" weight="medium" style={{ fontSize: '10px', letterSpacing: '0.03em' }}>installing…</Text>
+                  </Badge>
+                ) : module.status === "running" ? (
+                  <Badge color="green" variant="outline" size="1" style={{ gap: '2px', padding: '0 5px', flexShrink: 0, borderColor: 'var(--gray-5)' }}>
+                    <Text size="1" weight="medium" style={{ fontSize: '10px', color: 'var(--green-10)' }}>running</Text>
+                  </Badge>
+                ) : (
+                  <Badge color="red" variant="outline" size="1" style={{ gap: '2px', padding: '0 5px', flexShrink: 0, borderColor: 'var(--gray-5)' }}>
+                    <Text size="1" weight="medium" style={{ fontSize: '10px', color: 'var(--red-10)' }}>fault</Text>
+                  </Badge>
                 )}
               </Flex>
-            </Card>
-          );
-        })}
+
+              {module.version && (
+                <Flex
+                  align="start"
+                  gap="2"
+                  style={{
+                    minWidth: 0,
+                    borderTop: '1px dashed var(--gray-4)',
+                    paddingTop: '6px'
+                  }}
+                >
+                  <Text
+                    size="1"
+                    color="gray"
+                    truncate
+                    style={{
+                      lineHeight: '1.3',
+                      color: 'var(--gray-10)',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    Version: {module.version}
+                  </Text>
+                  {module.doc && module.doc.startsWith('http') && (
+                    <Tooltip content={`Open ${module.doc}`}>
+                      <IconButton
+                        variant="ghost"
+                        size="1"
+                        color="gray"
+                        className="cursor-pointer"
+                        asChild
+                      >
+                        <a
+                          href={module.doc}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLinkIcon width="16" height="16" />
+                        </a>
+                      </IconButton>
+                    </Tooltip>
+
+                  )}
+                </Flex>
+              )}
+            </Flex>
+          </Card>
+        ))}
       </Flex>
       {viewModule && (
         <ModuleModal
-          onClose={() => setViewModule(null)}
+          onClose={() => { setViewModule(null); }}
           scope={scope}
           module={viewModule}
         />

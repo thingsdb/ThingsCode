@@ -18,9 +18,9 @@ interface ActiveWorkspaceContextType {
   setActiveScopeState: (scope: string) => void;
   setActiveContent: (content: string) => void;
   setActiveFile: (filename: string) => void;
-  createFile: (filename: string) => void;
-  renameFile: (filename: string, newFilename: string) => void;
-  deleteFile: (filename: string) => void;
+  createFile: (filename: string) => Promise<void>;
+  renameFile: (filename: string, newFilename: string) => Promise<void>;
+  deleteFile: (filename: string) => Promise<void>;
   storeFileContent: (filename: string, newContent: string) => Promise<void>;
   updateQueryVars: (filename: string, newQueryVars: string) => Promise<void>;
   execCode: (filename: string, scope: string, code: string, queryVars: string | null) => Promise<void>;

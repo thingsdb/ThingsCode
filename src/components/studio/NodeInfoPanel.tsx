@@ -22,7 +22,7 @@ export default function NodeInfoPanel({ scope }: NodeInfoPanelProps) {
   const [isInspectOpen, setIsInspectOpen] = useState(false);
   const [isLogLevelOpen, setIsLogLevelOpen] = useState(false);
 
-  const nodeIdMatch = scope.match(/\d+/);
+  const nodeIdMatch = /\d+/.exec(scope)?.[0];
   const nodeId = nodeIdMatch ? parseInt(nodeIdMatch[0], 10) : 0;
 
   const fetchNodeInfo = useCallback(async (abortCheck?: { isMounted: boolean }) => {
@@ -55,7 +55,7 @@ export default function NodeInfoPanel({ scope }: NodeInfoPanelProps) {
 
     queueMicrotask(() => {
       if (abortCheck.isMounted) {
-        fetchNodeInfo(abortCheck);
+        void fetchNodeInfo(abortCheck);
       }
     });
 
@@ -78,7 +78,12 @@ export default function NodeInfoPanel({ scope }: NodeInfoPanelProps) {
 
   if (!nodeInfo) {
     return (
-      <Button size="1" variant="outline" onClick={() => fetchNodeInfo()} style={{ cursor: 'pointer', width: '100%' }}>
+      <Button
+        size="1"
+        variant="outline"
+        onClick={() => { void fetchNodeInfo(); }}
+        className="cursor-pointer w-full"
+      >
         Load Node Info
       </Button>
     );
@@ -105,16 +110,16 @@ export default function NodeInfoPanel({ scope }: NodeInfoPanelProps) {
         </DataList.Root>
 
         <Grid columns="2" gap="2" mt="1">
-          <Button size="1" variant="soft" color="gray" onClick={() => fetchNodeInfo()} className="cursor-pointer">
+          <Button size="1" variant="soft" color="gray" onClick={() => { void fetchNodeInfo(); }} className="cursor-pointer">
             <UpdateIcon /> Refresh
           </Button>
-          <Button size="1" variant="soft" color="gray" onClick={() => setIsInspectOpen(true)} className="cursor-pointer">
+          <Button size="1" variant="soft" color="gray" onClick={() => { setIsInspectOpen(true); }} className="cursor-pointer">
             <SizeIcon /> Inspect Full
           </Button>
-          <Button size="1" variant="soft" color="gray" onClick={() => setIsLogLevelOpen(true)} className="cursor-pointer">
+          <Button size="1" variant="soft" color="gray" onClick={() => { setIsLogLevelOpen(true); }} className="cursor-pointer">
             <ReaderIcon /> Log Level
           </Button>
-          <Button size="1" variant="soft" color="red" onClick={() => setIsShutdownOpen(true)} className="cursor-pointer">
+          <Button size="1" variant="soft" color="red" onClick={() => { setIsShutdownOpen(true); }} className="cursor-pointer">
             <CrossCircledIcon /> Shutdown
           </Button>
         </Grid>
@@ -125,14 +130,12 @@ export default function NodeInfoPanel({ scope }: NodeInfoPanelProps) {
         nodeId={nodeId}
         scope={scope}
       />
-      {nodeInfo && (
-        <NodeLogLevelModal
-          isOpen={isLogLevelOpen}
-          onOpenChange={setIsLogLevelOpen}
-          scope={scope}
-          currentNodeLogLevel={nodeInfo.logLevel}
-        />
-      )}
+      <NodeLogLevelModal
+        isOpen={isLogLevelOpen}
+        onOpenChange={setIsLogLevelOpen}
+        scope={scope}
+        currentNodeLogLevel={nodeInfo.logLevel}
+      />
       <NodeInspectModal
         isOpen={isInspectOpen}
         onOpenChange={setIsInspectOpen}

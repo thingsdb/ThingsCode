@@ -16,7 +16,7 @@ export default function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Content
         style={{ maxWidth: 440, padding: '24px', textAlign: 'center' }}
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        onOpenAutoFocus={(e) => { e.preventDefault(); }}
       >
         <Flex direction="column" align="center" gap="2" mb="4" mt="2">
           <img

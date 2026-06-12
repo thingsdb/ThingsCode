@@ -21,8 +21,8 @@ export default function UsersPanel() {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_USERS', { id: activeId }) as User[];
-      setUsers(response || []);
+      const response: User[] = await emit('FETCH_USERS', { id: activeId });
+      setUsers(response);
     } catch (err: unknown) {
       console.error("Failed to fetch users:", err);
       setFetchError(errStr(err, "Failed to fetch users."));
@@ -32,7 +32,7 @@ export default function UsersPanel() {
   }, [activeId, emit]);
 
   useEffect(() => {
-    queueMicrotask(fetchUsers);
+    queueMicrotask(() => { void fetchUsers(); });
   }, [fetchUsers]);
 
   const filtered = useMemo(() => {
@@ -42,7 +42,7 @@ export default function UsersPanel() {
     }
 
     return users.filter((proc) => {
-      const nameMatch = proc.name?.toLowerCase().includes(cleanedQuery);
+      const nameMatch = proc.name.toLowerCase().includes(cleanedQuery);
       return nameMatch;
     });
   }, [users, searchQuery]);
@@ -59,7 +59,7 @@ export default function UsersPanel() {
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchUsers}
+            onClick={() => { void fetchUsers(); }}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -71,7 +71,7 @@ export default function UsersPanel() {
         <TextField.Root
           placeholder="Search name or doc..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); }}
           size="1"
         >
           <TextField.Slot>
@@ -83,7 +83,7 @@ export default function UsersPanel() {
                 size="1"
                 variant="ghost"
                 color="gray"
-                onClick={() => setSearchQuery('')}
+                onClick={() => { setSearchQuery(''); }}
                 style={{ cursor: 'pointer', height: '16px', width: '16px' }}
               >
                 <Cross2Icon height="12" width="12" />
@@ -155,7 +155,7 @@ export default function UsersPanel() {
                 borderColor: 'var(--gray-4)',
                 cursor: 'pointer',
               }}
-              onClick={() => setViewUser(user)}
+              onClick={() => { setViewUser(user); }}
             >
               <Flex direction="column" gap="2">
                 <Tooltip content={user.name}>
@@ -180,7 +180,7 @@ export default function UsersPanel() {
       </Flex>
       {viewUser && (
         <UserModal
-          onClose={() => setViewUser(null)}
+          onClose={() => { setViewUser(null); }}
           user={viewUser}
         />
       )}

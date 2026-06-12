@@ -22,8 +22,8 @@ export default function TasksPanel({ scope }: TasksPanelProps) {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_TASKS', { id: activeId, scope }) as Task[];
-      setTasks(response || []);
+      const response: Task[] = await emit('FETCH_TASKS', { id: activeId, scope });
+      setTasks(response);
     } catch (err: unknown) {
       console.error("Failed to fetch tasks:", err);
       setFetchError(errStr(err, "Failed to fetch tasks."));
@@ -33,7 +33,7 @@ export default function TasksPanel({ scope }: TasksPanelProps) {
   }, [activeId, emit, scope]);
 
   useEffect(() => {
-    queueMicrotask(fetchTasks);
+    queueMicrotask(() => { void fetchTasks(); });
   }, [fetchTasks]);
 
   return (
@@ -48,7 +48,7 @@ export default function TasksPanel({ scope }: TasksPanelProps) {
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchTasks}
+            onClick={() => { void fetchTasks(); }}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -122,7 +122,7 @@ export default function TasksPanel({ scope }: TasksPanelProps) {
                 borderColor: hasError ? 'var(--orange-6)' : 'var(--gray-4)',
                 cursor: 'pointer',
               }}
-              onClick={() => setViewTaskId(task.id)}
+              onClick={() => { setViewTaskId(task.id); }}
             >
               <Flex direction="column" gap="2">
                 <Flex align="center" justify="between" gap="2">
@@ -169,7 +169,7 @@ export default function TasksPanel({ scope }: TasksPanelProps) {
         <TaskModal
           taskId={viewTaskId}
           scope={scope}
-          onClose={() => setViewTaskId(null)}
+          onClose={() => { setViewTaskId(null); }}
         />
       )}
     </Flex>

@@ -15,8 +15,6 @@ export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
   const [activeTab, setActiveTab] = useState<string>('general');
   const [expandedMembers, setExpandedMembers] = useState<Record<string, boolean>>({});
 
-  if (!enu) return null;
-
   const toggleMemberExplorer = (key: string) => {
     setExpandedMembers((prev) => ({
       ...prev,
@@ -25,15 +23,19 @@ export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
   };
 
   const renderMemberValue = (val: string | number | ThingId) => {
-    if (typeof val === 'object' && val !== null && '#' in val) {
+    if (typeof val === 'object' && Object.keys(val).length === 1) {
+      const thingId = Object.values(val)[0];
       return (
         <Flex align="center" gap="1">
           <CubeIcon color="var(--iris-8)" />
           <Text size="2" style={{ fontFamily: 'monospace', color: 'var(--iris-11)', fontWeight: 500 }}>
-            #{val['#']}
+            #{thingId}
           </Text>
         </Flex>
       );
+    }
+    if (typeof val === 'object') {
+      return <Text size="2" style={{ fontFamily: 'monospace' }}>{JSON.stringify(val)}</Text>;
     }
     return <Text size="2" style={{ fontFamily: 'monospace' }}>{String(val)}</Text>;
   };
@@ -148,15 +150,15 @@ export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
                         marginTop: '10px',
                       } as React.CSSProperties}
                     >
-                      {enu.members?.map(([key, val]) => {
+                      {enu.members.map(([key, val]) => {
                         const isDefault = key === enu.default;
-                        const isThingType = enu.type === 'thing' && typeof val === 'object' && val !== null && '#' in val;
-                        const isRowOpen = !!expandedMembers[key];
+                        const isThingType = enu.type === 'thing' && typeof val === 'object' && Object.keys(val).length === 1;
+                        const isRowOpen = expandedMembers[key];
 
                         return (
                           <Fragment key={key}>
                             <DataList.Item
-                              onClick={() => isThingType && toggleMemberExplorer(key)}
+                              onClick={() => { if (isThingType) toggleMemberExplorer(key); }}
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -208,7 +210,7 @@ export default function EnumModal({ onClose, enu, scope }: EnumModalProps) {
                                 <Box style={{ paddingLeft: '16px', borderLeft: '2px solid var(--iris-4)' }}>
                                   <ThingExplorer
                                     scope={scope}
-                                    startThingId={Object.values(val as ThingId)[0]}
+                                    startThingId={Object.values(val)[0]}
                                   />
                                 </Box>
                               </Box>

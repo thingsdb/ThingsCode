@@ -32,7 +32,7 @@ export default function MethodsTab({
     }
 
     return methodNames.filter((name) => {
-      const nameMatch = name?.toLowerCase().includes(cleanedQuery);
+      const nameMatch = name.toLowerCase().includes(cleanedQuery);
 
       return nameMatch;
     });
@@ -41,9 +41,9 @@ export default function MethodsTab({
   useEffect(() => {
     if (methodNames.length > 0) {
       const name = methodNames[0];
-      queueMicrotask(() => setSelectedMethodName(name));
+      queueMicrotask(() => { setSelectedMethodName(name); });
     } else {
-      queueMicrotask(() => setSelectedMethodName(null));
+      queueMicrotask(() => { setSelectedMethodName(null); });
     }
   }, [methodNames]);
 
@@ -58,7 +58,7 @@ export default function MethodsTab({
     );
   }
 
-  const activeMethod: Method | undefined = methods?.[selectedMethodName || ''];
+  const activeMethod: Method | undefined = methods?.[selectedMethodName ?? ''];
 
   return (
     <Flex gap="3" style={{ height: '100%', minHeight: 0 }}>
@@ -67,7 +67,7 @@ export default function MethodsTab({
           <TextField.Root
             placeholder="Search name..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); }}
             size="1"
             style={{ flexShrink: 0 }}
           >
@@ -80,7 +80,7 @@ export default function MethodsTab({
                   size="1"
                   variant="ghost"
                   color="gray"
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => { setSearchQuery(''); }}
                   style={{ cursor: 'pointer', height: '16px', width: '16px' }}
                 >
                   <Cross2Icon height="12" width="12" />
@@ -121,7 +121,7 @@ export default function MethodsTab({
             return (
               <Box
                 key={mName}
-                onClick={() => setSelectedMethodName(mName)}
+                onClick={() => { setSelectedMethodName(mName); }}
                 px="2"
                 py="1"
                 style={{
@@ -156,7 +156,7 @@ export default function MethodsTab({
 
                 <CodeIcon color="gray" />
                 <Text size="1" weight="bold" style={{ fontFamily: 'monospace' }}>
-                  {selectedMethodName}({activeMethod.arguments?.join(', ') || ''})
+                  {selectedMethodName}({activeMethod.arguments.join(', ') || ''})
                 </Text>
               </Flex>
 

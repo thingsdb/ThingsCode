@@ -66,7 +66,7 @@ export default function FieldsTab({ tp, onNavigateToType }: FieldsTabProps) {
         <TextField.Root
           placeholder="Search name or definition..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); }}
           size="1"
           m="1"
           style={{ flexShrink: 0 }}
@@ -80,7 +80,7 @@ export default function FieldsTab({ tp, onNavigateToType }: FieldsTabProps) {
                 size="1"
                 variant="ghost"
                 color="gray"
-                onClick={() => setSearchQuery('')}
+                onClick={() => { setSearchQuery(''); }}
                 style={{ cursor: 'pointer', height: '16px', width: '16px' }}
               >
                 <Cross2Icon height="12" width="12" />
@@ -124,10 +124,10 @@ export default function FieldsTab({ tp, onNavigateToType }: FieldsTabProps) {
               } as React.CSSProperties}
             >
               {filtered.map(([name, definition]) => {
-                const relation: Relation | undefined = tp.relations?.[name];
+                const relation: Relation | undefined = tp.relations[name];
 
                 const isComplex = typeof definition !== 'string';
-                const isRowOpen = !!expandedFields[name];
+                const isRowOpen = expandedFields[name];
 
                 const stringifiedThisDef = getDefinitionString(definition);
                 const cardinality = relation ? determineCardinality(stringifiedThisDef, relation.definition) : null;
@@ -140,7 +140,7 @@ export default function FieldsTab({ tp, onNavigateToType }: FieldsTabProps) {
                 return (
                   <React.Fragment key={name}>
                     <DataList.Item
-                      onClick={() => isComplex && toggleFieldExpand(name)}
+                      onClick={() => { if (isComplex) toggleFieldExpand(name); }}
                       style={{
                         display: 'grid',
                         gridTemplateColumns: '180px 200px auto',
@@ -185,7 +185,7 @@ export default function FieldsTab({ tp, onNavigateToType }: FieldsTabProps) {
 
                       <DataList.Value style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
                         {relation ? (
-                          <Flex align="center" gap="2" style={{ width: '100%' }} onClick={(e) => e.stopPropagation()}>
+                          <Flex align="center" gap="2" style={{ width: '100%' }} onClick={(e) => { e.stopPropagation(); }}>
                             <Badge size="1" color={cardinalityColor} variant="surface" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 'bold' }}>
                               {cardinality}
                             </Badge>
@@ -193,7 +193,7 @@ export default function FieldsTab({ tp, onNavigateToType }: FieldsTabProps) {
                             <Flex
                               align="center"
                               gap="1"
-                              onClick={() => onNavigateToType(relation.type)}
+                              onClick={() => { onNavigateToType(relation.type); }}
                               style={{
                                 cursor: 'pointer',
                                 padding: '2px 6px',

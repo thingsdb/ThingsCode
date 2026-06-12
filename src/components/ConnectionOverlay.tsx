@@ -21,7 +21,7 @@ export default function ConnectionOverlay() {
       setShowOverlay(false);
     }, 500);
 
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); };
   }, [status]);
 
   if (!showOverlay) return null;

@@ -56,7 +56,7 @@ export default function WorkspaceLauncher() {
               <TextField.Root
                 placeholder="Search by name, host, or port..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); }}
                 size="3"
                 autoFocus
               >
@@ -69,7 +69,7 @@ export default function WorkspaceLauncher() {
                       size="3"
                       variant="ghost"
                       color="gray"
-                      onClick={() => setSearchQuery('')}
+                      onClick={() => { setSearchQuery(''); }}
                       style={{ cursor: 'pointer', height: '22px', width: '22px' }}
                     >
                       <Cross2Icon height="16" width="16" />
@@ -94,7 +94,7 @@ export default function WorkspaceLauncher() {
                 <Flex justify="between" align="center">
                   {/* Left Side clickable selection space */}
                   <Box
-                    onClick={() => handleWorkspaceClick(ws.id)}
+                    onClick={() => { handleWorkspaceClick(ws.id); }}
                     style={{ flexGrow: 1 }}
                   >
                     <Heading size="3" mb="1">{ws.name}</Heading>
@@ -129,7 +129,7 @@ export default function WorkspaceLauncher() {
                     <IconButton
                       variant="ghost"
                       color="gray"
-                      onClick={() => setEditingWorkspace(ws)}
+                      onClick={() => { setEditingWorkspace(ws); }}
                     >
                       <Pencil2Icon width="16" height="16" />
                     </IconButton>
@@ -138,7 +138,7 @@ export default function WorkspaceLauncher() {
                     <IconButton
                       variant="ghost"
                       color="red"
-                      onClick={() => setDeletingWorkspace(ws)}
+                      onClick={() => { setDeletingWorkspace(ws); }}
                     >
                       <TrashIcon width="16" height="16" />
                     </IconButton>
@@ -154,22 +154,19 @@ export default function WorkspaceLauncher() {
             </Text>
           )}
         </Box>
-        <WorkspaceModal key={editingWorkspace?.id || 'new-workspace'} />
-        <ConfirmDialog
-          open={deletingWorkspace !== null}
-          onOpenChange={(open) => {
-            if (!open) setDeletingWorkspace(null);
-          }}
-          title="Remove Workspace"
-          description={`Are you sure you want to remove workspace "${deletingWorkspace?.name}"?`}
-          confirmText="Remove Workspace"
-          colorVariant="red"
-          onConfirm={() => {
-            if (deletingWorkspace) {
-              deleteWorkspace(deletingWorkspace.id);
-            }
-          }}
-        />
+        <WorkspaceModal key={editingWorkspace?.id ?? 'new-workspace'} />
+        {deletingWorkspace && (
+          <ConfirmDialog
+            onOpenChange={(open) => {
+              if (!open) setDeletingWorkspace(null);
+            }}
+            title="Remove Workspace"
+            description={`Are you sure you want to remove workspace "${deletingWorkspace.name}"?`}
+            confirmText="Remove Workspace"
+            colorVariant="red"
+            onConfirm={() => { void deleteWorkspace(deletingWorkspace.id); }}
+          />
+        )}
       </Container>
     </Box>
   );

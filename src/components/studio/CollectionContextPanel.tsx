@@ -52,7 +52,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('rooms')}
+          onClick={() => { toggleSection('rooms'); }}
         >
           <Text size="2" weight="bold">Rooms</Text>
           {openSection === 'rooms' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -67,7 +67,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('tasks')}
+          onClick={() => { toggleSection('tasks'); }}
         >
           <Text size="2" weight="bold">Tasks</Text>
           {openSection === 'tasks' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -82,7 +82,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('procedures')}
+          onClick={() => { toggleSection('procedures'); }}
         >
           <Text size="2" weight="bold">Procedures</Text>
           {openSection === 'procedures' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -97,7 +97,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('enums')}
+          onClick={() => { toggleSection('enums'); }}
         >
           <Text size="2" weight="bold">Enums</Text>
           {openSection === 'enums' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -112,7 +112,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('types')}
+          onClick={() => { toggleSection('types'); }}
         >
           <Text size="2" weight="bold">Types</Text>
           {openSection === 'types' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -127,7 +127,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('explorer')}
+          onClick={() => { toggleSection('explorer'); }}
         >
           <Text size="2" weight="bold">Explorer</Text>
           {openSection === 'explorer' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -143,7 +143,7 @@ export default function CollectionContextPanel({ scope, requireCommit }: Collect
             justify="between"
             py="1"
             className="cursor-pointer select-none"
-            onClick={() => toggleSection('history')}
+            onClick={() => { toggleSection('history'); }}
           >
             <Text size="2" weight="bold">History</Text>
             {openSection === 'history' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}

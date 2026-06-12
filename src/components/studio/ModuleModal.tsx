@@ -123,7 +123,7 @@ export default function ModuleModal({
                     </DataList.Value>
                   </DataList.Item>
                 )}
-                {module.tasks !== null && (
+                {module.tasks !== undefined && (
                   <DataList.Item>
                     <DataList.Label color="gray">Running tasks</DataList.Label>
                     <DataList.Value>
@@ -133,7 +133,7 @@ export default function ModuleModal({
                     </DataList.Value>
                   </DataList.Item>
                 )}
-                {module.restarts !== null && (
+                {module.restarts !== undefined && (
                   <DataList.Item>
                     <DataList.Label color="gray">Module restarts</DataList.Label>
                     <DataList.Value>

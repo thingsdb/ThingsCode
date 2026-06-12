@@ -22,8 +22,6 @@ export default function UserModal({ onClose, user }: UserModalProps) {
   const [activeTab, setActiveTab] = useState<string>('general');
   const [copied, setCopied] = useState<string | null>(null);
 
-  if (!user) return null;
-
   // Helper helper to color-code user access
   const renderPrivilegeBadges = (privString: string) => {
     if (!privString) return <Badge color="gray">NONE</Badge>;
@@ -59,7 +57,7 @@ export default function UserModal({ onClose, user }: UserModalProps) {
     try {
       await navigator.clipboard.writeText(key);
       setCopied(key);
-      setTimeout(() => setCopied(null), 2000);
+      setTimeout(() => { setCopied(null); }, 2000);
     } catch (err) {
       console.error('Failed to copy token key:', err);
     }
@@ -94,10 +92,10 @@ export default function UserModal({ onClose, user }: UserModalProps) {
           <Tabs.List size="2" style={{ flexShrink: 0 }}>
             <Tabs.Trigger value="general" className="cursor-pointer">General</Tabs.Trigger>
             <Tabs.Trigger value="access" className="cursor-pointer">
-              Scope Access ({user.access?.length || 0})
+              Scope Access ({user.access.length})
             </Tabs.Trigger>
             <Tabs.Trigger value="tokens" className="cursor-pointer">
-              Tokens ({user.tokens?.length || 0})
+              Tokens ({user.tokens.length})
             </Tabs.Trigger>
             <Tabs.Trigger value="whitelists" className="cursor-pointer">Whitelists</Tabs.Trigger>
           </Tabs.List>
@@ -134,7 +132,7 @@ export default function UserModal({ onClose, user }: UserModalProps) {
             {/* ACCESS */}
             <Tabs.Content value="access" style={{ height: '100%', maxHeight: '100%' }}>
               <Flex direction="column" style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>
-                {(!user.access || user.access.length === 0) ? (
+                {(user.access.length === 0) ? (
                   <Flex p="4" align="center" justify="center" gap="2" style={{ color: 'var(--gray-8)' }}>
                     <InfoCircledIcon /> <Text size="2" style={{ fontStyle: 'italic' }}>No scope privileges.</Text>
                   </Flex>
@@ -169,7 +167,7 @@ export default function UserModal({ onClose, user }: UserModalProps) {
             {/* TOKENS */}
             <Tabs.Content value="tokens" style={{ height: '100%', maxHeight: '100%' }}>
               <Flex direction="column" style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>
-                {(!user.tokens || user.tokens.length === 0) ? (
+                {(user.tokens.length === 0) ? (
                   <Flex p="4" align="center" justify="center" gap="2" style={{ color: 'var(--gray-8)' }}>
                     <LockOpen1Icon /> <Text size="2" style={{ fontStyle: 'italic' }}>No access tokens.</Text>
                   </Flex>
@@ -197,7 +195,7 @@ export default function UserModal({ onClose, user }: UserModalProps) {
                                       variant="soft"
                                       color={copied === token.key ? "green" : "gray"}
                                       highContrast={copied !== token.key}
-                                      onClick={() => handleCopyToClipboard(token.key)}
+                                      onClick={() => { void handleCopyToClipboard(token.key); }}
                                       style={{
                                         cursor: 'pointer',
                                         boxShadow: 'var(--shadow-2)',
@@ -250,7 +248,7 @@ export default function UserModal({ onClose, user }: UserModalProps) {
                   <Text size="2" weight="bold" color="gray" style={{ display: 'block', marginBottom: '8px', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.05em' }}>
                     Allowed Procedures
                   </Text>
-                  {user.whitelists?.procedures && user.whitelists.procedures.length > 0 ? (
+                  {user.whitelists.procedures && user.whitelists.procedures.length > 0 ? (
                     <Flex gap="2" wrap="wrap">
                       {user.whitelists.procedures.map((proc) => (
                         <Badge key={proc} color={proc.startsWith('/') ? "amber" : "iris"} variant="soft" style={{ fontFamily: 'monospace' }}>
@@ -270,7 +268,7 @@ export default function UserModal({ onClose, user }: UserModalProps) {
                   <Text size="2" weight="bold" color="gray" style={{ display: 'block', marginBottom: '8px', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.05em' }}>
                     Allowed Rooms
                   </Text>
-                  {user.whitelists?.rooms && user.whitelists.rooms.length > 0 ? (
+                  {user.whitelists.rooms && user.whitelists.rooms.length > 0 ? (
                     <Flex gap="2" wrap="wrap">
                       {user.whitelists.rooms.map((room) => (
                         <Badge key={room} color={room.startsWith('/') ? "amber" : "iris"} variant="outline" style={{ fontFamily: 'monospace' }}>

@@ -51,7 +51,7 @@ export default function TicodeSearch({
   }, [searchTerm, lookupRegistry]);
 
   useEffect(() => {
-    queueMicrotask(() => setSelectedIndex(0));
+    queueMicrotask(() => { setSelectedIndex(0); });
   }, [searchTerm]);
 
   const handleKeyDown = useCallback(
@@ -84,7 +84,7 @@ export default function TicodeSearch({
   );
 
   return (
-    <Dialog.Root defaultOpen onOpenChange={(open) => !open && onClose()}>
+    <Dialog.Root defaultOpen onOpenChange={(open) => { if (!open) onClose(); }}>
       <Dialog.Content
         aria-describedby={undefined}
         style={{
@@ -112,7 +112,7 @@ export default function TicodeSearch({
           <input
             placeholder="Search workspace files or scopes..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => { setSearchTerm(e.target.value); }}
             onKeyDown={handleKeyDown}
             autoFocus
             style={{
@@ -154,7 +154,7 @@ export default function TicodeSearch({
                       onSelect(item);
                       onClose();
                     }}
-                    onMouseEnter={() => setSelectedIndex(index)}
+                    onMouseEnter={() => { setSelectedIndex(index); }}
                     style={{
                       borderRadius: 'var(--radius-2)',
                       cursor: 'pointer',

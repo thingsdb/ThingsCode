@@ -58,7 +58,7 @@ export default function NodeLogLevelModal({
           Select log verbosity for <Text weight="bold" color="gray" highContrast>{scope}</Text>
         </Dialog.Description>
 
-        <form onSubmit={handleLogLevelSubmit}>
+        <form onSubmit={(elem) => { void handleLogLevelSubmit(elem); }}>
           <Flex direction="column" gap="3" mb="4">
             <Select.Root value={selectedLevel} onValueChange={setSelectedLevel} size="2">
               <Select.Trigger style={{ width: '100%', cursor: 'pointer' }} />

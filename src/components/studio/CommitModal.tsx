@@ -23,16 +23,11 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (commitId === null) {
-      queueMicrotask(() => setCommit(null));
-      return;
-    }
-
     const fetchCommit = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await emit('FETCH_COMMIT', { id: activeId, scope, commitId }) as Commit;
+        const response: Commit = await emit('FETCH_COMMIT', { id: activeId, scope, commitId });
         setCommit(response);
       } catch (err: unknown) {
         console.error("Failed to fetch commit details:", err);
@@ -42,7 +37,7 @@ export default function CommitModal({ commitId, scope, onClose }: CommitModalPro
       }
     };
 
-    queueMicrotask(fetchCommit);
+    queueMicrotask(() => { void fetchCommit(); });
   }, [commitId, scope, activeId, emit]);
 
   return (

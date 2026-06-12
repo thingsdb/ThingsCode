@@ -85,7 +85,7 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
 
     queueMicrotask(() => {
       if (abortCheck.isMounted) {
-        fetchCounters(abortCheck);
+        void fetchCounters(abortCheck);
       }
     });
 
@@ -95,7 +95,6 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
   }, [fetchCounters]);
 
   const formatDuration = (seconds: number) => {
-    if (seconds === undefined || seconds === null) return '0s';
     if (seconds < 0.001) return `${(seconds * 1000000).toFixed(0)} μs`;
     if (seconds < 1) return `${(seconds * 1000).toFixed(2)} ms`;
     return `${seconds.toFixed(3)} s`;
@@ -116,7 +115,12 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
 
   if (!counters) {
     return (
-      <Button size="1" variant="outline" onClick={() => fetchCounters()} style={{ cursor: 'pointer', width: '100%' }}>
+      <Button
+        size="1"
+        variant="outline"
+        onClick={() => { void fetchCounters(); }}
+        className="cursor-pointer w-full"
+      >
         Load Counters
       </Button>
     );
@@ -279,7 +283,7 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
             size="1"
             variant="soft"
             color="gray"
-            onClick={() => fetchCounters()}
+            onClick={() => { void fetchCounters(); }}
             className="cursor-pointer"
           >
             <UpdateIcon /> Refresh
@@ -288,7 +292,7 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
             size="1"
             variant="soft"
             color="red"
-            onClick={() => setIsResetCounters(true)}
+            onClick={() => { setIsResetCounters(true); }}
             disabled={isResetting}
             style={{ cursor: isResetting ? 'not-allowed' : 'pointer' }}
           >
@@ -296,15 +300,16 @@ export default function NodeCountersPanel({ scope }: NodeCountersPanelProps) {
           </Button>
         </Grid>
       </Flex>
-      <ConfirmDialog
-        open={isResetCounters}
-        onOpenChange={setIsResetCounters}
-        title="Reset counters"
-        description={`Are you sure you want to reset the counters for ${scope}?`}
-        confirmText="Reset counters"
-        colorVariant="red"
-        onConfirm={handleResetCounters}
-      />
+      {isResetCounters && (
+        <ConfirmDialog
+          onOpenChange={setIsResetCounters}
+          title="Reset counters"
+          description={`Are you sure you want to reset the counters for ${scope}?`}
+          confirmText="Reset counters"
+          colorVariant="red"
+          onConfirm={() => { void handleResetCounters(); }}
+        />
+      )}
     </>
 
   );

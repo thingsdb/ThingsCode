@@ -23,8 +23,8 @@ export default function ProceduresPanel({ scope }: ProceduresPanelProps) {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_PROCEDURES', { id: activeId, scope }) as Procedure[];
-      setProcedures(response || []);
+      const response: Procedure[] = await emit('FETCH_PROCEDURES', { id: activeId, scope });
+      setProcedures(response);
     } catch (err: unknown) {
       console.error("Failed to fetch procedures:", err);
       setFetchError(errStr(err, "Failed to fetch procedures."));
@@ -34,7 +34,7 @@ export default function ProceduresPanel({ scope }: ProceduresPanelProps) {
   }, [activeId, emit, scope]);
 
   useEffect(() => {
-    queueMicrotask(fetchProcedures);
+    queueMicrotask(() => { void fetchProcedures(); });
   }, [fetchProcedures]);
 
   const filtered = useMemo(() => {
@@ -44,8 +44,8 @@ export default function ProceduresPanel({ scope }: ProceduresPanelProps) {
     }
 
     return procedures.filter((proc) => {
-      const nameMatch = proc.name?.toLowerCase().includes(cleanedQuery);
-      const docString = proc.doc || '';
+      const nameMatch = proc.name.toLowerCase().includes(cleanedQuery);
+      const docString = proc.doc ?? '';
       const docMatch = docString.toLowerCase().includes(cleanedQuery);
 
       return nameMatch || docMatch;
@@ -64,7 +64,7 @@ export default function ProceduresPanel({ scope }: ProceduresPanelProps) {
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchProcedures}
+            onClick={() => { void fetchProcedures(); }}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -76,7 +76,7 @@ export default function ProceduresPanel({ scope }: ProceduresPanelProps) {
         <TextField.Root
           placeholder="Search name or doc..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); }}
           size="1"
         >
           <TextField.Slot>
@@ -88,7 +88,7 @@ export default function ProceduresPanel({ scope }: ProceduresPanelProps) {
                 size="1"
                 variant="ghost"
                 color="gray"
-                onClick={() => setSearchQuery('')}
+                onClick={() => { setSearchQuery(''); }}
                 style={{ cursor: 'pointer', height: '16px', width: '16px' }}
               >
                 <Cross2Icon height="12" width="12" />
@@ -160,7 +160,7 @@ export default function ProceduresPanel({ scope }: ProceduresPanelProps) {
                 borderColor: 'var(--gray-4)',
                 cursor: 'pointer',
               }}
-              onClick={() => setViewProcedure(procedure)}
+              onClick={() => { setViewProcedure(procedure); }}
             >
               <Flex direction="column" gap="2">
                 <Flex align="center" justify="between" gap="2">
@@ -227,7 +227,7 @@ export default function ProceduresPanel({ scope }: ProceduresPanelProps) {
       </Flex>
       {viewProcedure && (
         <ProcedureModal
-          onClose={() => setViewProcedure(null)}
+          onClose={() => { setViewProcedure(null); }}
           scope={scope}
           procedure={viewProcedure}
         />

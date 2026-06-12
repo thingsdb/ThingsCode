@@ -80,7 +80,7 @@ export default function ThingExplorerModal({ onClose, scope }: ThingExplorerModa
                 placeholder="e.g. 42 or empty for root"
                 size="2"
                 value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
+                onChange={(e) => { setInputValue(e.target.value); }}
                 autoFocus
               >
                 <TextField.Slot>

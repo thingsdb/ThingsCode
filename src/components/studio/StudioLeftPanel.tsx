@@ -32,7 +32,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
 
     return (
       file.filename.toLowerCase().includes(query) ||
-      (file.content && file.content.toLowerCase().includes(query))
+      file.content.toLowerCase().includes(query)
     );
   });
 
@@ -48,12 +48,12 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
       await refreshFiles();
       setIsRefreshing(false);
     };
-    refresh();
+    void refresh();
   };
 
   const handleCreateConfirm = (filename: string) => {
     console.log(`Create new file request for ${filename}`);
-    createFile(filename);
+    void createFile(filename);
   };
 
   const handleRenameClick = (e: React.MouseEvent, filename: string) => {
@@ -64,7 +64,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
 
   const handleRenameConfirm = (oldName: string, newName: string) => {
     console.log(`Rename file request from ${oldName} to ${newName}`);
-    renameFile(oldName, newName);
+    void renameFile(oldName, newName);
   };
 
   const handleDeleteClick = (e: React.MouseEvent, filename: string) => {
@@ -75,7 +75,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
 
   const handleDeleteConfirm = (filename: string) => {
     console.log(`Delete file request for ${filename}`);
-    deleteFile(filename);
+    void deleteFile(filename);
   };
 
   const handleSelectFile = (_: React.MouseEvent, filename: string) => {
@@ -128,7 +128,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
           <TextField.Root
             placeholder="Search name or content..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); }}
             size="1"
           >
             <TextField.Slot>
@@ -140,7 +140,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
                   size="1"
                   variant="ghost"
                   color="gray"
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => { setSearchQuery(''); }}
                   style={{ cursor: 'pointer', height: '16px', width: '16px' }}
                 >
                   <Cross2Icon height="12" width="12" />
@@ -185,7 +185,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
                         width: '100%',
                         transition: 'background-color 0.2s ease, color 0.2s ease',
                       }}
-                      onClick={(e) => handleSelectFile(e, file.filename)}
+                      onClick={(e) => { handleSelectFile(e, file.filename); }}
                     >
                       <Flex align="center" gap="2" style={{ overflow: 'hidden' }}>
                         <FileIcon width="12" height="12" style={{ flexShrink: 0 }} />
@@ -220,7 +220,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
                         variant="ghost"
                         color="gray"
                         title="Rename File"
-                        onClick={(e) => handleRenameClick(e, file.filename)}
+                        onClick={(e) => { handleRenameClick(e, file.filename); }}
                         style={{ cursor: 'pointer', height: '18px', width: '18px' }}
                       >
                         <Pencil2Icon width="10" height="10" />
@@ -230,7 +230,7 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
                         variant="ghost"
                         color="red"
                         title="Delete File"
-                        onClick={(e) => handleDeleteClick(e, file.filename)}
+                        onClick={(e) => { handleDeleteClick(e, file.filename); }}
                         style={{ cursor: 'pointer', height: '18px', width: '18px' }}
                       >
                         <TrashIcon width="10" height="10" />
@@ -264,24 +264,25 @@ export default function StudioLeftPanel({ isCreateOpen, setIsCreateOpen }: Studi
           onCreate={handleCreateConfirm}
         />
       )}
-      <RenameFileDialog
-        key={`rename-${fileToRename}-${isRenameOpen}`}
-        isOpen={isRenameOpen}
-        onOpenChange={setIsRenameOpen}
-        filename={fileToRename}
-        existingFiles={files.map(file => file.filename)}
-        onRename={handleRenameConfirm}
-      />
-      <ConfirmDialog
-        key={`delete-${fileToDelete}-${isDeleteOpen}`}
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        title="Remove File"
-        description={`Are you sure you want to remove file "${fileToDelete}"?`}
-        confirmText="Remove File"
-        colorVariant="red"
-        onConfirm={() => handleDeleteConfirm(fileToDelete)}
-      />
+      {isRenameOpen && (
+        <RenameFileDialog
+          isOpen={isRenameOpen}
+          onOpenChange={setIsRenameOpen}
+          filename={fileToRename}
+          existingFiles={files.map(file => file.filename)}
+          onRename={handleRenameConfirm}
+        />
+      )}
+      {isDeleteOpen && (
+        <ConfirmDialog
+          onOpenChange={setIsDeleteOpen}
+          title="Remove File"
+          description={`Are you sure you want to remove file "${fileToDelete}"?`}
+          confirmText="Remove File"
+          colorVariant="red"
+          onConfirm={() => { handleDeleteConfirm(fileToDelete); }}
+        />
+      )}
     </>
   );
 }

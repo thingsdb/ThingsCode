@@ -50,7 +50,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('tasks')}
+          onClick={() => { toggleSection('tasks'); }}
         >
           <Text size="2" weight="bold">Tasks</Text>
           {openSection === 'tasks' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -65,7 +65,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('procedures')}
+          onClick={() => { toggleSection('procedures'); }}
         >
           <Text size="2" weight="bold">Procedures</Text>
           {openSection === 'procedures' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -80,7 +80,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('users')}
+          onClick={() => { toggleSection('users'); }}
         >
           <Text size="2" weight="bold">Users</Text>
           {openSection === 'users' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -95,7 +95,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('modules')}
+          onClick={() => { toggleSection('modules'); }}
         >
           <Text size="2" weight="bold">Modules</Text>
           {openSection === 'modules' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -111,7 +111,7 @@ export default function ThingsDBContextPanel({ scope, requireCommit }: ThingsDBC
             justify="between"
             py="1"
             className="cursor-pointer select-none"
-            onClick={() => toggleSection('history')}
+            onClick={() => { toggleSection('history'); }}
           >
             <Text size="2" weight="bold">History</Text>
             {openSection === 'history' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
