@@ -11,6 +11,7 @@ import { SearchIndexType, type SearchRecord } from '../../types';
 import ThingExplorerModal from '../ThingExplorerModal';
 import MyUserModal from './MyUserModal';
 import DiagramLauncher from '../diagram/DiagramLauncher';
+import { isDialogOpen } from '../../utils';
 
 
 export default function StudioTopBar() {
@@ -61,15 +62,20 @@ export default function StudioTopBar() {
     }
   };
 
+
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === 'p') {
         event.preventDefault();
-        const radixDialogExists = document.querySelector('[data-state="open"][class*="DialogContent"]');
-        const radixOverlayExists = document.querySelector('[class*="DialogOverlay"]');
-
-        if (!isSearchOpen && !radixDialogExists && !radixOverlayExists) {
+        if (!isSearchOpen && !isDialogOpen()) {
           setIsSearchOpen(true);
+        }
+      }
+      if (event.ctrlKey && event.key === 'e') {
+        event.preventDefault();
+        if (!isExplorerOpen && !isDialogOpen()) {
+          setIsExplorerOpen(true);
         }
       }
     };
@@ -77,7 +83,7 @@ export default function StudioTopBar() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isSearchOpen]);
+  }, [isSearchOpen, isExplorerOpen]);
 
   return (
     <Flex
@@ -166,7 +172,7 @@ export default function StudioTopBar() {
             size="2"
             disabled={!isCollectionScope || isRefreshing || loading || isExplorerOpen}
             onClick={() => { setIsExplorerOpen(true); }}
-            title="Open Thing Explorer"
+            title="Open Thing Explorer (Ctrl+e)"
             className={!isCollectionScope || isRefreshing || loading || isExplorerOpen ? 'cursor-not-allowed' : 'cursor-pointer'}
           >
             <CubeIcon width="16" height="16" />

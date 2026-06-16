@@ -5,7 +5,6 @@ import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
 import type { Type } from '../../types';
 import { errStr } from '../../utils';
 import TypeModal from './TypeModal';
-// import TypeModal from './TypeModal';
 
 
 interface TypesPanelProps {

@@ -24,3 +24,8 @@ export function determineCardinality(thisDef: string, targetDef: string | undefi
   return '1:1';
 }
 
+export function isDialogOpen() {
+  const radixDialogExists = document.querySelector('[data-state="open"][class*="DialogContent"]');
+  const radixOverlayExists = document.querySelector('[class*="DialogOverlay"]');
+  return radixDialogExists || radixOverlayExists;
+}
