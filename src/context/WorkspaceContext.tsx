@@ -6,12 +6,12 @@ interface WorkspaceContextType {
   filteredWorkspaces: Workspace[];
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  deleteWorkspace: (id: string) => void;
+  deleteWorkspace: (id: string) => Promise<void>;
   editingWorkspace: Workspace | null;
   setEditingWorkspace: (ws: Workspace | null) => void;
-  updateWorkspace: (updated: Workspace) => void;
-  addWorkspace: (ws: Omit<Workspace, 'id'>) => void;
-  quickConnect: (ws: Omit<Workspace, 'id'>) => void;
+  updateWorkspace: (updated: Workspace) => Promise<void>;
+  addWorkspace: (ws: Omit<Workspace, 'id'>) => Promise<void>;
+  quickConnect: (ws: Omit<Workspace, 'id'>) => Promise<void>;
 }
 
 export const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);

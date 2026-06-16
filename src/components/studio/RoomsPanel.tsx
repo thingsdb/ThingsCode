@@ -44,7 +44,7 @@ export default function RoomsPanel({ scope }: RoomsPanelProps) {
       await refreshRooms();
       setIsRefreshing(false);
     };
-    refresh();
+    void refresh();
   };
 
   const handleJoinRoomClick = (room: Room | null) => {
@@ -69,9 +69,9 @@ export default function RoomsPanel({ scope }: RoomsPanelProps) {
               variant="soft"
               color="gray"
               onClick={handleRefreshClick}
-              style={{ cursor: isRefreshing ? 'not-allowed' : 'pointer' }}
+              className="cursor-pointer"
             >
-              <UpdateIcon width="13" height="13" className={isRefreshing ? 'animate-spin' : ''} />
+              <UpdateIcon width="13" height="13" />
             </IconButton>
           </Tooltip>
           <Tooltip content="Join room">
@@ -79,7 +79,7 @@ export default function RoomsPanel({ scope }: RoomsPanelProps) {
               size="1"
               variant="soft"
               color="iris"
-              onClick={() => handleJoinRoomClick(null)}
+              onClick={() => { handleJoinRoomClick(null); }}
               className="cursor-pointer"
             >
               <PlusIcon width="14" height="14" />
@@ -120,7 +120,7 @@ export default function RoomsPanel({ scope }: RoomsPanelProps) {
                     align="center"
                     gap="2"
                     style={{ cursor: 'pointer', flexGrow: 1, minWidth: 0 }}
-                    onClick={() => handleJoinRoomClick(room)}
+                    onClick={() => { handleJoinRoomClick(room); }}
                   >
                     {isWorking ? (
                       <Flex align="center" gap="2">
@@ -149,7 +149,7 @@ export default function RoomsPanel({ scope }: RoomsPanelProps) {
                       variant="ghost"
                       color="gray"
                       highContrast
-                      onClick={() => handleLeaveRoom(room.name)}
+                      onClick={() => { void handleLeaveRoom(room.name); }}
                       style={{ cursor: 'pointer', flexShrink: 0 }}
                     >
                       <LinkBreak2Icon width="15" height="15" />
@@ -185,7 +185,7 @@ export default function RoomsPanel({ scope }: RoomsPanelProps) {
           onOpenChange={setIsRoomJoinOpen}
           scope={scope}
           existingRooms={filteredRooms}
-          onJoin={selectedRoom === null ? handleOnJoin : handleOnUpdate}
+          onJoin={(name, code) => { void (selectedRoom === null ? handleOnJoin : handleOnUpdate)(name, code); }}
           room={selectedRoom}
         />
       )}

@@ -58,11 +58,11 @@ export default function NodeShutdownModal({
           You are about to power down this node. To confirm this action, please type the Node ID (<Code highContrast>{nodeId}</Code>) below:
         </Dialog.Description>
 
-        <form onSubmit={handleShutdownExecute}>
+        <form onSubmit={(elem) => { void handleShutdownExecute(elem); }}>
           <TextField.Root
             placeholder={`Type ${nodeId} to confirm...`}
             value={confirmInput}
-            onChange={(e) => setConfirmInput(e.target.value)}
+            onChange={(e) => { setConfirmInput(e.target.value); }}
             size="2"
             mb="4"
             autoComplete="off"

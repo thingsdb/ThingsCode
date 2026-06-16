@@ -5,7 +5,6 @@ import { useActiveWorkspaceId, useWebSocket } from '../../hooks';
 import type { Type } from '../../types';
 import { errStr } from '../../utils';
 import TypeModal from './TypeModal';
-// import TypeModal from './TypeModal';
 
 
 interface TypesPanelProps {
@@ -25,8 +24,8 @@ export default function TypesPanel({ scope }: TypesPanelProps) {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_TYPES', { id: activeId, scope }) as Type[];
-      setTypes(response || []);
+      const response: Type[] = await emit('FETCH_TYPES', { id: activeId, scope });
+      setTypes(response);
     } catch (err: unknown) {
       console.error("Failed to fetch types:", err);
       setFetchError(errStr(err, "Failed to fetch types."));
@@ -36,11 +35,11 @@ export default function TypesPanel({ scope }: TypesPanelProps) {
   }, [activeId, emit, scope]);
 
   useEffect(() => {
-    queueMicrotask(fetchTypes);
+    queueMicrotask(() => { void fetchTypes(); });
   }, [fetchTypes]);
 
   const handleOnNavigateToType = (name: string) => {
-    setViewType(types.find(tp => tp.name === name) || null);
+    setViewType(types.find(tp => tp.name === name) ?? null);
   };
 
   const filtered = useMemo(() => {
@@ -50,7 +49,7 @@ export default function TypesPanel({ scope }: TypesPanelProps) {
     }
 
     return types.filter((tp) => {
-      const nameMatch = tp.name?.toLowerCase().includes(cleanedQuery);
+      const nameMatch = tp.name.toLowerCase().includes(cleanedQuery);
 
       return nameMatch;
     });
@@ -68,7 +67,7 @@ export default function TypesPanel({ scope }: TypesPanelProps) {
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchTypes}
+            onClick={() => { void fetchTypes(); }}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -80,7 +79,7 @@ export default function TypesPanel({ scope }: TypesPanelProps) {
         <TextField.Root
           placeholder="Search name..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); }}
           size="1"
         >
           <TextField.Slot>
@@ -92,7 +91,7 @@ export default function TypesPanel({ scope }: TypesPanelProps) {
                 size="1"
                 variant="ghost"
                 color="gray"
-                onClick={() => setSearchQuery('')}
+                onClick={() => { setSearchQuery(''); }}
                 style={{ cursor: 'pointer', height: '16px', width: '16px' }}
               >
                 <Cross2Icon height="12" width="12" />
@@ -164,7 +163,7 @@ export default function TypesPanel({ scope }: TypesPanelProps) {
                 borderColor: 'var(--gray-4)',
                 cursor: 'pointer',
               }}
-              onClick={() => setViewType(tp)}
+              onClick={() => { setViewType(tp); }}
             >
               <Flex direction="column" gap="2">
                 <Flex align="center" justify="between" gap="1">
@@ -195,7 +194,7 @@ export default function TypesPanel({ scope }: TypesPanelProps) {
       </Flex>
       {viewType && (
         <TypeModal
-          onClose={() => setViewType(null)}
+          onClose={() => { setViewType(null); }}
           tp={viewType}
           onNavigateToType={handleOnNavigateToType}
         />

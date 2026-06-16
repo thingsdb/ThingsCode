@@ -20,7 +20,7 @@ export default function EventArgsModal({
   const [copied, setCopied] = useState(false);
 
   const formattedJson = useMemo(() => {
-    if (!eventItem || !eventItem.args) {
+    if (!eventItem?.args) {
       return '[]';
     }
     return JSON.stringify(eventItem.args, null, 2);
@@ -30,7 +30,7 @@ export default function EventArgsModal({
     try {
       await navigator.clipboard.writeText(formattedJson);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => { setCopied(false); }, 2000);
     } catch (err) {
       console.error('Failed to copy event arguments payload:', err);
     }
@@ -44,7 +44,7 @@ export default function EventArgsModal({
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Content
         style={{ maxWidth: 700, padding: '16px' }}
-        onOpenAutoFocus={(event) => event.preventDefault()}
+        onOpenAutoFocus={(event) => { event.preventDefault(); }}
       >
         <Flex justify="between" align="start" mb="1">
           <Box style={{ minWidth: 0, flexGrow: 1 }}>
@@ -83,7 +83,7 @@ export default function EventArgsModal({
                 variant="soft"
                 color={copied ? "green" : "gray"}
                 highContrast={!copied}
-                onClick={handleCopyToClipboard}
+                onClick={() => { void handleCopyToClipboard(); }}
                 style={{
                   cursor: 'pointer',
                   boxShadow: 'var(--shadow-2)',

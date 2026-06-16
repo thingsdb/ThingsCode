@@ -48,7 +48,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('node-info')}
+          onClick={() => { toggleSection('node-info'); }}
         >
           <Text size="2" weight="bold">Node Info</Text>
           {openSection === 'node-info' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -65,7 +65,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('counters')}
+          onClick={() => { toggleSection('counters'); }}
         >
           <Text size="2" weight="bold">Counters</Text>
           {openSection === 'counters' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -82,7 +82,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('backups')}
+          onClick={() => { toggleSection('backups'); }}
         >
           <Text size="2" weight="bold">Backups</Text>
           {openSection === 'backups' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}
@@ -97,7 +97,7 @@ export default function NodeContextPanel({ scope }: NodeContextPanelProps) {
           justify="between"
           py="1"
           className="cursor-pointer select-none"
-          onClick={() => toggleSection('modules')}
+          onClick={() => { toggleSection('modules'); }}
         >
           <Text size="2" weight="bold">Modules</Text>
           {openSection === 'modules' ? <ChevronDownIcon color="gray" /> : <ChevronRightIcon color="gray" />}

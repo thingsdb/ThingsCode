@@ -10,6 +10,9 @@ import { Search } from '..';
 import { SearchIndexType, type SearchRecord } from '../../types';
 import ThingExplorerModal from '../ThingExplorerModal';
 import MyUserModal from './MyUserModal';
+import DiagramLauncher from '../diagram/DiagramLauncher';
+import { isDialogOpen } from '../../utils';
+
 
 export default function StudioTopBar() {
   const { status, emit } = useWebSocket();
@@ -22,8 +25,8 @@ export default function StudioTopBar() {
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [isMyUserOpen, setIsMyUserOpen] = useState(false);
 
-  const isTiCode = activeFilename && activeFilename.endsWith('.ti');
-  const isCollectionScope = activeScope && activeScope.startsWith('@collection:');
+  const isTiCode = activeFilename?.endsWith('.ti') ?? false;
+  const isCollectionScope = activeScope?.startsWith('@collection:') ?? false;
 
   const handleLogout = async () => {
     if (status === 'connected') {
@@ -39,7 +42,7 @@ export default function StudioTopBar() {
 
   const handleExecuteCode = () => {
     if (!activeFile || !activeScope || activeContent === null) return;
-    execCode(activeFile.filename, activeScope, activeContent, activeFile.queryVars || null);
+    void execCode(activeFile.filename, activeScope, activeContent, activeFile.queryVars ?? null);
   };
 
   const handleRefreshScopes = async () => {
@@ -54,20 +57,25 @@ export default function StudioTopBar() {
   const handleSearchSelect = (selection: SearchRecord) => {
     if (selection.type === SearchIndexType.File) {
       setActiveFile(selection.name);
-    } else if (selection.type === SearchIndexType.Scope) {
-      setActiveScopeState(selection.name);
+    } else {
+      setActiveScopeState(selection.name);  // Scope
     }
   };
+
+
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === 'p') {
         event.preventDefault();
-        const radixDialogExists = document.querySelector('[data-state="open"][class*="DialogContent"]');
-        const radixOverlayExists = document.querySelector('[class*="DialogOverlay"]');
-
-        if (!isSearchOpen && !radixDialogExists && !radixOverlayExists) {
+        if (!isSearchOpen && !isDialogOpen()) {
           setIsSearchOpen(true);
+        }
+      }
+      if (event.ctrlKey && event.key === 'e') {
+        event.preventDefault();
+        if (!isExplorerOpen && !isDialogOpen()) {
+          setIsExplorerOpen(true);
         }
       }
     };
@@ -75,7 +83,7 @@ export default function StudioTopBar() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isSearchOpen]);
+  }, [isSearchOpen, isExplorerOpen]);
 
   return (
     <Flex
@@ -87,7 +95,7 @@ export default function StudioTopBar() {
       {/* Left side */}
       <Flex align="center" gap="2">
         <Box
-          onClick={() => setIsAboutOpen(true)}
+          onClick={() => { setIsAboutOpen(true); }}
           className="cursor-pointer rounded-[var(--radius-2)] p-1 -m-1 inline-flex items-center select-none"
           title="About ThingsCode"
         >
@@ -135,7 +143,7 @@ export default function StudioTopBar() {
             color="gray"
             size="2"
             disabled={!isTiCode || isRefreshing}
-            onClick={() => setIsConfigOpen(true)}
+            onClick={() => { setIsConfigOpen(true); }}
             title="Edit Runtime Arguments"
             className={!isTiCode || isRefreshing ? 'cursor-not-allowed' : 'cursor-pointer'}
           >
@@ -149,7 +157,7 @@ export default function StudioTopBar() {
             color="gray"
             size="2"
             disabled={isRefreshing || loading}
-            onClick={() => handleRefreshScopes()}
+            onClick={() => { void handleRefreshScopes(); }}
             title="Refresh Scopes"
             className={isRefreshing || loading ? 'cursor-not-allowed' : 'cursor-pointer'}
           >
@@ -163,12 +171,19 @@ export default function StudioTopBar() {
             color="gray"
             size="2"
             disabled={!isCollectionScope || isRefreshing || loading || isExplorerOpen}
-            onClick={() => setIsExplorerOpen(true)}
-            title="Open Thing Explorer"
+            onClick={() => { setIsExplorerOpen(true); }}
+            title="Open Thing Explorer (Ctrl+e)"
             className={!isCollectionScope || isRefreshing || loading || isExplorerOpen ? 'cursor-not-allowed' : 'cursor-pointer'}
           >
             <CubeIcon width="16" height="16" />
           </IconButton>
+
+          <Separator orientation="vertical" size="1" />
+
+          <DiagramLauncher
+            scope={activeScope ?? ''}
+            disabled={!isCollectionScope || isRefreshing || loading || isExplorerOpen}
+          />
 
           {workspace.type && <Separator orientation="vertical" size="1" /> }
 
@@ -196,8 +211,8 @@ export default function StudioTopBar() {
         {isConfigOpen && (
           <QueryVarsDialog
             onOpenChange={setIsConfigOpen}
-            configJson={activeFile?.queryVars || "{ }"}
-            onSave={(validJson) => updateQueryVars(activeFile?.filename || 'unknown.ti', validJson)}
+            configJson={activeFile?.queryVars ?? "{ }"}
+            onSave={(validJson) => { void updateQueryVars(activeFile?.filename ?? 'unknown.ti', validJson); }}
           />
         )}
       </Flex>
@@ -246,7 +261,7 @@ export default function StudioTopBar() {
         <Tooltip content="Search files or scopes (Ctrl+p)">
           <Button
             variant="ghost"
-            onClick={() => setIsSearchOpen(true)}
+            onClick={() => { setIsSearchOpen(true); }}
             disabled={isSearchOpen}
             size="2"
             className="cursor-pointer"
@@ -275,7 +290,7 @@ export default function StudioTopBar() {
         <Tooltip content="View user profile">
           <Button
             variant="ghost"
-            onClick={() => setIsMyUserOpen(true)}
+            onClick={() => { setIsMyUserOpen(true); }}
             size="2"
             className="cursor-pointer"
             color="gray"
@@ -289,7 +304,7 @@ export default function StudioTopBar() {
             size="1"
             color="red"
             variant="ghost"
-            onClick={handleLogout}
+            onClick={() => { void handleLogout(); }}
             style={{ cursor: 'pointer', gap: '4px' }}
           >
             <ExitIcon width="12" height="12" />
@@ -301,19 +316,19 @@ export default function StudioTopBar() {
         <Search
           files={files}
           scopes={scopes}
-          onClose={() => setIsSearchOpen(false)}
+          onClose={() => { setIsSearchOpen(false); }}
           onSelect={handleSearchSelect}
         />
       )}
-      {isExplorerOpen && isCollectionScope && (
+      {isExplorerOpen && isCollectionScope && activeScope && (
         <ThingExplorerModal
           scope={activeScope}
-          onClose={() => setIsExplorerOpen(false)}
+          onClose={() => { setIsExplorerOpen(false); }}
         />
       )}
       {isMyUserOpen && (
         <MyUserModal
-          onClose={() => setIsMyUserOpen(false)}
+          onClose={() => { setIsMyUserOpen(false); }}
         />
       )}
     </Flex>

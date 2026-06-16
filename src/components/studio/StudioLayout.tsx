@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Box, Flex, Text } from '@radix-ui/themes';
+import { Box, Flex } from '@radix-ui/themes';
 import { Group, Panel, Separator, useDefaultLayout, type Layout } from 'react-resizable-panels';
 import { type PanelImperativeHandle } from 'react-resizable-panels';
 import StudioTopBar from './StudioTopBar';
@@ -30,14 +30,12 @@ export default function StudioLayout() {
     storage: localStorage,
   });
 
-  const [currentLayout, setCurrentLayout] = useState<Layout>(verticalLayout.defaultLayout || ([] as unknown as Layout));
+  const [currentLayout, setCurrentLayout] = useState<Layout>(verticalLayout.defaultLayout ?? ([] as unknown as Layout));
 
   const handleLayoutChange = (sizes: Layout) => {
     setCurrentLayout(sizes);
 
-    if (verticalLayout.onLayoutChanged) {
-      verticalLayout.onLayoutChanged(sizes);
-    }
+    verticalLayout.onLayoutChanged(sizes);
 
     if (sizes['editor-canvas-panel'] > 10 && isConsoleMaximized) {
       setIsConsoleMaximized(false);
@@ -50,7 +48,7 @@ export default function StudioLayout() {
 
     if (isConsoleMaximized) {
       // RESTORE_SIZE
-      const restoreSize = cachedEditorSize !== null ? cachedEditorSize : 60;
+      const restoreSize = cachedEditorSize ?? 60;
       editorPanel.resize(`${restoreSize}%`);
       setIsConsoleMaximized(false);
     } else {
@@ -130,10 +128,8 @@ export default function StudioLayout() {
                     <StudioResultView />
                   ) : consoleTab === 'events' ? (
                     <StudioEventView />
-                  ) : consoleTab === 'log' ? (
-                    <StudioLogView />
                   ) : (
-                    <Text size="1" style={{ fontFamily: 'monospace', color: '#f39c12' }}>{"..."}</Text>
+                    <StudioLogView />
                   )}
                 </Box>
               </Panel>

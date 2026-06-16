@@ -59,12 +59,16 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
-      reconnectTimeoutRef.current = window.setTimeout(() => connect(), 2000);
+      reconnectTimeoutRef.current = window.setTimeout(() => { connect(); }, 2000);
     };
 
     socket.onmessage = (event) => {
       try {
-        const msg: WSResponse = JSON.parse(event.data);
+        if (typeof event.data !== 'string') {
+          throw new Error('event data must be string');
+        }
+        const msg = JSON.parse(event.data) as unknown as WSResponse;
+        const pendingRequest = pendingRequestsRef.current.get(msg.id);
 
         if (msg.type === "ON_NODE_STATUS") {
           setNodeStatus(msg.payload as NodeStatus);
@@ -75,12 +79,12 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         } else if (msg.type === "ON_EMIT") {
           const emitEvent = msg.payload as EmitEvent;
           appendEmitEvent(emitEvent);
-        } else if (msg.id && pendingRequestsRef.current.has(msg.id)) {
-          const { resolve, reject } = pendingRequestsRef.current.get(msg.id)!;
+        } else if (msg.id && pendingRequest) {
+          const { resolve, reject } = pendingRequest;
 
           pendingRequestsRef.current.delete(msg.id);
 
-          if (msg.payload?.error) {
+          if (msg.payload.error) {
             const backendErr = new Error(msg.payload.error);
             reject(backendErr);
           } else {
@@ -93,14 +97,15 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     };
   }, [appendWarning, setNodeStatus, appendEmitEvent]);
 
-  const emit = useCallback(<TResponse = unknown, TPayload = unknown>(type: string, payload?: TPayload, useLossless?: boolean): Promise<TResponse> => {
+  const emit = useCallback(<TResponse = unknown>(type: string, payload?: unknown, useLossless?: boolean): Promise<TResponse> => {
     return new Promise((resolve, reject) => {
-      if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
-        return reject(new Error('WebSocket is not connected'));
+      if (socketRef.current?.readyState !== WebSocket.OPEN) {
+        reject(new Error('WebSocket is not connected'));
+        return;
       }
 
       const msgId = crypto.randomUUID();
-      const message: WSRequest<TPayload> = {
+      const message: WSRequest = {
         id: msgId,
         type,
         payload,
@@ -109,7 +114,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       pendingRequestsRef.current.set(msgId, { resolve: resolve as (val: unknown) => void, reject });
 
       if (useLossless) {
-        socketRef.current.send(stringify(message) || '');
+        socketRef.current.send(stringify(message) ?? '');
       } else {
         socketRef.current.send(JSON.stringify(message));
       }
@@ -117,7 +122,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       // 20-second timeout so promises don't hang forever if server dies
       setTimeout(() => {
         if (pendingRequestsRef.current.has(msgId)) {
-          pendingRequestsRef.current.get(msgId)!.reject(new Error(`Request "${type}" timed out.`));
+          pendingRequestsRef.current.get(msgId)?.reject(new Error(`Request "${type}" timed out.`));
           pendingRequestsRef.current.delete(msgId);
         }
       }, 20000);

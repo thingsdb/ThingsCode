@@ -24,7 +24,7 @@ export default function StudioConsoleHeader({
   const { emitEvents, warnings } = useEvent();
 
   const result = useMemo<Result | null>(() => {
-    return activeFile?.result || null;
+    return activeFile?.result ?? null;
   }, [activeFile?.result]);
 
   return (
@@ -50,7 +50,7 @@ export default function StudioConsoleHeader({
         <SegmentedControl.Root
           size="1"
           value={consoleTab}
-          onValueChange={(value) => setConsoleTab(value as StudioTab)}
+          onValueChange={(value) => { setConsoleTab(value as StudioTab); }}
           className="cursor-pointer"
         >
           <SegmentedControl.Item value="result" style={result?.error ? { backgroundColor: "var(--red-7)" } : {}}>

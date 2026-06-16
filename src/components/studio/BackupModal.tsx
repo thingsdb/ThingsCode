@@ -84,7 +84,7 @@ export default function BackupModal({
               General
             </Tabs.Trigger>
             <Tabs.Trigger value="files" className="cursor-pointer">
-              Files Generated ({backup.files?.length || 0})
+              Files Generated ({backup.files.length})
             </Tabs.Trigger>
           </Tabs.List>
 
@@ -179,7 +179,7 @@ export default function BackupModal({
                   backgroundColor: 'var(--gray-1)'
                 }}
               >
-                {(!backup.files || backup.files.length === 0) ? (
+                {(backup.files.length === 0) ? (
                   <Flex justify="center" align="center" direction="column" gap="2" style={{ height: '160px', color: 'var(--gray-8)' }}>
                     <FileIcon width="20" height="20" style={{ opacity: 0.5 }} />
                     <Text size="1" style={{ fontStyle: 'italic' }}>

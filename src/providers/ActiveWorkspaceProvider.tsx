@@ -76,7 +76,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
 
         if (_files.length > 0) {
           const savedSelectedFile = localStorage.getItem('ticode-selected-file');
-          const selectedFile = _files.find((file) => file.filename === savedSelectedFile) || _files[0];
+          const selectedFile = _files.find((file) => file.filename === savedSelectedFile) ?? _files[0];
           const fileToSet = selectedFile.filename;
           setActiveFilename(fileToSet);
           // Here we do take it from the current Workspace
@@ -109,11 +109,11 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
       }
     };
 
-    loadWorkspaceData();
+    void loadWorkspaceData();
   }, [currentWorkspace, status, emit, setErrorMessage]);
 
   const activeFile = useMemo(() => {
-    return files.find(f => f.filename === activeFilename) || null;
+    return files.find(f => f.filename === activeFilename) ?? null;
   }, [files, activeFilename]);
 
   if (!currentWorkspace) {
@@ -127,16 +127,16 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     if (lastSelectedScope) {
       const scope = scopes.find(s => s.name === lastSelectedScope);
       setActiveScope(lastSelectedScope);
-      setRequireCommit(scope?.requireCommit || false);
+      setRequireCommit(scope?.requireCommit ?? false);
     }
   };
 
   const setActiveScopeState = (scopeStr: string) => {
     const scope = scopes.find(s => s.name === scopeStr);
     setActiveScope(scopeStr);
-    setRequireCommit(scope?.requireCommit || false);
-    if (activeFilename && activeFilename.endsWith('.ti')) {
-      updateFileScope(activeFilename, scopeStr);
+    setRequireCommit(scope?.requireCommit ?? false);
+    if (activeFilename?.endsWith('.ti')) {
+      void updateFileScope(activeFilename, scopeStr);
     }
   };
 
@@ -222,7 +222,7 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
         {
           filename,
           content: '',
-        } as ProjectFile
+        }
       ];
     });
     setActiveFilename(filename);
@@ -276,13 +276,13 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
     ));
     try {
       const vars = queryVars ? parse(queryVars) : null;
-      const result = await emit('EXEC_CODE', {
+      const result: Result = await emit('EXEC_CODE', {
         id: currentWorkspace.id,
         filename,
         scope,
         code,
         vars,
-      }, true) as Result;
+      }, true);
       setFiles(prev => prev.map(f =>
         f.filename === filename ? { ...f, result: result } : f
       ));
@@ -332,12 +332,12 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
 
   const joinRoom = async (scope: string, name: string, code: string) => {
     try {
-      const room = await emit('JOIN_ROOM', {
+      const room: Room = await emit('JOIN_ROOM', {
         id: currentWorkspace.id,
         scope,
         name,
         code,
-      }) as Room;
+      });
       setRooms(prev => [...prev, room]);
     } catch (err: unknown) {
       console.error("Failed to join room:", err);
@@ -348,12 +348,12 @@ export function ActiveWorkspaceProvider({ children }: ActiveWorkspaceProviderPro
 
   const updateRoom = async (scope: string, name: string, code: string) => {
     try {
-      const room = await emit('UPDATE_ROOM', {
+      const room: Room = await emit('UPDATE_ROOM', {
         id: currentWorkspace.id,
         scope,
         name,
         code,
-      }) as Room;
+      });
       setRooms(prev => prev.map(r => (r.scope === scope && r.name === name) ? room : r));
     } catch (err: unknown) {
       console.error("Failed to update and join room:", err);

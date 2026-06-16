@@ -22,8 +22,8 @@ export default function BackupsPanel({ scope }: BackupsPanelProps) {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_BACKUPS', { id: activeId, scope }) as Backup[];
-      setBackups(response || []);
+      const response: Backup[] = await emit('FETCH_BACKUPS', { id: activeId, scope });
+      setBackups(response);
     } catch (err: unknown) {
       console.error("Failed to fetch backups:", err);
       setFetchError(errStr(err, "Failed to fetch backups."));
@@ -33,7 +33,7 @@ export default function BackupsPanel({ scope }: BackupsPanelProps) {
   }, [activeId, emit, scope]);
 
   useEffect(() => {
-    queueMicrotask(fetchBackups);
+    queueMicrotask(() => { void fetchBackups(); });
   }, [fetchBackups]);
 
   return (
@@ -48,7 +48,7 @@ export default function BackupsPanel({ scope }: BackupsPanelProps) {
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchBackups}
+            onClick={() => { void fetchBackups(); }}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -104,7 +104,7 @@ export default function BackupsPanel({ scope }: BackupsPanelProps) {
                 borderColor: 'var(--gray-4)',
                 cursor: 'pointer',
               }}
-              onClick={() => setViewBackup(backup)}
+              onClick={() => { setViewBackup(backup); }}
             >
               <Flex direction="column" gap="2">
                 <Flex align="center" justify="between" gap="2">
@@ -168,7 +168,7 @@ export default function BackupsPanel({ scope }: BackupsPanelProps) {
       </Flex>
       {viewBackup && (
         <BackupModal
-          onClose={() => setViewBackup(null)}
+          onClose={() => { setViewBackup(null); }}
           scope={scope}
           backup={viewBackup}
         />

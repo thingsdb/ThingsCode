@@ -15,7 +15,7 @@ export default function ScopeSelector({ disabled }: ScopeSelectorProps) {
 
       <Select.Root
         disabled={disabled}
-        value={activeScope || ''}
+        value={activeScope ?? ''}
         onValueChange={setActiveScopeState}
       >
         <Select.Trigger

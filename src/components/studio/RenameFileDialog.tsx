@@ -11,7 +11,6 @@ interface RenameFileDialogProps {
 }
 
 export default function RenameFileDialog({
-  isOpen,
   onOpenChange,
   filename,
   existingFiles,
@@ -21,20 +20,18 @@ export default function RenameFileDialog({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-          const dotIndex = filename.lastIndexOf('.');
-          if (dotIndex > 0) {
-            inputRef.current.setSelectionRange(0, dotIndex);
-          } else {
-            inputRef.current.select();
-          }
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        const dotIndex = filename.lastIndexOf('.');
+        if (dotIndex > 0) {
+          inputRef.current.setSelectionRange(0, dotIndex);
+        } else {
+          inputRef.current.select();
         }
-      }, 50);
-    }
-  }, [isOpen, filename]);
+      }
+    }, 50);
+  }, [filename]);
 
   // Validation rules
   const trimmedName = newName.trim();
@@ -55,7 +52,7 @@ export default function RenameFileDialog({
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog.Root defaultOpen onOpenChange={onOpenChange}>
       <Dialog.Content style={{ maxWidth: 400, padding: '20px' }}>
         <Dialog.Title size="3" mb="1">
           Rename File
@@ -68,7 +65,7 @@ export default function RenameFileDialog({
           <TextField.Root
             ref={inputRef}
             value={newName}
-            onChange={(e) => setNewName(e.target.value)}
+            onChange={(e) => { setNewName(e.target.value); }}
             placeholder="filename.ti"
             size="2"
             mb="4"

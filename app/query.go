@@ -52,12 +52,12 @@ func FetchTasks(conn *thingsdb.Conn, scope string) ([]Task, error) {
 	res, err := conn.QueryRaw(scope, `
 		// TiCode query tasks
 		assert(tasks().len() <= 100, 'too many tasks; use "tasks()" instead');
-		tasks().map(|task| {
+		return tasks().map(|task| {
 			id: task.id(),
 			owner: task.owner(),
 			at: task.at(),
 			error: task.err(),
-		});
+		}), 1;
 	`, nil)
 	if err != nil {
 		return nil, err
@@ -194,13 +194,13 @@ func FetchTask(conn *thingsdb.Conn, scope string, taskId uint64) (*TaskDetail, e
 	var taskDetail TaskDetail
 	res, err := conn.QueryRaw(scope, `
 	    task = task(task_id);
-		{
+		return {
 			id: task.id(),
 			owner: task.owner(),
 			at: task.at(),
 			error: task.err(),
 			closure: str(task.closure()),
-		};
+		}, 1;
 	`, map[string]any{"task_id": taskId})
 	if err != nil {
 		return nil, err
@@ -216,7 +216,7 @@ func FetchThing(conn *thingsdb.Conn, scope string, thingsId uint64) (any, error)
 		// Thing ID 1 is always the root for containers, except for old ThingsDB
 		// collections. However, in an old ThingsDB collecion there is no "1",
 		// so we can in this case just return the root.
-		return conn.Query(scope, "root();", nil)
+		return conn.Query(scope, "return root(), 1;", nil)
 	}
-	return conn.Query(scope, "thing(id);", map[string]any{"id": thingsId})
+	return conn.Query(scope, "return thing(id), 1;", map[string]any{"id": thingsId})
 }

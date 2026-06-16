@@ -21,10 +21,10 @@ export default function QuickConnectModal() {
   const [showPassword, setShowPassword] = useState(false);
   const [showToken, setShowToken] = useState(false);
 
-  const handleSubmit = async (e: React.ChangeEvent) => {
+  const handleSubmit = (e: React.ChangeEvent) => {
     e.preventDefault();
 
-    quickConnect({
+    void quickConnect({
       name: `${host}:${port}`,
       host,
       port,
@@ -63,20 +63,20 @@ export default function QuickConnectModal() {
           Establish a temporary session link. This configuration won't be saved to your workspaces list.
         </Dialog.Description>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => { handleSubmit(e); }}>
           <Flex direction="column" gap="4">
             {/* Host & Port Configuration Row */}
             <Flex gap="3">
               <Box style={{ flexGrow: 1 }}>
                 <Text as="div" size="2" weight="bold" mb="1">Host / IP</Text>
-                <TextField.Root value={host} onChange={e => setHost(e.target.value)} required />
+                <TextField.Root value={host} onChange={e => { setHost(e.target.value); }} required />
               </Box>
               <Box style={{ width: 100 }}>
                 <Text as="div" size="2" weight="bold" mb="1">Port</Text>
                 <TextField.Root
                   type="number"
                   value={port}
-                  onChange={e => setPort(Number(e.target.value))}
+                  onChange={e => { setPort(Number(e.target.value)); }}
                   required
                 />
               </Box>
@@ -98,7 +98,7 @@ export default function QuickConnectModal() {
               <Text as="div" size="2" weight="bold" mb="2">Authentication Mode</Text>
               <RadioGroup.Root
                 value={authType}
-                onValueChange={(value) => setAuthType(value as 'credentials' | 'token')}
+                onValueChange={(value) => { setAuthType(value as 'credentials' | 'token'); }}
                 size="2"
                 variant="surface"
               >
@@ -119,9 +119,15 @@ export default function QuickConnectModal() {
             {authType === 'token' ? (
               <label>
                 <Text as="div" size="2" weight="bold" mb="1">ThingsDB Access Token</Text>
-                <TextField.Root type={showToken ? "text" : "password"} value={token} onChange={e => setToken(e.target.value)} required>
+                <TextField.Root type={showToken ? "text" : "password"} value={token} onChange={e => { setToken(e.target.value); }} required>
                   <TextField.Slot side="right" px="1">
-                    <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowToken(!showToken)} className="cursor-pointer">
+                    <IconButton
+                      type="button"
+                      variant="ghost"
+                      color="gray"
+                      onClick={() => { setShowToken(!showToken); }}
+                      className="cursor-pointer"
+                    >
                       {showToken ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
                     </IconButton>
                   </TextField.Slot>
@@ -131,13 +137,13 @@ export default function QuickConnectModal() {
               <Flex gap="3">
                 <Box style={{ flexGrow: 1 }}>
                   <Text as="div" size="2" weight="bold" mb="1">Username</Text>
-                  <TextField.Root value={username} onChange={e => setUsername(e.target.value)} required />
+                  <TextField.Root value={username} onChange={e => { setUsername(e.target.value); }} required />
                 </Box>
                 <Box style={{ flexGrow: 1 }}>
                   <Text as="div" size="2" weight="bold" mb="1">Password</Text>
-                  <TextField.Root type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required>
+                  <TextField.Root type={showPassword ? "text" : "password"} value={password} onChange={e => { setPassword(e.target.value); }} required>
                     <TextField.Slot side="right" px="1">
-                      <IconButton type="button" variant="ghost" color="gray" onClick={() => setShowPassword(!showPassword)} className="cursor-pointer">
+                      <IconButton type="button" variant="ghost" color="gray" onClick={() => { setShowPassword(!showPassword); }} className="cursor-pointer">
                         {showPassword ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
                       </IconButton>
                     </TextField.Slot>

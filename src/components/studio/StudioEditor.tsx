@@ -14,7 +14,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
   const { appearance } = useTheme();
   const { isExecuting, execCode, activeScope, activeFile, activeContent, setActiveContent, storeFileContent } = useActiveWorkspace();
 
-  const currentFilename = activeFile?.filename || '';
+  const currentFilename = activeFile?.filename ?? '';
   const fileContent = activeFile?.content ?? '';
 
   const [localCode, setLocalCode] = useState(fileContent);
@@ -33,7 +33,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     if (fileLeaving && fileLeaving !== 'unknown') {
       queueMicrotask(() => {
         console.log(`[Tab Switch Save] Safely deferred force-saving edits for ${fileLeaving}...`);
-        storeFileContent(fileLeaving, codeToSave);
+        void storeFileContent(fileLeaving, codeToSave);
       });
     }
 
@@ -88,14 +88,14 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
     editorInstance.addAction({
       id: 'thingsdb-execute-query',
       label: 'Execute ThingsDB Query',
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-      precondition: 'editorTextFocus', // 🌟 CRITICAL: Only triggers if the cursor is active inside THIS editor
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode?.Enter],
+      precondition: 'editorTextFocus',
       run: () => {
         const currentCode = editorInstance.getValue();
         const { filename: freshFilename, activeScope: freshScope, queryVars: freshVars } = executionContextRef.current;
 
         if (freshFilename && freshFilename.endsWith('.ti') && freshScope !== null) {
-          execCode(freshFilename, freshScope, currentCode, freshVars || null);
+          void execCode(freshFilename, freshScope, currentCode, freshVars ?? null);
         }
       }
     });
@@ -104,7 +104,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
       id: 'thingsdb-export-file',
       label: 'Export Query File',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
-      precondition: 'editorTextFocus', // 🌟 CRITICAL: Stops background instances from stealing this modal's hotkey
+      precondition: 'editorTextFocus',
       run: () => {
         const currentCode = editorInstance.getValue();
         const { filename } = executionContextRef.current;
@@ -148,7 +148,7 @@ export default function StudioEditor({ onCreateFile }: StudioEditorProps) {
         path={currentFilename}
         theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
         value={localCode}
-        onChange={(val) => setLocalCode(val || '')}
+        onChange={(val) => { setLocalCode(val ?? ''); }}
         beforeMount={handleEditorWillMount}
         onMount={handleEditorDidMount}
         options={{

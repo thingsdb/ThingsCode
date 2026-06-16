@@ -24,8 +24,8 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_HISTORY', { id: activeId, scope }) as Commit[];
-      setCommits(response.sort(commit => -commit.id) || []);
+      const response: Commit[] = await emit('FETCH_HISTORY', { id: activeId, scope });
+      setCommits(response.sort(commit => -commit.id));
     } catch (err: unknown) {
       console.error("Failed to fetch history:", err);
       setFetchError(errStr(err, "Failed to fetch history."));
@@ -35,7 +35,7 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
   }, [activeId, emit, scope]);
 
   useEffect(() => {
-    queueMicrotask(fetchHistory);
+    queueMicrotask(() => { void fetchHistory(); });
   }, [fetchHistory]);
 
   const filtered = useMemo(() => {
@@ -45,7 +45,7 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
     }
 
     return commits.filter((commit) => {
-      const messageMatch = commit.message?.toLowerCase().includes(cleanedQuery);
+      const messageMatch = commit.message.toLowerCase().includes(cleanedQuery);
 
       return messageMatch;
     });
@@ -64,7 +64,7 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchHistory}
+            onClick={() => { void fetchHistory(); }}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -76,7 +76,7 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
         <TextField.Root
           placeholder="Search commit message..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); }}
           size="1"
         >
           <TextField.Slot>
@@ -88,7 +88,7 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
                 size="1"
                 variant="ghost"
                 color="gray"
-                onClick={() => setSearchQuery('')}
+                onClick={() => { setSearchQuery(''); }}
                 style={{ cursor: 'pointer', height: '16px', width: '16px' }}
               >
                 <Cross2Icon height="12" width="12" />
@@ -167,7 +167,7 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
                 borderColor: hasError ? 'var(--orange-6)' : 'var(--gray-4)',
                 cursor: 'pointer',
               }}
-              onClick={() => setViewCommitId(commit.id)}
+              onClick={() => { setViewCommitId(commit.id); }}
             >
               <Flex direction="column" gap="2">
                 <Flex align="center" justify="between" gap="2">
@@ -239,7 +239,7 @@ export default function HistorysPanel({ scope }: HistorysPanelProps) {
         <CommitModal
           commitId={viewCommitId}
           scope={scope}
-          onClose={() => setViewCommitId(null)}
+          onClose={() => { setViewCommitId(null); }}
         />
       )}
     </Flex>

@@ -18,7 +18,7 @@ export default function App() {
         {errorMessage && (
           <NotificationToast
             message={errorMessage}
-            onClear={() => setErrorMessage(null)}
+            onClear={() => { setErrorMessage(null); }}
           />
         )}
       </>
@@ -32,7 +32,7 @@ export default function App() {
       {errorMessage && (
         <NotificationToast
           message={errorMessage}
-          onClear={() => setErrorMessage(null)}
+          onClear={() => { setErrorMessage(null); }}
         />
       )}
     </ActiveWorkspaceProvider>

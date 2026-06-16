@@ -19,7 +19,7 @@ export default function QueryVarsDialog({
   const [isValid, setIsValid] = useState(true);
 
   const handleEditorChange = (val: string | undefined) => {
-    const content = val || '';
+    const content = val ?? '';
     setLocalJson(content);
 
     // Quick inline validation check to disable the save button if the user types broken JSON

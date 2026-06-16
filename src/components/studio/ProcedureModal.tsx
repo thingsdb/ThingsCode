@@ -29,21 +29,17 @@ export default function ProcedureModal({
   const [executionResult, setExecutionResult] = useState<Result | null>(null);
 
   useEffect(() => {
-    if (procedure && Array.isArray(procedure.arguments)) {
-      const initialArgs: Record<string, null> = {};
-      procedure.arguments.forEach((argName) => {
-        initialArgs[argName] = null;
-      });
-      queueMicrotask(() => {
-        setJsonArgs(JSON.stringify(initialArgs, null, 2));
-        setJsonError(null);
-        setExecutionResult(null);
-        setActiveTab('definition');
-      });
-    }
+    const initialArgs: Record<string, null> = {};
+    procedure.arguments.forEach((argName) => {
+      initialArgs[argName] = null;
+    });
+    queueMicrotask(() => {
+      setJsonArgs(JSON.stringify(initialArgs, null, 2));
+      setJsonError(null);
+      setExecutionResult(null);
+      setActiveTab('definition');
+    });
   }, [procedure]);
-
-  if (procedure === null) return null;
 
   const handleJsonChange = (val: string | undefined) => {
     if (val === undefined) {
@@ -55,7 +51,7 @@ export default function ProcedureModal({
       return;
     }
     try {
-      const parsed = JSON.parse(val);
+      const parsed: unknown = JSON.parse(val);
       if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
         setJsonError('Root element must be a valid JSON Object { ... }');
       } else {
@@ -79,14 +75,14 @@ export default function ProcedureModal({
     setExecutionResult(null);
 
     try {
-      const response = await emit('RUN_PROCEDURE', {
+      const result: Result = await emit('RUN_PROCEDURE', {
         id: activeId,
         scope,
         name: procedure.name,
         args: parsedArgs
-      }, true) as Result;
+      }, true);
 
-      setExecutionResult(response);
+      setExecutionResult(result);
     } catch (err: unknown) {
       setExecutionResult({
         error: errStr(err, "An unknown network error occurred during procedure execution."),
@@ -238,7 +234,7 @@ export default function ProcedureModal({
                   variant="solid"
                   loading={isRunning}
                   disabled={jsonError !== null}
-                  onClick={handleExecuteProcedure}
+                  onClick={() => { void handleExecuteProcedure(); }}
                   style={{ cursor: jsonError ? 'not-allowed' : 'pointer' }}
                 >
                   <PlayIcon width="14" height="14" />

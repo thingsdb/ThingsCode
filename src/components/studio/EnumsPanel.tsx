@@ -25,8 +25,8 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await emit('FETCH_ENUMS', { id: activeId, scope }) as Enum[];
-      setEnums(response || []);
+      const response: Enum[] = await emit('FETCH_ENUMS', { id: activeId, scope });
+      setEnums(response);
     } catch (err: unknown) {
       console.error("Failed to fetch enums:", err);
       setFetchError(errStr(err, "Failed to fetch enums."));
@@ -36,7 +36,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
   }, [activeId, emit, scope]);
 
   useEffect(() => {
-    queueMicrotask(fetchEnums);
+    queueMicrotask(() => { void fetchEnums(); });
   }, [fetchEnums]);
 
   const filtered = useMemo(() => {
@@ -46,7 +46,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
     }
 
     return enums.filter((enu) => {
-      const nameMatch = enu.name?.toLowerCase().includes(cleanedQuery);
+      const nameMatch = enu.name.toLowerCase().includes(cleanedQuery);
 
       return nameMatch;
     });
@@ -64,7 +64,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
             variant="soft"
             color="gray"
             disabled={isLoading}
-            onClick={fetchEnums}
+            onClick={() => { void fetchEnums(); }}
             style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}
           >
             <UpdateIcon width="13" height="13" className={isLoading ? 'animate-spin' : ''} />
@@ -76,7 +76,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
         <TextField.Root
           placeholder="Search name..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); }}
           size="1"
         >
           <TextField.Slot>
@@ -88,7 +88,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
                 size="1"
                 variant="ghost"
                 color="gray"
-                onClick={() => setSearchQuery('')}
+                onClick={() => { setSearchQuery(''); }}
                 style={{ cursor: 'pointer', height: '16px', width: '16px' }}
               >
                 <Cross2Icon height="12" width="12" />
@@ -160,7 +160,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
                 borderColor: 'var(--gray-4)',
                 cursor: 'pointer',
               }}
-              onClick={() => setViewEnum(enu)}
+              onClick={() => { setViewEnum(enu); }}
             >
               <Flex direction="column" gap="2">
                 <Flex align="center" justify="between" gap="2">
@@ -193,7 +193,7 @@ export default function EnumsPanel({ scope }: EnumsPanelProps) {
       </Flex>
       {viewEnum && (
         <EnumModal
-          onClose={() => setViewEnum(null)}
+          onClose={() => { setViewEnum(null); }}
           enu={viewEnum}
           scope={scope}
         />

@@ -14,8 +14,6 @@ interface TypeModalProps {
 export default function TypeModal({ onClose, tp, onNavigateToType }: TypeModalProps) {
   const [activeTab, setActiveTab] = useState<string>('general');
 
-  if (!tp) return null;
-
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
       <Dialog.Content aria-describedby={undefined} style={{ width: '65vw', maxWidth: '1024px', padding: '16px' }}>

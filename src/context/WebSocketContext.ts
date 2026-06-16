@@ -2,9 +2,9 @@ import { createContext } from 'react';
 
 interface WebSocketContextType {
   status: string;
-  emit: <TResponse = unknown, TPayload = unknown>(
+  emit: <TResponse = unknown>(
     type: string,
-    payload?: TPayload,
+    payload?: unknown,
     useLossless?: boolean,
   ) => Promise<TResponse>;
 }

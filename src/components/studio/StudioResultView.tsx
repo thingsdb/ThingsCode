@@ -13,7 +13,7 @@ export default function StudioResultView() {
   const [viewRawString, setViewRawString] = useState(false);
 
   const result = useMemo<Result | null>(() => {
-    return activeFile?.result || null;
+    return activeFile?.result ?? null;
   }, [activeFile?.result]);
 
   const [prevResult, setPrevResult] = useState<Result | null>(result);
@@ -64,7 +64,7 @@ export default function StudioResultView() {
     try {
       await navigator.clipboard.writeText(outputContent);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset icon after 2 seconds
+      setTimeout(() => { setCopied(false); }, 2000); // Reset icon after 2 seconds
     } catch (err) {
       console.error('Failed to copy execution result payload:', err);
     }
@@ -150,7 +150,7 @@ export default function StudioResultView() {
                   size="1"
                   variant={viewRawString ? "solid" : "soft"}
                   color="iris"
-                  onClick={() => setViewRawString(!viewRawString)}
+                  onClick={() => { setViewRawString(!viewRawString); }}
                   style={{ cursor: 'pointer', boxShadow: 'var(--shadow-1)', pointerEvents: 'auto' }}
                 >
                   {viewRawString ? <FileTextIcon width="14" height="14" /> : <CodeIcon width="14" height="14" />}
@@ -187,7 +187,7 @@ export default function StudioResultView() {
                 variant="soft"
                 color={copied ? "green" : "gray"}
                 highContrast={!copied}
-                onClick={handleCopyToClipboard}
+                onClick={() => { void handleCopyToClipboard(); }}
                 style={{
                   cursor: 'pointer',
                   boxShadow: 'var(--shadow-1)',

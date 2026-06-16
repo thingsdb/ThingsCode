@@ -129,9 +129,12 @@ export interface Method {
   arguments: string[];
 }
 
-export interface ThingId {
-  [key: string]: number;
-}
+// Exactly one key, and must be a number
+type OnlyOneKey<K extends string> = Record<K, number> & Record<Exclude<string, K>, never>;
+
+export type ThingId = {
+  [K in string]: OnlyOneKey<K>;
+}[string];
 
 export interface Enum {
   name: string;
@@ -240,6 +243,7 @@ export interface Scope {
 export type StudioTab = 'result' | 'events' | 'log';
 export type WebsocketStatus = 'connecting' | 'connected' | 'disconnected';
 export type EnumType = 'int' | 'float' | 'str' | 'bytes' | 'thing';
+export type Cardinality = 'N:0' | '1:0' | '1:1' | '1:N' | 'N:1' | 'N:N';
 
 export enum SearchIndexType {
   File = 'FILE',

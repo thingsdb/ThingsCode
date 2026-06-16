@@ -16,7 +16,7 @@ export default function NodeStatusBadge() {
     return null;
   }
 
-  const color = nodeStatus ? STATUS_COLOR_MAP[nodeStatus.Status] || 'gray' : 'gray';
+  const color = STATUS_COLOR_MAP[nodeStatus.Status] ?? 'gray';
 
   return (
     <Flex align="center" px="1">

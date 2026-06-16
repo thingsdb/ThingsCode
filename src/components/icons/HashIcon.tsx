@@ -14,8 +14,8 @@ export default function HashIcon({
   color = 'currentColor'
 }: HashIconProps) {
 
-  const w = width || size || 16;
-  const h = height || size || 16;
+  const w = width ?? size ?? 16;
+  const h = height ?? size ?? 16;
 
   const numericHeight = typeof h === 'number'
     ? h

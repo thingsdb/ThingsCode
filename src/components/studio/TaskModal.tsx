@@ -29,16 +29,11 @@ export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (taskId === null) {
-      queueMicrotask(() => setTask(null));
-      return;
-    }
-
     const fetchTaskDetail = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await emit('FETCH_TASK', { id: activeId, scope, taskId }) as TaskDetail;
+        const response: TaskDetail = await emit('FETCH_TASK', { id: activeId, scope, taskId });
         setTask(response);
       } catch (err: unknown) {
         console.error("Failed to fetch task details:", err);
@@ -48,7 +43,7 @@ export default function TaskModal({ taskId, scope, onClose }: TaskModalProps) {
       }
     };
 
-    queueMicrotask(fetchTaskDetail);
+    queueMicrotask(() => { void fetchTaskDetail(); });
   }, [taskId, scope, activeId, emit]);
 
   return (

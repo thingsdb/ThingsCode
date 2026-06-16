@@ -24,14 +24,14 @@ export default function WorkspaceModal() {
 
   const handleSave = (e: React.ChangeEvent) => {
     e.preventDefault();
-    updateWorkspace(form as Workspace);
+    void updateWorkspace(form as Workspace);
     setEditingWorkspace(null); // Close modal
   };
 
   return (
     <Dialog.Root
       open={!!editingWorkspace}
-      onOpenChange={(open) => !open && setEditingWorkspace(null)}
+      onOpenChange={(open) => { if (!open) setEditingWorkspace(null); }}
     >
       <Dialog.Content
         style={{ maxWidth: 450 }}
@@ -50,8 +50,8 @@ export default function WorkspaceModal() {
             <label>
               <Text as="div" size="2" weight="bold" mb="1">Workspace Name</Text>
               <TextField.Root
-                value={form.name || ''}
-                onChange={e => setForm({ ...form, name: e.target.value })}
+                value={form.name ?? ''}
+                onChange={e => { setForm({ ...form, name: e.target.value }); }}
                 required
               />
             </label>
@@ -61,8 +61,8 @@ export default function WorkspaceModal() {
               <Text as="div" size="2" weight="bold" mb="1">Workfolder</Text>
               <TextField.Root
                 placeholder="Leave empty for temporary session storage"
-                value={form.workfolder || ''}
-                onChange={e => setForm({ ...form, workfolder: e.target.value })}
+                value={form.workfolder ?? ''}
+                onChange={e => { setForm({ ...form, workfolder: e.target.value }); }}
               />
             </label>
 
@@ -72,7 +72,7 @@ export default function WorkspaceModal() {
               <Text size="1" color="gray">Controls a visual badge to warn you of the current context</Text>
               <Select.Root
                 value={form.type}
-                onValueChange={(val) => setForm({ ...form, type: val as WorkspaceType })}
+                onValueChange={(val) => { setForm({ ...form, type: val as WorkspaceType }); }}
               >
                 <Select.Trigger style={{ width: '100%', cursor: 'pointer' }} />
                 <Select.Content>
@@ -105,8 +105,8 @@ export default function WorkspaceModal() {
               <Box style={{ flexGrow: 1 }}>
                 <Text as="div" size="2" weight="bold" mb="1">Host / IP</Text>
                 <TextField.Root
-                  value={form.host || ''}
-                  onChange={e => setForm({ ...form, host: e.target.value })}
+                  value={form.host ?? ''}
+                  onChange={e => { setForm({ ...form, host: e.target.value }); }}
                   required
                 />
               </Box>
@@ -114,8 +114,8 @@ export default function WorkspaceModal() {
                 <Text as="div" size="2" weight="bold" mb="1">Port</Text>
                 <TextField.Root
                   type="number"
-                  value={form.port || ''}
-                  onChange={e => setForm({ ...form, port: parseInt(e.target.value) || 0 })}
+                  value={form.port ?? ''}
+                  onChange={e => { setForm({ ...form, port: parseInt(e.target.value) || 0 }); }}
                   required
                 />
               </Box>
@@ -129,7 +129,7 @@ export default function WorkspaceModal() {
               </Flex>
               <Switch
                 checked={!!form.ssl}
-                onCheckedChange={(checked) => setForm({ ...form, ssl: checked })}
+                onCheckedChange={(checked) => { setForm({ ...form, ssl: checked }); }}
               />
             </Flex>
 
@@ -139,8 +139,8 @@ export default function WorkspaceModal() {
             <Box>
               <Text as="div" size="2" weight="bold" mb="2">Authentication Mode</Text>
               <RadioGroup.Root
-                value={form.authType || 'credentials'}
-                onValueChange={(val: 'credentials' | 'token') => setForm({ ...form, authType: val })}
+                value={form.authType ?? 'credentials'}
+                onValueChange={(val: 'credentials' | 'token') => { setForm({ ...form, authType: val }); }}
                 size="2"
                 variant="surface"
               >
@@ -164,15 +164,15 @@ export default function WorkspaceModal() {
                 <TextField.Root
                   type={showToken ? "text" : "password"}
                   placeholder="Enter access token..."
-                  value={form.token || ''}
-                  onChange={e => setForm({ ...form, token: e.target.value })}
+                  value={form.token ?? ''}
+                  onChange={e => { setForm({ ...form, token: e.target.value }); }}
                 >
                   <TextField.Slot side="right" px="1">
                     <IconButton
                       type="button"
                       variant="ghost"
                       color="gray"
-                      onClick={() => setShowToken(!showToken)}
+                      onClick={() => { setShowToken(!showToken); }}
                       className="cursor-pointer"
                     >
                       {showToken ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
@@ -185,23 +185,23 @@ export default function WorkspaceModal() {
                 <Box style={{ flexGrow: 1 }}>
                   <Text as="div" size="2" weight="bold" mb="1">Username</Text>
                   <TextField.Root
-                    value={form.username || ''}
-                    onChange={e => setForm({ ...form, username: e.target.value })}
+                    value={form.username ?? ''}
+                    onChange={e => { setForm({ ...form, username: e.target.value }); }}
                   />
                 </Box>
                 <Box style={{ flexGrow: 1 }}>
                   <Text as="div" size="2" weight="bold" mb="1">Password</Text>
                   <TextField.Root
                     type={showPassword ? "text" : "password"}
-                    value={form.password || ''}
-                    onChange={e => setForm({ ...form, password: e.target.value })}
+                    value={form.password ?? ''}
+                    onChange={e => { setForm({ ...form, password: e.target.value }); }}
                   >
                     <TextField.Slot side="right" px="1">
                       <IconButton
                         type="button"
                         variant="ghost"
                         color="gray"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={() => { setShowPassword(!showPassword); }}
                         className="cursor-pointer"
                       >
                         {showPassword ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
@@ -216,7 +216,7 @@ export default function WorkspaceModal() {
           {/* Action Row */}
           <Flex gap="3" mt="5" justify="end">
             <Dialog.Close>
-              <Button type="button" variant="soft" color="gray" onClick={() => setEditingWorkspace(null)}>
+              <Button type="button" variant="soft" color="gray" onClick={() => { setEditingWorkspace(null); }}>
                 Cancel
               </Button>
             </Dialog.Close>

@@ -1,7 +1,6 @@
 import { AlertDialog, Button, Flex } from '@radix-ui/themes';
 
 interface ConfirmDialogProps {
-  open: boolean;
   onOpenChange: (open: boolean) => void;
   title?: string;
   description: string;
@@ -12,7 +11,6 @@ interface ConfirmDialogProps {
 }
 
 export default function ConfirmDialog({
-  open,
   onOpenChange,
   title = 'Are you sure?',
   description,
@@ -22,7 +20,7 @@ export default function ConfirmDialog({
   onConfirm,
 }: ConfirmDialogProps) {
   return (
-    <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
+    <AlertDialog.Root defaultOpen onOpenChange={onOpenChange}>
       <AlertDialog.Content style={{ maxWidth: 400 }}>
         <AlertDialog.Title>{title}</AlertDialog.Title>
         <AlertDialog.Description size="2" mb="4">

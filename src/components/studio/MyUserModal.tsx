@@ -16,14 +16,14 @@ export default function MyUserModal({ onClose }: MyUserModalProps) {
   useEffect(() => {
     const fetchMyUser= async () => {
       try {
-        const response = await emit('FETCH_USER', { id: activeId }) as User;
+        const response: User = await emit('FETCH_USER', { id: activeId });
         setMyUser(response);
       } catch (err: unknown) {
         console.error("Failed to fetch current user info:", err);
       }
     };
 
-    queueMicrotask(fetchMyUser);
+    queueMicrotask(() => { void fetchMyUser(); });
   }, [activeId, emit]);
 
   return myUser ? (

@@ -20,7 +20,7 @@ export default function ThingExplorer({ scope, startThingId }: ThingExplorerProp
 
   // Lazy load individual things
   const fetchThingNode = useCallback(async (id: number) => {
-    if (thingRegistry[id] !== undefined || loadingMap[id] || errorMap[id]) return;
+    if (id in thingRegistry || id in loadingMap || id in errorMap) return;
 
     setLoadingMap((prev) => ({ ...prev, [id]: true }));
     setErrorMap((prev) => ({ ...prev, [id]: null }));
@@ -42,7 +42,7 @@ export default function ThingExplorer({ scope, startThingId }: ThingExplorerProp
 
   useEffect(() => {
     if (startThingId) {
-      fetchThingNode(startThingId);
+      void fetchThingNode(startThingId);
     }
   }, [startThingId, scope, fetchThingNode]);
 

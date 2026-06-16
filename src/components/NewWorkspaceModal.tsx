@@ -27,9 +27,7 @@ export default function NewWorkspaceModal() {
   const [showToken, setShowToken] = useState(false);
 
   const sanitizedName = name.replace(/[^a-zA-Z0-9-_ ]/g, '');
-  const workfolder = customWorkfolder !== null
-    ? customWorkfolder
-    : `~/ThingsCode/${sanitizedName}`;
+  const workfolder = customWorkfolder ?? `~/ThingsCode/${sanitizedName}`;
 
   const resetForm = () => {
     setName('');
@@ -44,10 +42,10 @@ export default function NewWorkspaceModal() {
     setWorkspaceType('development');
   };
 
-  const handleSubmit = (e: React.ChangeEvent) => {
+  const handleSubmit = async (e: React.ChangeEvent) => {
     e.preventDefault();
 
-    addWorkspace({
+    await addWorkspace({
       name,
       host,
       port,
@@ -92,7 +90,7 @@ export default function NewWorkspaceModal() {
           Add a node config profile and link it to a local workspace path.
         </Dialog.Description>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => { void handleSubmit(e); }}>
           <Flex direction="column" gap="4">
             {/* Name Input */}
             <label>
@@ -100,7 +98,7 @@ export default function NewWorkspaceModal() {
               <TextField.Root
                 placeholder="e.g. Production Node"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => { setName(e.target.value); }}
                 required
               />
             </label>
@@ -124,7 +122,7 @@ export default function NewWorkspaceModal() {
               <Text size="1" color="gray">Controls a visual badge to warn you of the current context</Text>
               <Select.Root
                 value={workspaceType}
-                onValueChange={(val) => setWorkspaceType(val as WorkspaceType)}
+                onValueChange={(val) => { setWorkspaceType(val as WorkspaceType); }}
               >
                 <Select.Trigger style={{ width: '100%', cursor: 'pointer' }} />
                 <Select.Content>
@@ -156,14 +154,14 @@ export default function NewWorkspaceModal() {
             <Flex gap="3">
               <Box style={{ flexGrow: 1 }}>
                 <Text as="div" size="2" weight="bold" mb="1">Host / IP</Text>
-                <TextField.Root value={host} onChange={(e) => setHost(e.target.value)} required />
+                <TextField.Root value={host} onChange={(e) => { setHost(e.target.value); }} required />
               </Box>
               <Box style={{ width: 100 }}>
                 <Text as="div" size="2" weight="bold" mb="1">Port</Text>
                 <TextField.Root
                   type="number"
                   value={port}
-                  onChange={(e) => setPort(parseInt(e.target.value) || 0)}
+                  onChange={(e) => { setPort(parseInt(e.target.value) || 0); }}
                   required
                 />
               </Box>
@@ -185,7 +183,7 @@ export default function NewWorkspaceModal() {
               <Text as="div" size="2" weight="bold" mb="2">Authentication Mode</Text>
               <RadioGroup.Root
                 value={authType}
-                onValueChange={(value) => setAuthType(value as 'credentials' | 'token')}
+                onValueChange={(value) => { setAuthType(value as 'credentials' | 'token'); }}
                 size="2"
                 variant="surface"
               >
@@ -209,7 +207,7 @@ export default function NewWorkspaceModal() {
                 <TextField.Root
                   type={showToken ? "text" : "password"}
                   value={token}
-                  onChange={e => setToken(e.target.value)}
+                  onChange={e => { setToken(e.target.value); }}
                   required
                 >
                   <TextField.Slot side="right" px="1">
@@ -217,7 +215,7 @@ export default function NewWorkspaceModal() {
                       type="button"
                       variant="ghost"
                       color="gray"
-                      onClick={() => setShowToken(!showToken)}
+                      onClick={() => { setShowToken(!showToken); }}
                       className="cursor-pointer"
                     >
                       {showToken ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}
@@ -229,21 +227,21 @@ export default function NewWorkspaceModal() {
               <Flex gap="3">
                 <Box style={{ flexGrow: 1 }}>
                   <Text as="div" size="2" weight="bold" mb="1">Username</Text>
-                  <TextField.Root value={username} onChange={e => setUsername(e.target.value)} />
+                  <TextField.Root value={username} onChange={e => { setUsername(e.target.value); }} />
                 </Box>
                 <Box style={{ flexGrow: 1 }}>
                   <Text as="div" size="2" weight="bold" mb="1">Password</Text>
                   <TextField.Root
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onChange={e => { setPassword(e.target.value); }}
                   >
                     <TextField.Slot side="right" px="1">
                       <IconButton
                         type="button"
                         variant="ghost"
                         color="gray"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={() => { setShowPassword(!showPassword); }}
                         className="cursor-pointer"
                       >
                         {showPassword ? <EyeNoneIcon width="16" height="16" /> : <EyeOpenIcon width="16" height="16" />}

@@ -7,11 +7,11 @@ export function useActiveWorkspaceId() {
   const [workspaceId, setWorkspaceId] = useState(getWorkspaceId);
 
   useEffect(() => {
-    const handleLocationChange = () => setWorkspaceId(getWorkspaceId());
+    const handleLocationChange = () => { setWorkspaceId(getWorkspaceId()); };
 
     window.addEventListener('popstate', handleLocationChange);
 
-    return () => window.removeEventListener('popstate', handleLocationChange);
+    return () => { window.removeEventListener('popstate', handleLocationChange); };
   }, []);
 
   return workspaceId;

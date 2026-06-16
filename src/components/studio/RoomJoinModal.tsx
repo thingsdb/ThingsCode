@@ -64,7 +64,7 @@ export default function RoomJoinModal({
     if (mode === 'view') {
       return; // Safety guard
     }
-    const rawCode = val || '';
+    const rawCode = val ?? '';
     setCode(rawCode);
     validate(name, rawCode);
   };

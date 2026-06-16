@@ -30,7 +30,7 @@ export default function TreeNode({
 
   // State...
   const isNodeCached = targetThingId !== null && registry[targetThingId] !== undefined;
-  const isNodeLoading = targetThingId !== null && !!loadingMap[targetThingId];
+  const isNodeLoading = targetThingId !== null && loadingMap[targetThingId];
   const nodeError = targetThingId !== null ? errorMap[targetThingId] : null;
 
   // Either the evaluated cached object payload, or a javascript Array
@@ -49,7 +49,7 @@ export default function TreeNode({
 
   // Primitive values (strings, numbers, booleans, ...)
   if (!isThingReference && !isExpandableType) {
-    let renderedValue = String(nodeValue);
+    let renderedValue = String(nodeValue);  // @ts-ign
     let tokenColor = 'var(--gray-12)';
 
     if (typeof nodeValue === 'string') {
@@ -80,7 +80,7 @@ export default function TreeNode({
       return `List(${expandedData.length})`;
     }
     if (expandedData !== null && typeof expandedData === 'object') {
-      return `#${targetThingId} (${Object.keys(expandedData).length} keys)`;
+      return `#${targetThingId ?? 0} (${Object.keys(expandedData).length} keys)`;
     }
     return 'Object?';  // Should not happen
   };
@@ -112,7 +112,7 @@ export default function TreeNode({
           align="center"
           gap="1"
           className="cursor-pointer"
-          onClick={handleToggle}
+          onClick={() => { void handleToggle(); }}
         >
           {isThingReference && <CubeIcon width="12" height="12" color="var(--iris-8)" />}
           <Text
@@ -166,7 +166,7 @@ export default function TreeNode({
             Object.keys(expandedData).length === 0 ? (
               <Text size="1" color="gray" style={{ fontStyle: 'italic', paddingLeft: '4px' }}>empty object</Text>
             ) : (
-              Object.entries(expandedData).map(([subKey, subVal]) => (
+              Object.entries(expandedData).map(([subKey, subVal]: [string, TreeNodeType]) => (
                 <TreeNode
                   key={subKey}
                   label={subKey}
