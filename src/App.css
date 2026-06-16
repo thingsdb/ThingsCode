@@ -55,6 +55,8 @@ body {
   --iris-a5: var(--thingscode-blue-active-alpha) !important;
   --iris-6: var(--thingscode-blue) !important;
   --iris-a6: var(--thingscode-blue-alpha) !important;
+  --iris-7: var(--thingscode-blue) !important;
+  --iris-a7: var(--thingscode-blue-alpha) !important;
 }
 
 .hover-lift-effect {
