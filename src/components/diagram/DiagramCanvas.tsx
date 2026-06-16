@@ -383,7 +383,7 @@ export default function DiagramCanvas({
                             <CubeIcon color="var(--iris-9)" width="14" height="14" />
                             <Text size="2" weight="bold" className="font-mono text-[var(--gray-12)]">{node.id}</Text>
                           </Flex>
-                          {node.tp.wrapOnly && <Badge size="1" color="gray">WPO</Badge>}
+                          {node.tp.wrapOnly && <Badge size="1" color="iris">WPO</Badge>}
                         </Flex>
 
                         <Box className="p-2">
