@@ -70,7 +70,7 @@ export default function DiagramLauncher({ scope, disabled }: DiagramLauncherProp
     <Flex align="center">
       <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <Dialog.Trigger>
-          <Tooltip content="Open full-screen collection architecture graph">
+          <Tooltip content="Open Full-Screen Collection Graph">
             <IconButton
               size="2"
               variant="ghost"

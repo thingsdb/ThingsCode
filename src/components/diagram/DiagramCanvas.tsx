@@ -40,8 +40,8 @@ const elk = new ELK({
 
 const getCardinalityColor = (cardinality: string | undefined): string => {
   if (!cardinality) return 'var(--gray-6)';
-  if (cardinality === '1:1') return 'var(--amber-8)';
-  if (cardinality === '1:N' || cardinality === 'N:1') return 'var(--iris-8)';
+  if (cardinality === '1:1') return 'var(--iris-8)';
+  if (cardinality === '1:N' || cardinality === 'N:1') return 'var(--amber-8)';
   if (cardinality === 'N:N') return 'var(--crimson-8)';
   return 'var(--gray-6)';
 };
@@ -320,16 +320,19 @@ export default function DiagramCanvas({
             >
               <defs>
                 <marker id="marker-one-src" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                  <circle cx="5" cy="5" r="3" className="fill-[var(--gray-8)]" />
+                  <circle cx="5" cy="5" r="3" className="fill-[context-stroke]" style={{ fill: 'context-stroke' }} />
                 </marker>
+
                 <marker id="marker-one-tgt" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                  <circle cx="5" cy="5" r="3" className="fill-[var(--gray-8)]" />
+                  <circle cx="5" cy="5" r="3" className="fill-[context-stroke]" style={{ fill: 'context-stroke' }} />
                 </marker>
+
                 <marker id="marker-many-src" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                  <path d="M 9 2 L 2 5 L 9 8 M 2 5 L 9 5" className="stroke-[var(--gray-8)] fill-none stroke-[1.2px]" />
+                  <path d="M 9 2 L 2 5 L 9 8 M 2 5 L 9 5" className="fill-none stroke-[1.2px]" style={{ stroke: 'context-stroke' }} />
                 </marker>
+
                 <marker id="marker-many-tgt" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                  <path d="M 9 2 L 2 5 L 9 8 M 2 5 L 9 5" className="stroke-[var(--gray-8)] fill-none stroke-[1.2px]" />
+                  <path d="M 9 2 L 2 5 L 9 8 M 2 5 L 9 5" className="fill-none stroke-[1.2px]" style={{ stroke: 'context-stroke' }} />
                 </marker>
               </defs>
 
