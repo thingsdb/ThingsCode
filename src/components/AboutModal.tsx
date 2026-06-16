@@ -10,7 +10,7 @@ interface AboutModalProps {
 
 export default function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
   const { appearance } = useTheme();
-  const appVersion = version || '1.0.2';
+  const appVersion = version || '1.0.3';
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
