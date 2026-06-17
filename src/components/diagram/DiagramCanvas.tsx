@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { MouseEvent as ReactMouseEvent, WheelEvent as ReactWheelEvent } from 'react';
 import { Text, Badge, Box, Flex, IconButton, Theme } from '@radix-ui/themes';
-import { CubeIcon, TokensIcon, Cross2Icon, PlusIcon, ResetIcon, MinusIcon } from '@radix-ui/react-icons';
+import { CubeIcon, TokensIcon, Cross2Icon, PlusIcon, ResetIcon, MinusIcon, ComponentInstanceIcon } from '@radix-ui/react-icons';
 import ELK from 'elkjs/lib/elk.bundled.js';
+import ElkWorkerModule from 'elkjs/lib/elk-worker.js?worker';
 import type { ElkNode, ElkExtendedEdge } from 'elkjs';
 import { useTheme } from '../../hooks';
 import type { Cardinality, Enum, Type } from '../../types';
@@ -14,6 +15,7 @@ type DiagramData = [Type[], Enum[]];
 interface DiagramCanvasProps {
   onClose: () => void;
   data: DiagramData;
+  scope: string;
   onNavigateToType?: (name: string) => void;
   onNavigateToEnum?: (name: string) => void;
   includeWpo: boolean;
@@ -30,12 +32,16 @@ interface Edge extends ElkExtendedEdge {
   label: string;
 }
 
+interface WorkerModule {
+  default: new () => Worker;
+}
+
 const elk = new ELK({
-  workerUrl: URL.createObjectURL(
-    new Blob([`importScripts('https://cdn.jsdelivr.net/npm/elkjs@0.9.3/lib/elk.bundled.js');`], {
-      type: 'application/javascript'
-    })
-  )
+  workerFactory: () => {
+    const module = ElkWorkerModule as unknown as WorkerModule;
+    const WorkerConstructor = module.default || ElkWorkerModule;
+    return new WorkerConstructor();
+  }
 });
 
 const getCardinalityColor = (cardinality: string | undefined): string => {
@@ -49,6 +55,7 @@ const getCardinalityColor = (cardinality: string | undefined): string => {
 export default function DiagramCanvas({
   onClose,
   data,
+  scope,
   onNavigateToType,
   onNavigateToEnum,
   includeWpo,
@@ -308,6 +315,26 @@ export default function DiagramCanvas({
                 Calculating coordinates...
               </Text>
             </Flex>
+          ) : nodes.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              gap="3"
+              className="w-full h-full bg-[var(--gray-2)] select-none animate-fade-in"
+            >
+              <div className="p-4 bg-[var(--gray-3)] border border-[var(--gray-4)] rounded-full text-[var(--gray-8)]">
+                <ComponentInstanceIcon width="24" height="24" className="opacity-40" />
+              </div>
+              <Flex direction="column" align="center" gap="1">
+                <Text size="3" weight="bold" className="font-mono text-[var(--gray-12)]">
+                  No components found in this scope
+                </Text>
+                <Text size="1" color="gray" className="text-center max-w-[320px]">
+                  No matching types or enumerators resolved within <code className="bg-[var(--gray-3)] px-1 rounded text-[var(--gray-11)] font-mono">{scope}</code>.
+                </Text>
+              </Flex>
+            </Flex>
           ) : (
             <svg
               ref={svgRef}
@@ -451,54 +478,56 @@ export default function DiagramCanvas({
           className="absolute inset-0 w-full h-full pointer-events-none z-20 flex justify-end items-start p-4"
         >
           <div className="flex items-center gap-3 pointer-events-auto">
-            <div className="absolute top-4 right-14 z-[999999] flex items-center gap-2">
-              <Flex
-                align="center"
-                gap="2"
-                className="bg-[var(--gray-surface)] border border-[var(--gray-4)] shadow-md p-1 rounded-full pointer-events-auto"
-              >
-                {/* ZOOM OUT */}
-                <IconButton
-                  size="2"
-                  variant="ghost"
-                  color="gray"
-                  onClick={() => { handleZoomStep(-0.05); }}
-                  className="cursor-pointer rounded-full"
-                  title="Zoom Out"
+            {nodes.length > 0 && (
+              <div className="absolute top-4 right-14 z-[999999] flex items-center gap-2">
+                <Flex
+                  align="center"
+                  gap="2"
+                  className="bg-[var(--gray-surface)] border border-[var(--gray-4)] shadow-md p-1 rounded-full pointer-events-auto"
                 >
-                  <MinusIcon width="14" height="14" />
-                </IconButton>
+                  {/* ZOOM OUT */}
+                  <IconButton
+                    size="2"
+                    variant="ghost"
+                    color="gray"
+                    onClick={() => { handleZoomStep(-0.05); }}
+                    className="cursor-pointer rounded-full"
+                    title="Zoom Out"
+                  >
+                    <MinusIcon width="14" height="14" />
+                  </IconButton>
 
-                <button
-                  onClick={() => {
-                    setZoom(1.00);
-                    setPan({ x: 100, y: 100 });
-                  }}
-                  className="px-2 py-0.5 hover:bg-[var(--gray-3)] rounded-md cursor-pointer transition-colors flex items-center gap-1 group"
-                  title="Reset View to 100%"
-                >
-                  <Text size="1" className="font-mono text-[var(--gray-11)] font-bold group-hover:text-[var(--iris-9)]">
-                    {Math.round(zoom * 100)}%
-                  </Text>
-                  <ResetIcon
-                    width="12" height="12"
-                    className="text-[var(--gray-8)] group-hover:text-[var(--iris-9)] opacity-0 group-hover:opacity-100 transition-all duration-150"
-                  />
-                </button>
+                  <button
+                    onClick={() => {
+                      setZoom(1.00);
+                      setPan({ x: 100, y: 100 });
+                    }}
+                    className="px-2 py-0.5 hover:bg-[var(--gray-3)] rounded-md cursor-pointer transition-colors flex items-center gap-1 group"
+                    title="Reset View to 100%"
+                  >
+                    <Text size="1" className="font-mono text-[var(--gray-11)] font-bold group-hover:text-[var(--iris-9)]">
+                      {Math.round(zoom * 100)}%
+                    </Text>
+                    <ResetIcon
+                      width="12" height="12"
+                      className="text-[var(--gray-8)] group-hover:text-[var(--iris-9)] opacity-0 group-hover:opacity-100 transition-all duration-150"
+                    />
+                  </button>
 
-                {/* ZOOM IN */}
-                <IconButton
-                  size="2"
-                  variant="ghost"
-                  color="gray"
-                  onClick={() => { handleZoomStep(0.05); }}
-                  className="cursor-pointer rounded-full"
-                  title="Zoom In"
-                >
-                  <PlusIcon width="14" height="14" />
-                </IconButton>
-              </Flex>
-            </div>
+                  {/* ZOOM IN */}
+                  <IconButton
+                    size="2"
+                    variant="ghost"
+                    color="gray"
+                    onClick={() => { handleZoomStep(0.05); }}
+                    className="cursor-pointer rounded-full"
+                    title="Zoom In"
+                  >
+                    <PlusIcon width="14" height="14" />
+                  </IconButton>
+                </Flex>
+              </div>
+            )}
             <IconButton
               size="2"
               variant="solid"

@@ -11,6 +11,7 @@ interface TreeNodeProps {
   errorMap: Record<number, string | null>;
   onExpandRequest: (id: number) => Promise<void>;
   expandOninit: boolean;
+  inList: boolean;
 }
 
 export default function TreeNode({
@@ -21,6 +22,7 @@ export default function TreeNode({
   errorMap,
   onExpandRequest,
   expandOninit,
+  inList,
 }: TreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(expandOninit);
 
@@ -77,7 +79,8 @@ export default function TreeNode({
       return `#${targetThingId} {…}`;
     }
     if (Array.isArray(expandedData)) {
-      return `List(${expandedData.length})`;
+      // List may actually be a Set, but this is unknown unless we query
+      return `${inList ? 'Tuple' : 'List'} (${expandedData.length})`;
     }
     if (expandedData !== null && typeof expandedData === 'object') {
       return `#${targetThingId ?? 0} (${Object.keys(expandedData).length} keys)`;
@@ -159,6 +162,7 @@ export default function TreeNode({
                   errorMap={errorMap}
                   onExpandRequest={onExpandRequest}
                   expandOninit={false}
+                  inList={true}
                 />
               ))
             )
@@ -176,6 +180,7 @@ export default function TreeNode({
                   errorMap={errorMap}
                   onExpandRequest={onExpandRequest}
                   expandOninit={false}
+                  inList={false}
                 />
               ))
             )

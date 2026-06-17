@@ -159,6 +159,7 @@ export default function DiagramLauncher({ scope, disabled }: DiagramLauncherProp
         <DiagramCanvas
           onClose={handleCloseDiagram}
           data={graphData}
+          scope={scope}
           onNavigateToType={handleOnNavigateToType}
           onNavigateToEnum={handleOnNavigateToEnum}
           includeWpo={includeWpo}

@@ -62,6 +62,7 @@ export default function ThingExplorer({ scope, startThingId }: ThingExplorerProp
         errorMap={errorMap}
         onExpandRequest={fetchThingNode}
         expandOninit={true}
+        inList={false}
       />
     </Box>
   );
