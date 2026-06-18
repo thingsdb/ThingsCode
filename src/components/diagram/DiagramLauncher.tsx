@@ -122,7 +122,7 @@ export default function DiagramLauncher({ scope, disabled }: DiagramLauncherProp
                   checked={includeStandalone}
                   onCheckedChange={(checked) => { setIncludeStandalone(!!checked); }}
                 />
-                <Text as="label" htmlFor="unbound-toggle" size="2" weight="medium" className="cursor-pointer select-none">
+                <Text as="label" htmlFor="modal-standalone-toggle" size="2" className="cursor-pointer select-none">
                   Include standalone
                 </Text>
               </Flex>
