@@ -1,4 +1,4 @@
-import { Dialog, Flex, Heading, Text, Button, Badge } from '@radix-ui/themes';
+import { Dialog, Flex, Heading, Text, Button, Badge, VisuallyHidden } from '@radix-ui/themes';
 import { GitHubLogoIcon, HeartIcon } from '@radix-ui/react-icons';
 import { useTheme } from '../hooks';
 import { version } from '../../package.json';
@@ -10,11 +10,13 @@ interface AboutModalProps {
 
 export default function AboutModal({ isOpen, onOpenChange }: AboutModalProps) {
   const { appearance } = useTheme();
-  const appVersion = version || '1.0.3';
+  const appVersion = version || '1.0.4';
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
+      <VisuallyHidden><Dialog.Title>About ThingsCode</Dialog.Title></VisuallyHidden>
       <Dialog.Content
+        aria-describedby={undefined}
         style={{ maxWidth: 440, padding: '24px', textAlign: 'center' }}
         onOpenAutoFocus={(e) => { e.preventDefault(); }}
       >
