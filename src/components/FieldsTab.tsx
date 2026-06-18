@@ -28,10 +28,10 @@ export default function FieldsTab({ tp, onNavigateToType }: FieldsTabProps) {
   const filtered = useMemo(() => {
     const cleanedQuery = searchQuery.trim().toLowerCase();
     if (!cleanedQuery) {
-      return tp.fields.sort();
+      return tp.fields.sort((a, b) => a[0].localeCompare(b[0]));
     }
 
-    return tp.fields.sort().filter(([name, definition]) => {
+    return tp.fields.sort((a, b) => a[0].localeCompare(b[0])).filter(([name, definition]) => {
       const nameMatch = name.toLocaleLowerCase().includes(cleanedQuery);
       const defString = getDefinitionString(definition).toLowerCase();
       return nameMatch || defString.includes(cleanedQuery);

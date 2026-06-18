@@ -417,7 +417,7 @@ export default function DiagramCanvas({
                         </Flex>
 
                         <Box className="p-2">
-                          {node.tp.fields.sort().map(([fName, fDef]) => {
+                          {node.tp.fields.sort((a, b) => a[0].localeCompare(b[0])).map(([fName, fDef]) => {
                             const nameOnryRe = /[^_a-zA-Z0-9]/g;
                             const target = typeof fDef === 'string' ? fDef.replace(nameOnryRe, '') : '';
                             const targetNode = target ? nodes.find(n => n.id === target) : undefined;
