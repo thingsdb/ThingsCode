@@ -30,6 +30,20 @@ The following command will install `ticode` in path if supported by the OS.
 ```bash
 sudo ./ticode install
 ```
+## Screenshots
+
+_(Join Rooms and listen for Events)_
+<img width="863" height="219" alt="image" src="https://github.com/user-attachments/assets/91ba12e7-eae8-4df3-942b-db0c9093f3ca" />
+
+_(Integrated Thing Explorer)_
+<img width="956" height="486" alt="image" src="https://github.com/user-attachments/assets/90e60744-03bb-4cd8-b95b-e9d477127bc2" />
+
+_(Navigate through Types)_
+<img width="1020" height="451" alt="image" src="https://github.com/user-attachments/assets/4d690764-6908-44d6-9493-1d839cc297c6" />
+
+_(Collection Graph)_
+<img width="1195" height="741" alt="image" src="https://github.com/user-attachments/assets/98739d8c-a645-4f96-b587-b73358c14ff3" />
+
 
 ## Local development/custom build
 
