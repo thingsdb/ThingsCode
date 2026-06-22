@@ -13,7 +13,7 @@ export const errStr = (err: unknown, fallback: string) => {
 
 export function determineCardinality(thisDef: string, targetDef: string | undefined): Cardinality {
   if (targetDef === undefined) {
-    return (thisDef.includes('{') || thisDef.includes('[')) ? 'N:0' : '1:0';
+    return (thisDef.includes('{') || thisDef.includes('[') || thisDef.includes('thing<')) ? 'N:0' : '1:0';
   }
   const thisIsMany = thisDef.endsWith('}');
   const targetIsMany = targetDef.endsWith('}');

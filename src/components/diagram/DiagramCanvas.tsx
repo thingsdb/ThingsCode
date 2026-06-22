@@ -105,13 +105,14 @@ export default function DiagramCanvas({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  const nameOnryRe = useMemo(() => { return /(thing<)|[^_a-zA-Z0-9]/g; }, []);
+
   useEffect(() => {
     let active = true;
     async function computeLayout() {
       const childrenNodes: Node[] = [];
       const edgeRoutes: Edge[] = [];
       const processedPairs = new Set<string>();
-      const nameOnryRe = /[^_a-zA-Z0-9]/g;
       const names = new Set<string>([
         ...types.map(tp => tp.name),
         ...enums.map(en => en.name),
@@ -218,7 +219,7 @@ export default function DiagramCanvas({
 
     computeLayout();
     return () => { active = false; };
-  }, [types, enums, includeStandalone, includeWpo]);
+  }, [types, enums, includeStandalone, includeWpo, nameOnryRe]);
 
   const renderedEdges = useMemo(() => {
     return edges.map((edge) => {
@@ -418,7 +419,6 @@ export default function DiagramCanvas({
 
                         <Box className="p-2">
                           {node.tp.fields.sort((a, b) => a[0].localeCompare(b[0])).map(([fName, fDef]) => {
-                            const nameOnryRe = /[^_a-zA-Z0-9]/g;
                             const target = typeof fDef === 'string' ? fDef.replace(nameOnryRe, '') : '';
                             const targetNode = target ? nodes.find(n => n.id === target) : undefined;
                             const isClickable = !!targetNode;
