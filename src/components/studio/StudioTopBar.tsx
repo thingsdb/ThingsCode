@@ -1,6 +1,6 @@
 import { Flex, Text, Button, Tooltip, IconButton, Separator, Box, Badge } from '@radix-ui/themes';
 import { ExitIcon, MoonIcon, PlayIcon, SunIcon, UpdateIcon, GitHubLogoIcon, ReaderIcon, ExclamationTriangleIcon, MagnifyingGlassIcon, CubeIcon, PersonIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
-import { useActiveWorkspace, useWebSocket } from '../../hooks';
+import { useActiveWorkspace, useError, useWebSocket } from '../../hooks';
 import { useTheme } from '../../hooks';
 import ScopeSelector from './ScopeSelector';
 import { useEffect, useState } from 'react';
@@ -24,11 +24,13 @@ export default function StudioTopBar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [isMyUserOpen, setIsMyUserOpen] = useState(false);
+  const { setErrorMessage } = useError();
 
   const isTiCode = activeFilename?.endsWith('.ti') ?? false;
   const isCollectionScope = activeScope?.startsWith('@collection:') ?? false;
 
   const handleLogout = async () => {
+    setErrorMessage(null);
     if (status === 'connected') {
       try {
         await emit('CLOSE_WORKSPACE', workspace);
