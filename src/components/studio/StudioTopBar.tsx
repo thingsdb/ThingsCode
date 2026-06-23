@@ -31,6 +31,7 @@ export default function StudioTopBar() {
 
   const handleLogout = async () => {
     setErrorMessage(null);
+    setIsRefreshing(true);
     if (status === 'connected') {
       try {
         await emit('CLOSE_WORKSPACE', workspace);
@@ -306,6 +307,7 @@ export default function StudioTopBar() {
             size="1"
             color="red"
             variant="ghost"
+            disabled={isRefreshing}
             onClick={() => { void handleLogout(); }}
             style={{ cursor: 'pointer', gap: '4px' }}
           >
