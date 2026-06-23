@@ -10,17 +10,17 @@ ThingsCode (or **ticode** for short) is the interactive development studio built
 
 **1. Download the latest version:**
 
-- [Linux (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.4/ticode-linux-amd64-1.0.4.tar.gz)
-- [Linux (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.4/ticode-linux-arm64-1.0.4.tar.gz)
-- [Darwin (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.4/ticode-darwin-amd64-1.0.4.tar.gz)
-- [Darwin (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.4/ticode-darwin-arm64-1.0.4.tar.gz)
-- [Windows (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.4/ticode-windows-amd64-1.0.4.tar.gz)
-- [Windows (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.4/ticode-windows-arm64-1.0.4.tar.gz)
+- [Linux (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.5/ticode-linux-amd64-1.0.5.tar.gz)
+- [Linux (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.5/ticode-linux-arm64-1.0.5.tar.gz)
+- [Darwin (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.5/ticode-darwin-amd64-1.0.5.tar.gz)
+- [Darwin (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.5/ticode-darwin-arm64-1.0.5.tar.gz)
+- [Windows (amd64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.5/ticode-windows-amd64-1.0.5.tar.gz)
+- [Windows (arm64)](https://github.com/thingsdb/ThingsCode/releases/download/v1.0.5/ticode-windows-arm64-1.0.5.tar.gz)
 
 **2. Extract the contents of the archive using a tool like `tar`. Here's an example for Linux (amd64):**
 
 ```bash
-tar -xzvf ticode-linux-amd64-1.0.4.tar.gz
+tar -xzvf ticode-linux-amd64-1.0.5.tar.gz
 ```
 
 **3. Install:**
@@ -83,27 +83,27 @@ npm run build
 
 mkdir -p bin/darwin-amd64
 GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -o bin/darwin-amd64/ticode
-tar -zcf bin/ticode-darwin-amd64-1.0.4.tar.gz -C ./bin/darwin-amd64/ ticode
+tar -zcf bin/ticode-darwin-amd64-1.0.5.tar.gz -C ./bin/darwin-amd64/ ticode
 
 mkdir -p bin/darwin-arm64
 GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -o bin/darwin-arm64/ticode
-tar -zcf bin/ticode-darwin-arm64-1.0.4.tar.gz -C ./bin/darwin-arm64/ ticode
+tar -zcf bin/ticode-darwin-arm64-1.0.5.tar.gz -C ./bin/darwin-arm64/ ticode
 
 mkdir -p bin/linux-amd64
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -o bin/linux-amd64/ticode
-tar -zcf bin/ticode-linux-amd64-1.0.4.tar.gz -C ./bin/linux-amd64/ ticode
+tar -zcf bin/ticode-linux-amd64-1.0.5.tar.gz -C ./bin/linux-amd64/ ticode
 
 mkdir -p bin/linux-arm64
 GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -o bin/linux-arm64/ticode
-tar -zcf bin/ticode-linux-arm64-1.0.4.tar.gz -C ./bin/linux-arm64/ ticode
+tar -zcf bin/ticode-linux-arm64-1.0.5.tar.gz -C ./bin/linux-arm64/ ticode
 
 mkdir -p bin/windows-amd64
 GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -o bin/windows-amd64/ticode.exe
-tar -zcf bin/ticode-windows-amd64-1.0.4.tar.gz -C ./bin/windows-amd64/ ticode.exe
+tar -zcf bin/ticode-windows-amd64-1.0.5.tar.gz -C ./bin/windows-amd64/ ticode.exe
 
 mkdir -p bin/windows-arm64
 GOOS=windows GOARCH=arm64 CGO_ENABLED=0 go build -trimpath -o bin/windows-arm64/ticode.exe
-tar -zcf bin/ticode-windows-arm64-1.0.4.tar.gz -C ./bin/windows-arm64/ ticode.exe
+tar -zcf bin/ticode-windows-arm64-1.0.5.tar.gz -C ./bin/windows-arm64/ ticode.exe
 ```
 
 ## Update
