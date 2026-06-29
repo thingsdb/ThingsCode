@@ -85,7 +85,22 @@ export default function WorkspaceLauncher() {
           </Flex>
 
           <Grid columns={{ initial: '1', sm: '2' }} gap="3" width="auto">
-            {filteredWorkspaces.map((ws) => (
+            {[...filteredWorkspaces].sort((a, b) => {
+              const typeOrder: Record<string, number> = {
+                development: 0,
+                staging: 1,
+                production: 2
+              };
+
+              const orderA = typeOrder[a.type ?? 'production'] ?? 99;
+              const orderB = typeOrder[b.type ?? 'production'] ?? 99;
+              const typeDiff = orderA - orderB;
+
+              if (typeDiff === 0) {
+                return a.name.localeCompare(b.name);
+              }
+              return typeDiff;
+            }).map((ws) => (
               <Card
                 key={ws.id}
                 size="2"
