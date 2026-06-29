@@ -31,6 +31,7 @@ func main() {
 	defaultSettingsPath := filepath.Join(homeDir, ".config", "ThingsCode", "settings.json")
 	settingsFilePtr := flag.String("settings-file", defaultSettingsPath, "Path to the settings JSON file")
 	httpPortPtr := flag.Uint("port", 6213, "Specific port for the HTTP webserver")
+	bindAll := flag.Bool("bind-all", false, "Bind to all network interfaces instead of just localhost")
 	disableOpenBrowser := flag.Bool("disable-open-browser", false, "Disable opening ThingsCode in your default browser")
 	cmdInstall := flag.Bool("install", false, "Install ThingsCode")
 	cmdVersion := flag.Bool("version", false, "Print version and exit")
@@ -69,8 +70,13 @@ func main() {
 		app.ServeWs(w, r)
 	})
 
+	addr := fmt.Sprintf("localhost:%d", *httpPortPtr)
+	if *bindAll {
+		addr = fmt.Sprintf(":%d", *httpPortPtr)
+	}
+
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", *httpPortPtr),
+		Addr:    addr,
 		Handler: nil,
 	}
 	shutdownChan := make(chan os.Signal, 1)
