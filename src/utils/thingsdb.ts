@@ -68,6 +68,7 @@ export const registerThingsDBLanguage = (monacoInstance: typeof monaco) => {
       ...Object.keys(LanguageData.types.bytes),
       ...Object.keys(LanguageData.types.closure),
       ...Object.keys(LanguageData.types.datetime),
+      ...Object.keys(LanguageData.types.dict),
       ...Object.keys(LanguageData.types.enum),
       ...Object.keys(LanguageData.types.error),
       ...Object.keys(LanguageData.types.future),
