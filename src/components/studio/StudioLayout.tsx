@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Box, Flex } from '@radix-ui/themes';
 import { Group, Panel, Separator, useDefaultLayout, type Layout } from 'react-resizable-panels';
-import { type PanelImperativeHandle } from 'react-resizable-panels';
+import { type PanelImperativeHandle, type LayoutChangedMeta } from 'react-resizable-panels';
 import StudioTopBar from './StudioTopBar';
 import StudioLeftPanel from './StudioLeftPanel';
 import StudioRightPanel from './StudioRightPanel';
@@ -32,12 +32,14 @@ export default function StudioLayout() {
 
   const [currentLayout, setCurrentLayout] = useState<Layout>(verticalLayout.defaultLayout ?? ([] as unknown as Layout));
 
-  const handleLayoutChange = (sizes: Layout) => {
-    setCurrentLayout(sizes);
+  const handleLayoutChange = (layout: Layout, meta: LayoutChangedMeta<Layout>) => {
+    setCurrentLayout(layout);
 
-    verticalLayout.onLayoutChanged(sizes);
+    verticalLayout.onLayoutChanged(layout, meta);
 
-    if (sizes['editor-canvas-panel'] > 10 && isConsoleMaximized) {
+    const editorSize = layout['editor-canvas-panel'] ?? 0;
+
+    if (editorSize > 10 && isConsoleMaximized) {
       setIsConsoleMaximized(false);
     }
   };
@@ -59,7 +61,10 @@ export default function StudioLayout() {
     }
   };
 
-  const editorPercentage = currentLayout['editor-canvas-panel'] || 0;
+  const editorPercentage = Array.isArray(currentLayout)
+    ? currentLayout[0] ?? 0
+    : (currentLayout as Record<string, number>)['editor-canvas-panel'] ?? 0;
+
   const showMaximizeButton = editorPercentage >= 25 || isConsoleMaximized;
 
   return (
