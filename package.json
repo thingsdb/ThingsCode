@@ -20,6 +20,9 @@
     "react-dom": "^19.2.6",
     "react-resizable-panels": "^4.14.1"
   },
+  "//overrides": {
+    "monaco-editor/dompurify": "Waits for monaco-editor > 0.57.0"
+  },
   "overrides": {
     "monaco-editor": {
       "dompurify": "^3.4.6"
