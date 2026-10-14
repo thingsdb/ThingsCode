@@ -47,6 +47,7 @@ export const LanguageData = {
     },
     int: {
       'bit_count': 'Return the number of ones in the binary representation of the absolute value of the integer.',
+      'of_type': 'Returns the type instance matching the given ID and type name.',
     },
     list: {
       'choice': 'This function returns a pseudo-random item from the list. The list must contain at least one item, otherwise a lookup_err() is raised.',
