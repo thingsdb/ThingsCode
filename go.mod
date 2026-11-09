@@ -4,7 +4,7 @@ go 1.26.10
 
 require (
 	github.com/gorilla/websocket v1.5.3
-	github.com/thingsdb/go-thingsdb v1.1.2
+	github.com/thingsdb/go-thingsdb v1.2.0
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 )
 
