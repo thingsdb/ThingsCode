@@ -334,6 +334,7 @@ type Type struct {
 		Property   string `msgpack:"property" json:"property"`
 		Definition string `msgpack:"definition" json:"definition"`
 	} `msgpack:"relations" json:"relations"`
+	Row []string `msgpack:"row,omitempty" json:"row,omitempty"`
 }
 
 type User struct {

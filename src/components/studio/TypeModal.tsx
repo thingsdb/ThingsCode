@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Dialog, Flex, Button, Box, Text, Badge, Tabs, DataList } from '@radix-ui/themes';
+import { useState, useMemo } from 'react';
+import { Dialog, Flex, Button, Box, Text, Badge, Tabs, DataList, ScrollArea, Card } from '@radix-ui/themes';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import type { Type } from '../../types';
 import { MethodsTab } from '../';
@@ -13,6 +13,9 @@ interface TypeModalProps {
 
 export default function TypeModal({ onClose, tp, onNavigateToType }: TypeModalProps) {
   const [activeTab, setActiveTab] = useState<string>('general');
+
+  // Pre-calculate field names for O(1) membership checks
+  const fieldNames = useMemo(() => new Set(tp.fields.map(([name]) => name)), [tp.fields]);
 
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
@@ -50,6 +53,9 @@ export default function TypeModal({ onClose, tp, onNavigateToType }: TypeModalPr
             </Tabs.Trigger>
             <Tabs.Trigger value="methods" className="cursor-pointer">
               Methods ({Object.keys(tp.methods).length})
+            </Tabs.Trigger>
+            <Tabs.Trigger value="row" className="cursor-pointer">
+              Row {tp.row ? `(${tp.row.length})` : ''}
             </Tabs.Trigger>
           </Tabs.List>
 
@@ -130,6 +136,46 @@ export default function TypeModal({ onClose, tp, onNavigateToType }: TypeModalPr
                 editorPathPrefix="enum"
                 fallbackText="No methods defined on this type."
               />
+            </Tabs.Content>
+
+            {/* ROW */}
+            <Tabs.Content value="row" style={{ height: '100%' }}>
+              {!tp.row || tp.row.length === 0 ? (
+                <Flex align="center" justify="center" style={{ height: '100%' }}>
+                  <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
+                    {'Row mode disabled: define columns to format wrapped instances of this type as value arrays.'}
+                  </Text>
+                </Flex>
+              ) : (
+                <ScrollArea type="auto" scrollbars="vertical" style={{ height: '100%' }}>
+                  <Flex direction="column" gap="2" pr="3">
+                    {tp.row.map((colName, index) => {
+                      const isField = fieldNames.has(colName);
+                      return (
+                        <Card key={`${colName}-${index}`} size="1" variant="surface">
+                          <Flex align="center" justify="between" px="2" py="1">
+                            <Flex align="center" gap="2">
+                              <Text size="1" color="gray" weight="bold" style={{ minWidth: 20 }}>
+                                #{index + 1}
+                              </Text>
+                              <Text size="2" weight="medium">
+                                {colName}
+                              </Text>
+                            </Flex>
+                            <Badge
+                              size="1"
+                              variant="soft"
+                              color={isField ? 'blue' : 'purple'}
+                            >
+                              {isField ? 'Field' : 'Method'}
+                            </Badge>
+                          </Flex>
+                        </Card>
+                      );
+                    })}
+                  </Flex>
+                </ScrollArea>
+              )}
             </Tabs.Content>
           </Box>
         </Tabs.Root>

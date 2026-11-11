@@ -166,6 +166,7 @@ export interface Type {
   autoIndex: boolean;
   hideId: boolean;
   wrapOnly: boolean;
+  row?: string[];
 }
 
 export interface UserAccess {
