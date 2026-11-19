@@ -130,7 +130,7 @@ func FetchTask(conn *thingsdb.Conn, scope string, taskId uint64) (*TaskDetail, e
 			error: task.err(),
 			closure: str(task.closure()),
 		}, 1;
-	`, map[string]any{"task_id": taskId}, taskDetail)
+	`, map[string]any{"task_id": taskId}, &taskDetail)
 	return &taskDetail, err
 }
 
