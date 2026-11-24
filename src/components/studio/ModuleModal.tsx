@@ -96,6 +96,14 @@ export default function ModuleModal({
             <Tabs.Content value="general" style={{ height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <DataList.Root size="2" style={{ '--data-list-label-width': '180px', '--data-list-row-gap': '8px' } as React.CSSProperties}>
                 <DataList.Item>
+                  <DataList.Label color="gray">Schema</DataList.Label>
+                  <DataList.Value>
+                    <Flex align="center" gap="2">
+                      {module.schema || 1}
+                    </Flex>
+                  </DataList.Value>
+                </DataList.Item>
+                <DataList.Item>
                   <DataList.Label color="gray">Name</DataList.Label>
                   <DataList.Value>
                     <Text weight="bold" color="iris" style={{ fontFamily: 'monospace', fontSize: '13px' }}>
@@ -112,7 +120,6 @@ export default function ModuleModal({
                     </Flex>
                   </DataList.Value>
                 </DataList.Item>
-
                 {module.version && (
                   <DataList.Item>
                     <DataList.Label color="gray">Version</DataList.Label>

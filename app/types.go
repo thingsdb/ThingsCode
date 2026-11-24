@@ -383,6 +383,7 @@ type Module struct {
 	CreatedAt       uint64  `msgpack:"created_at" json:"createdAt"`
 	Status          string  `msgpack:"status" json:"status"`
 	Version         string  `msgpack:"version,omitempty" json:"version,omitempty"`
+	Schema          *uint64 `msgpack:"schema,omitempty" json:"schema,omitempty"`
 	Scope           string  `msgpack:"scope,omitempty" json:"scope,omitempty"`
 	File            string  `msgpack:"file,omitempty" json:"file,omitempty"`
 	Doc             string  `msgpack:"doc,omitempty" json:"doc,omitempty"`

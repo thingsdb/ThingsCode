@@ -223,6 +223,7 @@ export interface Module {
   createdAt: number;
   status: string;  // "running", "installing module...", or error string
   version?: string;
+  schema?: number;  // schema version (version 1 if null)
   scope?: string;  // scope restriction, undefined = not restricted to any scope
   file?: string;  // module file loaded
   doc?: string;  // doc string, most likely a link to docs if not undefined
