@@ -32,6 +32,10 @@ export default function ModuleModal({
     return module.status.includes('\n');
   }, [module]);
 
+  const isConfErrorMultiLine = useMemo(() => {
+    return module.confError?.includes('\n');
+  }, [module]);
+
   return (
     <Dialog.Root defaultOpen onOpenChange={onClose}>
       <Dialog.Content aria-describedby={undefined} style={{
@@ -153,7 +157,15 @@ export default function ModuleModal({
                 )}
               </DataList.Root>
               {module.status !== 'running' && module.status !== 'installing module...' && (
-                <Flex direction="column" gap="1" style={{ flexGrow: 1, minHeight: 0 }}>
+                <Flex
+                  direction="column"
+                  gap="1"
+                  style={{
+                    flexGrow: isMessageMultiLine ? 1 : 0,
+                    flexShrink: 0,
+                    minHeight: 0,
+                  }}
+                >
                   <Text size="1" weight="bold" color="gray">Module Error Status</Text>
 
                   {isMessageMultiLine ? (
@@ -164,7 +176,7 @@ export default function ModuleModal({
                         border: '1px solid var(--red-4)',
                         backgroundColor: 'var(--red-1)',
                         borderRadius: 'var(--radius-3)',
-                        padding: '10px'
+                        padding: '10px',
                       }}
                     >
                       <Text size="1" style={{ fontFamily: 'monospace', color: 'var(--red-11)', whiteSpace: 'pre-wrap', lineHeight: 1.4 }}>
@@ -175,6 +187,42 @@ export default function ModuleModal({
                     <Callout.Root color="red" size="1">
                       <Callout.Icon><ExclamationTriangleIcon /></Callout.Icon>
                       <Callout.Text style={{ fontFamily: 'monospace' }}>{module.status}</Callout.Text>
+                    </Callout.Root>
+                  )}
+                </Flex>
+              )}
+
+              {module.confError !== undefined && (
+                <Flex
+                  direction="column"
+                  gap="1"
+                  style={{
+                    flexGrow: isConfErrorMultiLine ? 1 : 0,
+                    flexShrink: 0,
+                    minHeight: 0,
+                  }}
+                >
+                  <Text size="1" weight="bold" color="gray">Configuration Error Message</Text>
+
+                  {isConfErrorMultiLine ? (
+                    <ScrollArea
+                      type="auto"
+                      style={{
+                        flexGrow: 1,
+                        border: '1px solid var(--red-4)',
+                        backgroundColor: 'var(--red-1)',
+                        borderRadius: 'var(--radius-3)',
+                        padding: '10px',
+                      }}
+                    >
+                      <Text size="1" style={{ fontFamily: 'monospace', color: 'var(--red-11)', whiteSpace: 'pre-wrap', lineHeight: 1.4 }}>
+                        {module.confError}
+                      </Text>
+                    </ScrollArea>
+                  ) : (
+                    <Callout.Root color="red" size="1">
+                      <Callout.Icon><ExclamationTriangleIcon /></Callout.Icon>
+                      <Callout.Text style={{ fontFamily: 'monospace' }}>{module.confError}</Callout.Text>
                     </Callout.Root>
                   )}
                 </Flex>

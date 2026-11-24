@@ -388,6 +388,7 @@ type Module struct {
 	File            string  `msgpack:"file,omitempty" json:"file,omitempty"`
 	Doc             string  `msgpack:"doc,omitempty" json:"doc,omitempty"`
 	Conf            any     `msgpack:"conf,omitempty" json:"conf,omitempty"`
+	ConfError       string  `msgpack:"conf_error,omitempty" json:"confError,omitempty"`
 	Exposes         any     `msgpack:"exposes,omitempty" json:"exposes,omitempty"`
 	Restarts        *uint64 `msgpack:"restarts,omitempty" json:"restarts,omitempty"`
 	Tasks           *uint64 `msgpack:"tasks,omitempty" json:"tasks,omitempty"`

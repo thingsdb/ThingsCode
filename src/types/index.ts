@@ -228,6 +228,7 @@ export interface Module {
   file?: string;  // module file loaded
   doc?: string;  // doc string, most likely a link to docs if not undefined
   conf?: Record<string, unknown>;  // optional configuration best viewed as JSON
+  confError?: string;  // optional configuration error
   exposes?: Record<string, unknown>;  // optional exposing configuration, best vieded as JSON
   restarts?: number;  // number of restarts on this node (available since ThingsDB >=1.8.9)
   tasks?: number;  // number of running tasks on this node (available since ThingsDB >=1.8.9)
