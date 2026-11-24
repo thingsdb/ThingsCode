@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Dialog, Flex, Button, Box, Text, Badge, Tabs, DataList, ScrollArea, Callout } from '@radix-ui/themes';
 import { ExclamationTriangleIcon, CalendarIcon } from '@radix-ui/react-icons';
 import type { Module } from '../../types';
+import ExposesTab from './ExposesTab';
 import { Editor } from '@monaco-editor/react';
 import { useTheme } from '../../hooks';
 
@@ -220,40 +221,7 @@ export default function ModuleModal({
 
             {/* EXPOSES */}
             <Tabs.Content value="exposes" style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-              {exposes ? (
-                <Box
-                  style={{
-                    height: '100%',
-                    border: '1px solid var(--gray-5)',
-                    borderRadius: 'var(--radius-2)',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <Editor
-                    theme={appearance === 'dark' ? 'ticode-dark' : 'ticode-light'}
-                    language="thingsdb"
-                    path=".ticode-procedure-code.ti"
-                    value={exposes}
-                    options={{
-                      readOnly: true,
-                      domReadOnly: true,
-                      fontSize: 12,
-                      fontFamily: 'monospace',
-                      minimap: { enabled: false },
-                      automaticLayout: true,
-                      lineNumbers: 'off',
-                      scrollbar: { vertical: 'visible', horizontal: 'visible' },
-                      tabSize: 4,
-                    }}
-                  />
-                </Box>
-              ) : (
-                <Flex align="center" justify="center" style={{ height: '100%' }}>
-                  <Text size="2" style={{ fontStyle: 'italic', color: 'var(--gray-8)' }}>
-                    No methods exposed on this module.
-                  </Text>
-                </Flex>
-              )}
+              <ExposesTab exposes={exposes} moduleName={module.name} />
             </Tabs.Content>
 
           </Box>
