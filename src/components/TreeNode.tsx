@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { Box, Flex, Text, IconButton } from '@radix-ui/themes';
-import { ChevronDownIcon, ChevronRightIcon, CubeIcon, SymbolIcon } from '@radix-ui/react-icons';
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  CubeIcon,
+  ReloadIcon,
+  SymbolIcon,
+} from '@radix-ui/react-icons';
 import type { ThingId, TreeNodeType } from '../types';
 
 interface TreeNodeProps {
@@ -9,7 +15,7 @@ interface TreeNodeProps {
   registry: Record<number, TreeNodeType>;
   loadingMap: Record<number, boolean>;
   errorMap: Record<number, string | null>;
-  onExpandRequest: (id: number) => Promise<void>;
+  onExpandRequest: (id: number, force?: boolean) => Promise<void>;
   expandOninit: boolean;
   inList: boolean;
 }
@@ -27,7 +33,11 @@ export default function TreeNode({
   const [isExpanded, setIsExpanded] = useState(expandOninit);
 
   // { '#': 123 } or { 'id': 123 } etc.
-  const isThingReference = nodeValue !== null && typeof nodeValue === 'object' && Object.keys(nodeValue).length === 1 && Number.isInteger(Object.values(nodeValue)[0]);
+  const isThingReference =
+    nodeValue !== null &&
+    typeof nodeValue === 'object' &&
+    Object.keys(nodeValue).length === 1 &&
+    Number.isInteger(Object.values(nodeValue)[0]);
   const targetThingId = isThingReference ? Object.values(nodeValue as ThingId)[0] : null;
 
   // State...
@@ -49,9 +59,19 @@ export default function TreeNode({
     setIsExpanded(!isExpanded);
   };
 
+  const handleRefresh = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (targetThingId === null || isNodeLoading) return;
+
+    await onExpandRequest(targetThingId, true);
+    if (!isExpanded) {
+      setIsExpanded(true);
+    }
+  };
+
   // Primitive values (strings, numbers, booleans, ...)
   if (!isThingReference && !isExpandableType) {
-    let renderedValue = String(nodeValue);  // @ts-ign
+    let renderedValue = String(nodeValue);
     let tokenColor = 'var(--gray-12)';
 
     if (typeof nodeValue === 'string') {
@@ -85,7 +105,7 @@ export default function TreeNode({
     if (expandedData !== null && typeof expandedData === 'object') {
       return `#${targetThingId ?? 0} (${Object.keys(expandedData).length} keys)`;
     }
-    return 'Object?';  // Should not happen
+    return 'Object?'; // Should not happen
   };
 
   return (
@@ -129,6 +149,25 @@ export default function TreeNode({
             {getSummaryLabel()}
           </Text>
         </Flex>
+
+        {isThingReference && isNodeCached && (
+          <IconButton
+            size="1"
+            variant="ghost"
+            color="gray"
+            title="Refresh thing"
+            aria-label="Refresh thing"
+            onClick={(e) => { void handleRefresh(e); }}
+            disabled={isNodeLoading}
+            style={{ cursor: 'pointer', width: '16px', height: '16px', marginLeft: '2px' }}
+          >
+            <ReloadIcon
+              className={isNodeLoading ? 'animate-spin' : undefined}
+              width="10"
+              height="10"
+            />
+          </IconButton>
+        )}
 
         {nodeError && (
           <Text size="1" color="red" style={{ fontStyle: 'italic', marginLeft: '8px' }}>

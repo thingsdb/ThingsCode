@@ -1,6 +1,8 @@
 export const LanguageData = {
   types: {
     bytes: {
+      'decrypt': 'Decrypt an encrypted byte sequence using AES-256-GCM',
+      'encrypt': 'Encrypt a byte sequence using AES-256-GCM.',
       'len': 'Returns the length of the bytes value.',
     },
     closure: {

@@ -19,8 +19,8 @@ export default function ThingExplorer({ scope, startThingId }: ThingExplorerProp
   const [errorMap, setErrorMap] = useState<Record<number, string | null>>({});
 
   // Lazy load individual things
-  const fetchThingNode = useCallback(async (id: number) => {
-    if (id in thingRegistry || id in loadingMap || id in errorMap) return;
+  const fetchThingNode = useCallback(async (id: number, force?: boolean) => {
+    if ((id in thingRegistry || id in loadingMap || id in errorMap) && force !== true) return;
 
     setLoadingMap((prev) => ({ ...prev, [id]: true }));
     setErrorMap((prev) => ({ ...prev, [id]: null }));
