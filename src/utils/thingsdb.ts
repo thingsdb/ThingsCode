@@ -81,6 +81,7 @@ export const registerThingsDBLanguage = (monacoInstance: typeof monaco) => {
         ...Object.keys(LanguageData.types.set),
         ...Object.keys(LanguageData.types.string),
         ...Object.keys(LanguageData.types.task),
+        ...Object.keys(LanguageData.types.template),
         ...Object.keys(LanguageData.types.thing),
         ...Object.keys(LanguageData.types.typed),
         ...Object.keys(LanguageData.types.type),
@@ -264,6 +265,7 @@ export const registerThingsDBLanguage = (monacoInstance: typeof monaco) => {
           ...Object.entries(LanguageData.types.set),
           ...Object.entries(LanguageData.types.string),
           ...Object.entries(LanguageData.types.task),
+          ...Object.entries(LanguageData.types.template),
           ...Object.entries(LanguageData.types.thing),
           ...Object.entries(LanguageData.types.typed),
           ...Object.entries(LanguageData.types.type)

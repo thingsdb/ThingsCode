@@ -149,6 +149,10 @@ export const LanguageData = {
       'set_closure': 'Set a new closure (code to execute) for an existing task.',
       'set_owner': 'Change the owner of a task.',
     },
+    template: {
+      'len': 'Return the length of the raw template.',
+      'render': 'Render a template using the current scope, unless a scope is provided.'
+    },
     thing: {
       'assign': 'Copies properties from a given thing. Existing properties will be overwritten and new properties will be added. If this function is used on an instance of a custom Type, all properties of the source must be valid according the type specification, otherwise an exception will be raised and no properties will be copied.',
       'clear': 'Removes all properties from a thing.',
@@ -182,7 +186,7 @@ export const LanguageData = {
       'copy': 'Copy a thing to a new thing. A Type is not preserved.',
       'dup': 'Duplicate a thing while preserving the Type.',
       'unwrap': 'Unwrap a wrapped thing.',
-    }
+    },
   },
   collection: {
     'abs': 'Return the absolute value of a given number.',
